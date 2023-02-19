@@ -1,23 +1,30 @@
 var x, y, width, minLen, maxLen, strokeW, margin,
   limit, angleDistanceMin, startPos, previousAng,
-  strokeStyle, totalLength = 0, allLines = [], allColors = []
+  strokeStyle, totalLength = 0, allLines = [], allColors = [],
+  img
 Error
 function setParams() {
   width = 512
-  minLen = width / 10
+  minLen = width / 5
   maxLen = minLen
-  strokeW = 20//minLen / 1
+  strokeW = 40//minLen / 1
   margin = strokeW
-  maxNumberOfLines = 100
+  maxNumberOfLines = 10
   angleDistanceMin = 60
-  startPos = "bottom"
+  startPos = "center"
   strokeStyle = "random"
   fps = 10
   bgColor = 255
+  rotationMode = CENTER
 }
 function setup() {
   setParams()
   configureCanvas()
+}
+function preload() {
+  img = loadImage('http://localhost:8888/assets/snake_body1.png');
+  // img = loadImage('http://localhost:8888/assets/black-semi-opaque.png');
+  // img = loadImage('http://localhost:8888/assets/rounded.png');
 }
 
 function configureCanvas() {
@@ -33,7 +40,17 @@ function configureCanvas() {
   }
   frameRate(fps);
   background(bgColor);
+  addCartesian()
   strokeWeight(strokeW);
+  imageMode(rotationMode);
+  angleMode(DEGREES);
+}
+function addCartesian() {
+
+  strokeWeight(1)
+  stroke(0)
+  line(width / 2, 0, width / 2, width)
+  line(0, width / 2, width, width / 2)
 }
 
 function draw() {
@@ -43,7 +60,10 @@ function draw() {
   }
   addLine()
   background(bgColor);
-  drawLines()
+  addCartesian()
+
+  // drawLines()
+  drawImgs()
 }
 function setStrokeColor() {
   var color
@@ -73,6 +93,29 @@ function addDropShadow(l) {
   }
 
 
+}
+
+function drawImgs() {
+  for (var i = 0; i < allLines.length; i++) {
+    // start new relative translation and rotation
+    var l = allLines[i]
+    addDropShadow(l)
+
+    push()
+    var xDist = Math.abs(l.x2 - l.x1)
+    var yDist = Math.abs(l.y2 - l.y1)
+    var fractionOfTotal = 1 / 2
+    var p = {
+      x: l.x1 + ((l.x2 < l.x1 ? -1 : 1) * xDist) * fractionOfTotal,
+      y: l.y1 + ((l.y2 < l.y1 ? -1 : 1) * yDist) * fractionOfTotal
+    }
+    translate(p.x, p.y);
+    rotate(l.ang)
+    off = 0
+    image(img, -off, 0, minLen + (off * 2), strokeW + off);
+    // revert to original translation and rotation
+    pop()
+  }
 }
 
 function drawLines() {
