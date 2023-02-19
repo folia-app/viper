@@ -1,18 +1,18 @@
 var x, y, width, minLen, maxLen, strokeW, margin,
   limit, angleDistanceMin, startPos, previousAng,
-  strokeStyle, totalLength = 0
-
+  strokeStyle, totalLength = 0, allLines = [], allColors = []
+Error
 function setParams() {
   width = 512
-  minLen = width / 6
+  minLen = width / 10
   maxLen = minLen
-  strokeW = minLen / 2
+  strokeW = 20//minLen / 1
   margin = strokeW
-  maxNumberOfLines = 35
+  maxNumberOfLines = 100
   angleDistanceMin = 60
   startPos = "bottom"
-  strokeStyle = "randomGreen"
-  fps = 100
+  strokeStyle = "random"
+  fps = 10
   bgColor = 255
 }
 function setup() {
@@ -33,10 +33,6 @@ function configureCanvas() {
   }
   frameRate(fps);
   background(bgColor);
-  line(width / 2, 0, width / 2, width)
-  line(0, width / 2, width, width / 2)
-  line(0, 0, width, width)
-  line(0, width, width, 0)
   strokeWeight(strokeW);
 }
 
@@ -45,34 +41,97 @@ function draw() {
   if (totalLength > maxNumberOfLines) {
     return
   }
-  setStrokeColor()
-  var percentageOfTotal255 = ((totalLength / maxNumberOfLines) * 255)
-  randomVector()
+  addLine()
+  background(bgColor);
+  drawLines()
 }
 function setStrokeColor() {
+  var color
   switch (strokeStyle) {
     case "random":
-      stroke(random(255), random(255), random(255));
+      color = [random(255), random(255), random(255)]
+      break;
+    case "gettingDarker":
+      var percentageOfTotal255 = ((totalLength / maxNumberOfLines) * 255)
+      color = [percentageOfTotal255, percentageOfTotal255, percentageOfTotal255]
       break;
     case "randomGreen":
     default:
-      stroke(0, random(100, 200), 0);
+      color = [0, random(100, 200), 0]
       break;
+  }
+  return color
+}
+
+function addDropShadow(l) {
+  offset = 10
+  for (var i = 1; i < 30; i++) {
+    c = `rgba(0, 0, 0, 0.008)`
+    stroke(c)
+    strokeWeight(strokeW + i)
+    line(l.x1 + offset, l.y1 + offset, l.x2 + offset, l.y2 + offset)
+  }
+
+
+}
+
+function drawLines() {
+  for (var i = 0; i < allLines.length; i++) {
+    var l = allLines[i]
+    var c = allColors[i]
+
+    if (i == 0) {
+      addDropShadow(l)
+    }
+    if (i != allLines.length - 1) {
+      addDropShadow(allLines[i + 1])
+    }
+
+    stroke("rgba(0, 0, 0, 1)")
+    strokeWeight(strokeW + 2)
+    line(l.x1, l.y1, l.x2, l.y2)
+
+    stroke(c)
+    strokeWeight(strokeW)
+    line(l.x1, l.y1, l.x2, l.y2)
   }
 }
 
 
-function randomVector() {
+function addLine() {
   var ang = pickAngle(x, y, angleDistanceMin)
+  var len = pickLength()
+  x2 = x + Math.cos(ang * Math.PI / 180) * len
+  y2 = y + Math.sin(ang * Math.PI / 180) * len
+  color = setStrokeColor()
+
+
+  var newLine = {
+    x1: x,
+    y1: y,
+    x2: x2,
+    y2: y2,
+    ang: ang,
+    len: len
+  }
+  allLines.push(newLine)
+  allColors.unshift(color)
+
+  // for (var i = allLines.length; i > 0; i--) {
+  //   if (i == 1) {
+  //     allLines[0].color = color
+  //   } else {
+  //     allLines[i - 1].color = allLines[i - 2].color
+  //   }
+  // }
+
   previousAng = ang
-
-  L = Math.ceil(random(minLen - 1, maxLen))
-  x2 = x + Math.cos(ang * Math.PI / 180) * L
-  y2 = y + Math.sin(ang * Math.PI / 180) * L
-
-  line(x, y, x2, y2)
   x = x2
   y = y2
+}
+
+function pickLength() {
+  return Math.ceil(random(minLen - 1, maxLen))
 }
 
 function pickAngle(x1, y1, _angleDistanceMin) {
