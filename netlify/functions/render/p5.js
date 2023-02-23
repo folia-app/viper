@@ -1,23 +1,34 @@
 var x, y, width, minLen, maxLen, strokeW, margin,
   limit, angleDistanceMin, startPos, previousAng,
   strokeStyle, totalLength = 0, allLines = [], allColors = [],
-  img
-Error
+  img, dropShadowColor, dropShadowLoop
 function setParams() {
+  head = Math.random() > 0.5 ? head1 : head2
   width = 500
-  minLen = width / 5
+  minLen = width / 6
   maxLen = minLen
-  strokeW = 25 //minLen / 1
-  margin = strokeW
-  maxNumberOfLines = 50
+  strokeW = 45 //minLen / 1
+  margin = 50
+  maxNumberOfLines = 16
   angleDistanceMin = 60
   startPos = "center"
-  strokeStyle = "random"
-  fps = 10
-  bgColor = 255
+  strokeStyle = "randomGreen"
+  fps = 5
+  bgColor = "white"//"rgb(249,229,188)"
   rotationMode = CENTER
   debug = false
   animated = false
+  loop = false
+  keepRunning = false
+  dropShadowColor = "rgba(0, 0, 0, 0.008)"
+  dropShadowLoop = 20
+  drawings = true
+  includeShadow = true
+  startingX = false // 76.09
+  startingY = false // 450t.75
+  startingAng = false // 182
+  egg = false
+  bg = "solid"
 }
 function setup() {
   setParams()
@@ -25,6 +36,13 @@ function setup() {
 }
 function preload() {
   img = loadImage('http://localhost:8888/assets/snake_body1.png');
+  img2 = loadImage('http://localhost:8888/assets/snake_body2.png');
+  img3 = loadImage('http://localhost:8888/assets/snake_body3.png');
+  img4 = loadImage('http://localhost:8888/assets/snake_body4.png');
+  head1 = loadImage('http://localhost:8888/assets/head.png');
+  head2 = loadImage('http://localhost:8888/assets/snake_head2.png');
+  bgImg = loadImage('http://localhost:8888/assets/bg1.jpeg');
+  bgImg2 = loadImage('http://localhost:8888/assets/bg2.jpeg');
   // img = loadImage('http://localhost:8888/assets/black-semi-opaque.png');
   // img = loadImage('http://localhost:8888/assets/rounded.png');
 }
@@ -40,9 +58,24 @@ function configureCanvas() {
       x = width / 2;
       y = width / 2;
   }
+  if (startingAng) {
+    previousAng = startingAng
+  } else {
+    startingAng = 0
+  }
+  if (startingX) {
+    x = startingX
+  } else {
+    startingX = x
+  }
+  if (startingY) {
+    y = startingY
+  } else {
+    startingY = y
+  }
   frameRate(fps);
-  background(bgColor);
-  addCartesian()
+  addBackground()
+
   strokeWeight(strokeW);
   imageMode(rotationMode);
   angleMode(DEGREES);
@@ -52,104 +85,206 @@ function configureCanvas() {
   }
 
 }
-function addCartesian() {
-  if (debug) {
-    textSize(16);
-    strokeWeight(3)
-    stroke(0)
-    line(width / 2, 0, width / 2, width)
-    line(0, width / 2, width, width / 2)
-    strokeWeight(1)
-    for (var i = 0; i < width; i += 50) {
-      line(i, 0, i, width)
-      stroke(11)
-      strokeWeight(0)
-      // text(i, i, (width / 2) + 5)
-      // text(i, (width / 2) + 5, i)
-      strokeWeight(1)
-      line(0, i, width, i)
+const Y_AXIS = 1;
+const X_AXIS = 2;
+let b1, b2, c1, c2;
+
+function setGradient(x, y, w, h, c1, c2, axis) {
+  noFill();
+
+  if (axis === Y_AXIS) {
+    // Top to bottom gradient
+    for (let i = y; i <= y + h; i++) {
+      let inter = map(i, y, y + h, 0, 1);
+      let c = lerpColor(c1, c2, inter);
+      stroke(c);
+      line(x, i, x + w, i);
     }
-    // change color to green
-    // stroke(0, 255, 0)
-    // draw lines around the margin
+  } else if (axis === X_AXIS) {
+    // Left to right gradient
+    for (let i = x; i <= x + w; i++) {
+      let inter = map(i, x, x + w, 0, 1);
+      let c = lerpColor(c1, c2, inter);
+      stroke(c);
+      line(i, y, i, y + h);
+    }
+  }
+}
 
-    line(margin, margin, width - margin, margin)
-    line(width - margin, margin, width - margin, width - margin)
-    line(width - margin, width - margin, margin, width - margin)
-    line(margin, width - margin, margin, margin)
+function addBackground() {
+  if (debug) {
+    if (totalLength == 0) {
+      addCartesian()
+    }
+  } else {
+    if (bg == "solid") {
+      background(bgColor);
+    } else if (bg == "gradient") {
+      b1 = color(255);
+      b2 = color(0);
+      setGradient(0, 0, width, height, b1, b2, Y_AXIS);
+    } else if (bg == "image") {
+      console.log('set image', width)
+      image(bgImg2, 0, 0, width, width);
+    } else {
+      throw new Error(`Background type ${bg} not supported`)
+    }
+    // ellipse(width / 2, width / 2, width / 4, width / 3,)
+    // scale(this.scalar);
+    if (egg) {
+      fill("rgb(249,229,188)")
+      stroke("black")
+      strokeWeight(2)
+      var direction = totalLength % 12
+      var tilt = totalLength % 6
+      tilt -= 3
+      tilt *= 5
+      tilt = direction >= 6 ? tilt * -1 : tilt
+      push()
+      translate(width / 2, (width / 2) + 100);
+      rotate(tilt)
+      beginShape();
+      vertex(0, -100);
+      scale(2)
+      bezierVertex(25, -100, 40, -65, 40, -40);
+      bezierVertex(40, -15, 25, 0, 0, 0);
+      bezierVertex(-25, 0, -40, -15, -40, -40);
+      bezierVertex(-40, -65, -25, -100, 0, -100);
+      endShape();
+      pop()
 
-
-    // strokeWeight(2)
-
-    // stroke("green")
-    // for (var i = 0; i < 12; i++) {
-    //   var cardinalX = (width / 2) + Math.cos(((i * 30)) * Math.PI / 180) * 500
-    //   var cardinalY = (width / 2) + Math.sin(((i * 30)) * Math.PI / 180) * 500
-    //   line(width / 2, width / 2, cardinalX, cardinalY)
-    // }
-
-    // stroke("red")
-    // for (var i = 0; i < 8; i++) {
-    //   var cardinalX = (width / 2) + Math.cos(((i * 45)) * Math.PI / 180) * 500
-    //   var cardinalY = (width / 2) + Math.sin(((i * 45)) * Math.PI / 180) * 500
-    //   line(width / 2, width / 2, cardinalX, cardinalY)
-    // }
+      push()
+      fill("black")
+      translate(width / 2, (width / 2) + 100);
+      rotate(tilt)
+      star(0, -100, 25, 50, 5)
+      pop()
+    }
 
   }
+}
+
+function star(x, y, radius1, radius2, npoints) {
+  angleMode(RADIANS);
+
+  let angle = TWO_PI / npoints;
+  let halfAngle = angle / 2.0;
+  beginShape();
+  for (let a = 0; a < TWO_PI; a += angle) {
+    let sx = x + cos(a) * radius2;
+    let sy = y + sin(a) * radius2;
+    vertex(sx, sy);
+    sx = x + cos(a + halfAngle) * radius1;
+    sy = y + sin(a + halfAngle) * radius1;
+    vertex(sx, sy);
+  }
+  endShape(CLOSE);
+  angleMode(DEGREES);
+}
+function addCartesian() {
+  background(bgColor);
+  textSize(16);
+  strokeWeight(3)
+  stroke(0)
+  line(width / 2, 0, width / 2, width)
+  line(0, width / 2, width, width / 2)
+  strokeWeight(1)
+  for (var i = 0; i < width; i += 50) {
+    line(i, 0, i, width)
+    stroke(11)
+    strokeWeight(0)
+    strokeWeight(1)
+    line(0, i, width, i)
+  }
+  line(margin, margin, width - margin, margin)
+  line(width - margin, margin, width - margin, width - margin)
+  line(width - margin, width - margin, margin, width - margin)
+  line(margin, width - margin, margin, margin)
+
+  stroke("green")
+  for (var i = 0; i < 12; i++) {
+    var cardinalX = (width / 2) + Math.cos(((i * 30)) * Math.PI / 180) * 225
+    var cardinalY = (width / 2) + Math.sin(((i * 30)) * Math.PI / 180) * 225
+    strokeWeight(0)
+    fill("green")
+    text(i * 30, cardinalX, cardinalY)
+    strokeWeight(1)
+    line(width / 2, width / 2, cardinalX, cardinalY)
+
+  }
+
+  // stroke("red")
+  // for (var i = 0; i < 8; i++) {
+  //   var cardinalX = (width / 2) + Math.cos(((i * 45)) * Math.PI / 180) * 500
+  //   var cardinalY = (width / 2) + Math.sin(((i * 45)) * Math.PI / 180) * 500
+  //   line(width / 2, width / 2, cardinalX, cardinalY)
+  // }
+
 }
 
 
 async function draw() {
   totalLength++
-  if (totalLength > (maxNumberOfLines * (animated ? 2 : 1))) {
-    return
+  if (!keepRunning) {
+    if (totalLength > (maxNumberOfLines * (animated ? 2 : 1))) {
+      if (loop) {
+        totalLength = 0
+        allLines = []
+        allColors = []
+        x = startingX
+        y = startingY
+        previousAng = startingAng
+        addBackground()
+      }
+      return
+    }
   }
-  if (!debug) {
-    background(bgColor);
-    addCartesian()
-  }
+  addBackground()
   // if totalLength is odd
   if (totalLength % 2 || !animated) {
     addLine()
-    if (animated) {
+    if (animated && !drawings) {
       drawMidLines()
     }
   } else {
     drawLines()
   }
   if (!animated) {
-    drawLines()
+    if (!drawings) {
+      drawLines()
+    } else {
+      drawLines()
+      drawImgs()
+    }
   }
-  // await sleep((60 / fps) * 1000)
-  // drawImgs()
+  // save image
+
 }
 function setStrokeColor() {
-  var color
+  var c
   switch (strokeStyle) {
     case "random":
-      color = [random(255), random(255), random(255)]
+      c = [random(255), random(255), random(255)]
       break;
     case "gettingDarker":
       var percentageOfTotal255 = ((totalLength / maxNumberOfLines) * 255)
-      color = [percentageOfTotal255, percentageOfTotal255, percentageOfTotal255]
+      c = [percentageOfTotal255, percentageOfTotal255, percentageOfTotal255]
       break;
     case "randomGreen":
     default:
-      color = [0, random(100, 200), 0]
+      c = [0, random(100, 200), 0]
       break;
   }
-  return color
+  return c
 }
 
 function getShadowWeight(i) {
-  return (strokeW * 1.25) + (i * 1)
+  var foo = strokeW * (0.5) + (i * 1)
+  return foo
 }
-var dropShadowColor = "rgba(0, 0, 0, 0.008)"
-var dropShadowLoop = 20
 
 
 function startDropShadow(i) {
-  // noFill();
   strokeCap(SQUARE);
   strokeWeight(getShadowWeight(i));
   stroke(dropShadowColor);
@@ -206,14 +341,24 @@ function addDropShadow2(l, l2) {
   }
 }
 
-function addDropShadow(l) {
-  offset = 0
-  for (var i = 1; i < 30; i++) {
-    stroke(dropShadowColor)
-    strokeWeight(strokeW + i)
-    line(l.x1 + offset, l.y1 + offset, l.x2 + offset, l.y2 + offset)
+function addDropShadow(i, allLines) {
+  var l = allLines[i]
+  if (i == 0) {
+    addDropShadowTip(l)
   }
-
+  if (i != allLines.length - 1) {
+    addDropShadow2(allLines[i], allLines[i + 1])
+  }
+  if (i == allLines.length - 1) {
+    addDropShadowEnd(l)
+  }
+  // offset = 0
+  // for (var i = 1; i < 30; i++) {
+  //   console.log('dropShadowColor')
+  //   stroke(dropShadowColor)
+  //   strokeWeight(strokeW + i)
+  //   line(l.x1 + offset, l.y1 + offset, l.x2 + offset, l.y2 + offset)
+  // }
 
 }
 
@@ -221,8 +366,9 @@ function drawImgs() {
   for (var i = 0; i < allLines.length; i++) {
     // start new relative translation and rotation
     var l = allLines[i]
-    addDropShadow(l)
-
+    if (includeShadow) {
+      addDropShadow(i, allLines)
+    }
     push()
     var xDist = Math.abs(l.x2 - l.x1)
     var yDist = Math.abs(l.y2 - l.y1)
@@ -233,10 +379,68 @@ function drawImgs() {
     }
     translate(p.x, p.y);
     rotate(l.ang)
-    off = 0
-    image(img, -off, 0, minLen + (off * 2), strokeW + off);
+
+    // get the index of the item in allLines as the opposite of the position in the array
+    var index = allLines.length - i - 1
+    var flip = index % 4
+    switch (flip) {
+      case 0:
+        flip1 = true
+        flip2 = true
+        segColor = "red"
+        pic = img
+        break;
+      case 1:
+        flip1 = false
+        flip2 = true
+        segColor = "green"
+        pic = img2
+        break;
+      case 2:
+        flip1 = true
+        flip2 = false
+        segColor = "orange"
+        pic = img4
+        break;
+      case 3:
+        flip1 = false
+        flip2 = false
+        segColor = "yellow"
+        pic = img3
+        break;
+    }
+    push()
+    scale(flip1 ? -1 : 1, flip2 ? -1 : 1)
+    // tint(segColor)
+    // tint(allColors[i][0], allColors[i][1], allColors[i][2])
+    image(pic, 0, 0, l.len, strokeW);
+    pop()
+
+
     // revert to original translation and rotation
     pop()
+
+    // draw the head
+    if (i == allLines.length - 1) {
+      if (l.x2 < l.x1) {//} && (l.x1 - l.x2) > margin) {
+        push()
+        scale(-1, 1)
+        image(head, -l.x2 + 30, l.y2 - 30, 70, 70);
+        pop()
+      } else {
+        image(head, l.x2 + 30, l.y2 - 30, 70, 70);
+      }
+    }
+
+    // // draw the shaddow on the entrance of the egg
+    // if (i == 0) {
+    //   console.log('draw centershadow')
+    //   for (var j = 0; j < dropShadowLoop * 2; j++) {
+    //     stroke('rgba(0,0,0,0.2)')
+    //     strokeWeight(j * 1.5)
+    //     point(width / 2, width / 2)
+    //   }
+    // }
   }
 }
 
@@ -258,19 +462,6 @@ function drawMidLines() {
       y2 = (l.y1 + l.y2) / 2
     }
     var c = allColors[i]
-    // if (!debug) {
-    //   if (i == 0) {
-    //     addDropShadowTip(l)
-    //     // addDropShadow(l)
-    //   }
-    //   if (i != allLines.length - 1) {
-    //     // addDropShadow(allLines[i + 1])
-    //     addDropShadow2(allLines[i], allLines[i + 1])
-    //   }
-    //   if (i == allLines.length - 1) {
-    //     addDropShadowEnd(l)
-    //   }
-    // }
     stroke("rgba(0, 0, 0, 1)")
     strokeWeight(strokeW + 2)
     line(x1, y1, x2, y2)
@@ -284,28 +475,23 @@ function drawMidLines() {
 }
 
 function drawLines() {
+  // var diff = Math.floor(strokeW / allLines.length)
+
   for (var i = 0; i < allLines.length; i++) {
     var l = allLines[i]
     var c = allColors[i]
     if (!debug) {
-      if (i == 0) {
-        addDropShadowTip(l)
-        // addDropShadow(l)
-      }
-      if (i != allLines.length - 1) {
-        // addDropShadow(allLines[i + 1])
-        addDropShadow2(allLines[i], allLines[i + 1])
-      }
-      if (i == allLines.length - 1) {
-        addDropShadowEnd(l)
-      }
+      addDropShadow(i, allLines)
     }
-    stroke("rgba(0, 0, 0, 1)")
-    strokeWeight(strokeW + 2)
+    stroke("black")
+    // make segmentWeight a fraction of the length of allLines
+
+    var segmentWeight = strokeW / 1.75 // strokeW - ((allLines.length - 1 - i) * diff)
+    strokeWeight(segmentWeight + 2)
     line(l.x1, l.y1, l.x2, l.y2)
     if (!debug) {
       stroke(c)
-      strokeWeight(strokeW)
+      strokeWeight(segmentWeight)
       line(l.x1, l.y1, l.x2, l.y2)
     }
   }
@@ -317,7 +503,7 @@ function addLine() {
   var len = pickLength()
   x2 = x + Math.cos(ang * Math.PI / 180) * len
   y2 = y + Math.sin(ang * Math.PI / 180) * len
-  color = setStrokeColor()
+  c = setStrokeColor()
 
 
   var newLine = {
@@ -329,7 +515,12 @@ function addLine() {
     len: len
   }
   allLines.push(newLine)
-  allColors.unshift(color)
+  allColors.unshift(c)
+
+  if (allLines.length > maxNumberOfLines) {
+    allLines.shift()
+    allColors.shift()
+  }
 
   previousAng = ang
   x = x2
@@ -377,14 +568,16 @@ function pickAngle(x1, y1, _angleDistanceMin) {
   // the ang until an acceptable one is found  
   // increaseLoop determines whether we increase or decrease and has a 50/50 chance of being true or false
   var increaseLoop = startingAngle > 180
-
-  let loopThroughResults1 = loopThroughAngles(x1, y1, previousAng, startingAngle, increaseLoop, _angleDistanceMin)
+  if (debug) {
+    var strokeColor = `rgb(${Math.ceil(random(0, 255))},${Math.ceil(random(0, 255))},${Math.ceil(random(0, 255))})`
+  }
+  let loopThroughResults1 = loopThroughAngles(x1, y1, previousAng, startingAngle, increaseLoop, _angleDistanceMin, strokeColor)
   if (debug) {
     console.log(`loopThroughResults1 ${loopThroughResults1.foundAng ? 'succeeded' : 'failed'} (ang = ${loopThroughResults1.ang})`)
   }
   if (!loopThroughResults1.foundAng) {
     increaseLoop = !increaseLoop
-    loopThroughResults2 = loopThroughAngles(x1, y1, previousAng, startingAngle, increaseLoop, _angleDistanceMin)
+    loopThroughResults2 = loopThroughAngles(x1, y1, previousAng, startingAngle, increaseLoop, _angleDistanceMin, strokeColor)
     if (debug) {
       console.log(`loopThroughResults2 ${loopThroughResults2.foundAng ? 'succeeded' : 'failed'} (ang = ${loopThroughResults2.ang})`)
     }
@@ -396,27 +589,26 @@ function pickAngle(x1, y1, _angleDistanceMin) {
   }
 
   if (!foundAng) {
-    if (parseInt(_angleDistanceMin) >= 180) {
-      console.log('INCREASED TO MAX AND STILL NO SUITABLE ANG')
-      return ang
+    if (parseInt(_angleDistanceMin) > 180) {
+      console.log({ x, y, previousAng })
+      loop = false
+      throw new Error('INCREASED TO MAX AND STILL NO SUITABLE ANG')
     } else {
-      ang = pickAngle(x1, y1, (parseInt(_angleDistanceMin) + 45))
+      // incrementBy should be increased maximum 3 times and on the last time equal 180 regardless of original angleDistanceMin
+      var incrementBy = (180 - angleDistanceMin) / 3
+      ang = pickAngle(x1, y1, (parseInt(_angleDistanceMin) + (incrementBy)))
     }
   }
   return ang
 }
 
-function loopThroughAngles(x1, y1, previousAng, startingAngle, increaseLoop, _angleDistanceMin) {
-
+function loopThroughAngles(x1, y1, previousAng, startingAngle, increaseLoop, _angleDistanceMin, strokeColor) {
 
 
   var ang
   var foundAng = false
-  if (debug) {
-    var strokeColor = `rgb(${Math.ceil(random(0, 255))},${Math.ceil(random(0, 255))},${Math.ceil(random(0, 255))})`
-  }
-
   var k = 0
+  var incrementBy = 33
 
   var incrementUntil = 180
   if (!isNaN(previousAng)) {
@@ -425,11 +617,15 @@ function loopThroughAngles(x1, y1, previousAng, startingAngle, increaseLoop, _an
     } else {
       incrementUntil = getAngleDifference(previousAng - _angleDistanceMin, startingAngle)
     }
-    console.log(`when ${increaseLoop ? 'incrementing, add' : 'decrementing, remove'} ${incrementBy} to/from ${startingAngle} until ${incrementUntil} have been ${increaseLoop ? 'added' : 'removed'}}`)
+    incrementBy = Math.ceil(incrementUntil / 6)
+    if (debug) {
+      console.log(`when ${increaseLoop ? 'incrementing, add' : 'decrementing, remove'} ${incrementBy} to/from ${startingAngle} until ${incrementUntil} have been ${increaseLoop ? 'added' : 'removed'}}`)
+    }
   } else {
-    console.log(`first angle attempt is ${startingAngle}`)
+    if (debug) {
+      console.log(`first angle attempt is ${startingAngle}`)
+    }
   }
-  var incrementBy = Math.ceil((_angleDistanceMin) / 3)
 
   for (var i = 0; i < incrementUntil; i += incrementBy) {
     k++
@@ -446,12 +642,12 @@ function loopThroughAngles(x1, y1, previousAng, startingAngle, increaseLoop, _an
       }
     }
 
-    console.log(`attempt ang ${ang} by changing by ${i}`)
 
     // get the new position assuming maxLen is used
     var previewX = x1 + Math.cos(ang * Math.PI / 180) * (maxLen)
     var previewY = y1 + Math.sin(ang * Math.PI / 180) * (maxLen)
     if (debug) {
+      console.log(`attempt ang ${ang} by changing by ${i}`)
       strokeWeight(20)
       stroke('red')
       point(x1, y1)
@@ -466,7 +662,7 @@ function loopThroughAngles(x1, y1, previousAng, startingAngle, increaseLoop, _an
       fill("blue")
       halfX = x1 > previewX ? x1 - ((x1 - previewX) / 2) : previewX - ((previewX - x1) / 2)
       halfY = y1 > previewY ? y1 - ((y1 - previewY) / 2) : previewY - ((previewY - y1) / 2)
-      text(k, halfX + 15, halfY + 15);
+      text(k, halfX, halfY);
     }
     // if the new position is outside the canvas plus some margin, skip this angle
     if (
@@ -478,7 +674,9 @@ function loopThroughAngles(x1, y1, previousAng, startingAngle, increaseLoop, _an
       ||
       previewY < (0 + (margin))
     ) {
-      console.log('new point too close')
+      if (debug) {
+        console.log(`new point ${previewX},${previewY} is too close`)
+      }
       continue
     }
     // if there are no previous directions to compare it with, use this one
@@ -506,7 +704,9 @@ function getAngleDifference(ang1, ang2) {
 
 function checkDistance(ang1, ang2, _angleDistanceMin) {
   var distance = getAngleDifference(ang1, ang2)
-  console.log(`distance between ${ang1} and ${ang2} is ${distance} (min ${_angleDistanceMin})`)
+  if (debug) {
+    console.log(`distance between ${ang1} and ${ang2} is ${distance} (min ${_angleDistanceMin})`)
+  }
   return distance <= _angleDistanceMin
 }
 
