@@ -5,14 +5,14 @@ var x, y, width, minLen, maxLen, strokeW, margin,
 function setParams() {
   head = Math.random() > 0.5 ? head1 : head2
   width = 500
-  minLen = width / 6
-  maxLen = minLen
+  maxLen = width / 6
+  minLen = maxLen / 2
   strokeW = 45 //minLen / 1
   margin = 50
-  maxNumberOfLines = 16
+  maxNumberOfLines = 25
   angleDistanceMin = 60
   startPos = "center"
-  strokeStyle = "randomGreen"
+  strokeStyle = "random"
   fps = 5
   bgColor = "white"//"rgb(249,229,188)"
   rotationMode = CENTER
@@ -23,16 +23,18 @@ function setParams() {
   dropShadowColor = "rgba(0, 0, 0, 0.008)"
   dropShadowLoop = 20
   drawings = true
-  includeShadow = true
+  includeShadow = false
   startingX = false // 76.09
   startingY = false // 450t.75
   startingAng = false // 182
   egg = false
   bg = "solid"
+  save = true
 }
 function setup() {
   setParams()
   configureCanvas()
+  // img.mask(mask)
 }
 function preload() {
   img = loadImage('http://localhost:8888/assets/snake_body1.png');
@@ -43,8 +45,10 @@ function preload() {
   head2 = loadImage('http://localhost:8888/assets/snake_head2.png');
   bgImg = loadImage('http://localhost:8888/assets/bg1.jpeg');
   bgImg2 = loadImage('http://localhost:8888/assets/bg2.jpeg');
-  // img = loadImage('http://localhost:8888/assets/black-semi-opaque.png');
-  // img = loadImage('http://localhost:8888/assets/rounded.png');
+  // mask = loadImage('http://localhost:8888/assets/black-semi-opaque.png');
+  // mask = loadImage('http://localhost:8888/assets/rounded.png');
+  mask = loadImage('http://localhost:8888/assets/rounded.png');
+  // img = mask, img2 = mask, img3 = mask, img4 = mask
 }
 
 function configureCanvas() {
@@ -222,7 +226,7 @@ function addCartesian() {
 
 }
 
-
+var saved = false
 async function draw() {
   totalLength++
   if (!keepRunning) {
@@ -231,10 +235,16 @@ async function draw() {
         totalLength = 0
         allLines = []
         allColors = []
+
         x = startingX
         y = startingY
         previousAng = startingAng
         addBackground()
+      }
+      if (!saved && save) {
+        var datetime = new Date().toISOString().replace(/:/g, '-');
+        saveCanvas(canvas, 'viper-' + datetime, 'jpg');
+        saved = true
       }
       return
     }
@@ -255,6 +265,8 @@ async function draw() {
     } else {
       drawLines()
       drawImgs()
+      // drawLines()
+
     }
   }
   // save image
@@ -369,16 +381,6 @@ function drawImgs() {
     if (includeShadow) {
       addDropShadow(i, allLines)
     }
-    push()
-    var xDist = Math.abs(l.x2 - l.x1)
-    var yDist = Math.abs(l.y2 - l.y1)
-    var fractionOfTotal = 1 / 2
-    var p = {
-      x: l.x1 + ((l.x2 < l.x1 ? -1 : 1) * xDist) * fractionOfTotal,
-      y: l.y1 + ((l.y2 < l.y1 ? -1 : 1) * yDist) * fractionOfTotal
-    }
-    translate(p.x, p.y);
-    rotate(l.ang)
 
     // get the index of the item in allLines as the opposite of the position in the array
     var index = allLines.length - i - 1
@@ -409,11 +411,43 @@ function drawImgs() {
         pic = img3
         break;
     }
+
+
+    var strokeMask = createGraphics(l.len + (strokeW * 2), strokeW);
+    strokeMask.strokeWeight(strokeW)
+    strokeMask.line(strokeW / 2, strokeW / 2, l.len + (strokeW * 1.5), strokeW / 2)
+
+
+    var imagePattern = createGraphics(l.len + (strokeW * 2), strokeW);
+    imagePattern.background(allColors[i])
+    // imagePattern.image(pic, 0, 0, l.len + (strokeW * 2), strokeW)
+    imagePattern.image(pic, 0, -strokeW / 2, l.len + (strokeW * 2), strokeW * 2)
+
+    imagePattern.loadPixels()
+    strokeMask.loadPixels()
+    for (let j = 0; j < imagePattern.pixels.length; j += 4) {
+      imagePattern.pixels[j + 3] = strokeMask.pixels[j + 3]
+    }
+    imagePattern.updatePixels()
+
+    push()
+    var xDist = Math.abs(l.x2 - l.x1)
+    var yDist = Math.abs(l.y2 - l.y1)
+    var fractionOfTotal = 1 / 2
+    var p = {
+      x: l.x1 + ((l.x2 < l.x1 ? -1 : 1) * xDist) * fractionOfTotal,
+      y: l.y1 + ((l.y2 < l.y1 ? -1 : 1) * yDist) * fractionOfTotal
+    }
+    translate(p.x, p.y);
+    rotate(l.ang)
+
     push()
     scale(flip1 ? -1 : 1, flip2 ? -1 : 1)
     // tint(segColor)
     // tint(allColors[i][0], allColors[i][1], allColors[i][2])
-    image(pic, 0, 0, l.len, strokeW);
+    var segmentWeight = strokeW / 1.75 // strokeW - ((allLines.length - 1 - i) * diff)
+
+    image(imagePattern, 0, 0, l.len + segmentWeight, segmentWeight);
     pop()
 
 
@@ -466,9 +500,9 @@ function drawMidLines() {
     strokeWeight(strokeW + 2)
     line(x1, y1, x2, y2)
     if (!debug) {
-      stroke(c)
-      strokeWeight(strokeW)
-      line(x1, y1, x2, y2)
+      // stroke(c)
+      // strokeWeight(strokeW)
+      // line(x1, y1, x2, y2)
     }
 
   }
