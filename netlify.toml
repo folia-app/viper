@@ -2,7 +2,18 @@
 [build]
   command = "# no build command"
   functions = "netlify/functions"
-  publish = "."
+  #publish = "."
+  publish = "public"
+
+
+[[redirects]]
+  from = "/metadata/*"
+  to = "/.netlify/functions/metadata/:splat"
+
+[[redirects]]
+  from = "/img/*"
+  to = "/.netlify/functions/img/:splat"
+  
 
   ## Uncomment to use this redirect for Single Page Applications like create-react-app.
   ## Not needed for static site generators.
