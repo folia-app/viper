@@ -1,7 +1,8 @@
 var x, y, width, minLen, maxLen, strokeW, margin,
   limit, angleDistanceMin, startPos, previousAng,
   strokeStyle, totalLength = 0, allLines = [], allColors = [],
-  img, dropShadowColor, dropShadowLoop
+  img, dropShadowColor, dropShadowLoop, c, head1, head2,
+  img2, img3, img4, head, bgImg, bgImg2, bg, fps, bgColor
 function setParams() {
   head = Math.random() > 0.5 ? head1 : head2
   width = 500
@@ -28,62 +29,114 @@ function setParams() {
   startingY = false // 450t.75
   startingAng = false // 182
   egg = false
-  bg = "solid"
+  bg = "image"
 }
-function setup() {
+function setup(p, p5) {
+  if (p5 !== undefined) {
+    preload(p5)
+  }
+  if (p !== undefined) {
+    createCanvas = p.createCanvas
+    frameRate = p.frameRate
+    strokeWeight = p.strokeWeight
+    imageMode = p.imageMode
+    angleMode = p.angleMode
+    RADIANS = p.RADIANS
+    TWO_PI = p.TWO_PI
+    CLOSE = p.CLOSE
+    DEGREES = p.DEGREES
+    ROUND = p.ROUND
+    SQUARE = p.SQUARE
+    CORNER = p.CORNER
+    stroke = p.stroke
+    strokeWeight = p.strokeWeight
+    strokeCap = p.strokeCap
+    fill = p.fill
+    background = p.background
+    line = p.line
+    random = p.random
+    color = p.color
+    image = p.image
+    text = p.text
+    textSize = p.textSize
+    saveCanvas = p.saveCanvas
+    strokeJoin = p.strokeJoin
+    rotate = p.rotate
+    translate = p.translate
+    push = p.push
+    pop = p.pop
+    noStroke = p.noStroke
+    noFill = p.noFill
+    rectMode = p.rectMode
+    rect = p.rect
+    ellipse = p.ellipse
+    ellipseMode = p.ellipseMode
+    textFont = p.textFont
+    textAlign = p.textAlign
+    arc = p.arc
+    noLoop = p.noLoop
+    vertex = p.vertex
+    beginShape = p.beginShape
+    endShape = p.endShape
+    curveVertex = p.curveVertex
+    bezierVertex = p.bezierVertex
+    bezier = p.bezier
+    CENTER = p.CENTER
+  }
   setParams()
-  configureCanvas()
+  return configureCanvas()
 }
-function preload() {
-  img = loadImage('http://localhost:8888/assets/snake_body1.png');
-  img2 = loadImage('http://localhost:8888/assets/snake_body2.png');
-  img3 = loadImage('http://localhost:8888/assets/snake_body3.png');
-  img4 = loadImage('http://localhost:8888/assets/snake_body4.png');
-  head1 = loadImage('http://localhost:8888/assets/head.png');
-  head2 = loadImage('http://localhost:8888/assets/snake_head2.png');
-  bgImg = loadImage('http://localhost:8888/assets/bg1.jpeg');
-  bgImg2 = loadImage('http://localhost:8888/assets/bg2.jpeg');
-  // img = loadImage('http://localhost:8888/assets/black-semi-opaque.png');
-  // img = loadImage('http://localhost:8888/assets/rounded.png');
+function preload(p5) {
+  if (p5 !== undefined) {
+    loadImage = p5.loadImage
+  }
+  // img = loadImage('http://localhost:8888/assets/snake_body1.png')
+  // img2 = loadImage('http://localhost:8888/assets/snake_body2.png')
+  // img3 = loadImage('http://localhost:8888/assets/snake_body3.png')
+  // img4 = loadImage('http://localhost:8888/assets/snake_body4.png')
+  // head1 = loadImage('http://localhost:8888/assets/head.png')
+  // head2 = loadImage('http://localhost:8888/assets/snake_head2.png')
+  // bgImg = loadImage('http://localhost:8888/assets/bg1.jpeg')
+  // bgImg2 = loadImage('http://localhost:8888/assets/bg2.jpeg')
 }
 
 function configureCanvas() {
-  createCanvas(width, width);
-  switch (startPos) {
-    case "bottom":
-      x = width / 2;
-      y = width - (margin / 2);
-      break;
-    case "center":
-      x = width / 2;
-      y = width / 2;
-  }
-  if (startingAng) {
-    previousAng = startingAng
-  } else {
-    startingAng = 0
-  }
-  if (startingX) {
-    x = startingX
-  } else {
-    startingX = x
-  }
-  if (startingY) {
-    y = startingY
-  } else {
-    startingY = y
-  }
-  frameRate(fps);
-  addBackground()
+  // c = createCanvas(width, width);
+  // switch (startPos) {
+  //   case "bottom":
+  //     x = width / 2;
+  //     y = width - (margin / 2);
+  //     break;
+  //   case "center":
+  //     x = width / 2;
+  //     y = width / 2;
+  // }
+  // if (startingAng) {
+  //   previousAng = startingAng
+  // } else {
+  //   startingAng = 0
+  // }
+  // if (startingX) {
+  //   x = startingX
+  // } else {
+  //   startingX = x
+  // }
+  // if (startingY) {
+  //   y = startingY
+  // } else {
+  //   startingY = y
+  // }
+  // frameRate(fps);
 
-  strokeWeight(strokeW);
-  imageMode(rotationMode);
-  angleMode(DEGREES);
-  strokeCap(ROUND);
-  if (debug) {
-    strokeW = 3
-  }
-
+  // strokeWeight(strokeW);
+  // imageMode(rotationMode);
+  // angleMode(DEGREES);
+  // strokeCap(ROUND);
+  // if (debug) {
+  //   strokeW = 3
+  // }
+  // addBackground()
+  // return c
 }
 const Y_AXIS = 1;
 const X_AXIS = 2;
@@ -125,7 +178,7 @@ function addBackground() {
       setGradient(0, 0, width, height, b1, b2, Y_AXIS);
     } else if (bg == "image") {
       console.log('set image', width)
-      image(bgImg2, 0, 0, width, width);
+      image(bgImg2, width / 2, width / 2, width, width);
     } else {
       throw new Error(`Background type ${bg} not supported`)
     }
@@ -253,11 +306,23 @@ async function draw() {
     if (!drawings) {
       drawLines()
     } else {
-      drawLines()
+      // drawLines()
       drawImgs()
     }
   }
+  // get date time as string
+  var dt = new Date();
+  var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
+  var date = dt.getDate() + "/" + (dt.getMonth() + 1) + "/" + dt.getFullYear();
+  // draw date time in white
+  fill(255);;
+  noStroke();
+  textSize(16);
+  text(date, 10, 35);
+  text(time, 10, 50);
+
   // save image
+  saveCanvas(date + time, 'png');
 
 }
 function setStrokeColor() {
@@ -601,51 +666,26 @@ function pickAngle(x1, y1, _angleDistanceMin) {
   }
   return ang
 }
-
+const ANGLE_CONST = Math.PI / 180
 function loopThroughAngles(x1, y1, previousAng, startingAngle, increaseLoop, _angleDistanceMin, strokeColor) {
+  const angleIncrement = 33;
 
+  let ang = startingAngle;
+  let foundAng = false;
+  let incrementUntil;
 
-  var ang
-  var foundAng = false
-  var k = 0
-  var incrementBy = 33
-
-  var incrementUntil = 180
   if (!isNaN(previousAng)) {
-    if (increaseLoop) {
-      incrementUntil = getAngleDifference(startingAngle, previousAng + _angleDistanceMin)
-    } else {
-      incrementUntil = getAngleDifference(previousAng - _angleDistanceMin, startingAngle)
-    }
-    incrementBy = Math.ceil(incrementUntil / 6)
-    if (debug) {
-      console.log(`when ${increaseLoop ? 'incrementing, add' : 'decrementing, remove'} ${incrementBy} to/from ${startingAngle} until ${incrementUntil} have been ${increaseLoop ? 'added' : 'removed'}}`)
-    }
+    incrementUntil = Math.ceil(getAngleDifference(previousAng - _angleDistanceMin, startingAngle) / angleIncrement);
   } else {
-    if (debug) {
-      console.log(`first angle attempt is ${startingAngle}`)
-    }
+    incrementUntil = Math.ceil(180 / angleIncrement);
   }
 
-  for (var i = 0; i < incrementUntil; i += incrementBy) {
-    k++
-    if (k > 6) {
-      console.log({ k })
-      throw new Error("too many attempts")
-    }
-    if (increaseLoop) {
-      ang = (startingAngle + i) % 360
-    } else {
-      ang = (startingAngle - i)
-      if (ang < 0) {
-        ang = 360 + ang
-      }
-    }
+  for (let i = 0; i <= incrementUntil; i++) {
+    const isIncreasing = increaseLoop ? 1 : -1;
+    ang = (startingAngle + i * angleIncrement * isIncreasing + 360) % 360;
 
-
-    // get the new position assuming maxLen is used
-    var previewX = x1 + Math.cos(ang * Math.PI / 180) * (maxLen)
-    var previewY = y1 + Math.sin(ang * Math.PI / 180) * (maxLen)
+    const previewX = x1 + Math.cos(ang * ANGLE_CONST) * maxLen;
+    const previewY = y1 + Math.sin(ang * ANGLE_CONST) * maxLen;
     if (debug) {
       console.log(`attempt ang ${ang} by changing by ${i}`)
       strokeWeight(20)
@@ -664,37 +704,25 @@ function loopThroughAngles(x1, y1, previousAng, startingAngle, increaseLoop, _an
       halfY = y1 > previewY ? y1 - ((y1 - previewY) / 2) : previewY - ((previewY - y1) / 2)
       text(k, halfX, halfY);
     }
-    // if the new position is outside the canvas plus some margin, skip this angle
-    if (
-      previewX > (width - (margin))
-      ||
-      previewX < (0 + (margin))
-      ||
-      previewY > (width - (margin))
-      ||
-      previewY < (0 + (margin))
-    ) {
+
+    if (previewX > (width - margin) || previewX < (0 + margin) || previewY > (width - margin) || previewY < (0 + margin)) {
       if (debug) {
         console.log(`new point ${previewX},${previewY} is too close`)
       }
-      continue
-    }
-    // if there are no previous directions to compare it with, use this one
-    if (previousAng == undefined) {
-      foundAng = true
-      break
+      continue;
     }
 
-    var isWithinDistance = checkDistance(ang, previousAng, _angleDistanceMin)
-    if (!isWithinDistance) {
-      break
+    if (previousAng !== undefined && !checkDistance(ang, previousAng, _angleDistanceMin)) {
+      break;
     }
 
-    foundAng = true
-    break
+    foundAng = true;
+    break;
   }
-  return { foundAng, ang }
+
+  return { foundAng, ang };
 }
+
 
 function getAngleDifference(ang1, ang2) {
   var distance = Math.abs(modulo(ang1, 360) - modulo(ang2, 360))
@@ -717,8 +745,11 @@ function modulo(x, y) {
   }
   return xPrime % y;
 }
-function sleep(millisecondsDuration) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, millisecondsDuration);
-  })
-}
+// function sleep(millisecondsDuration) {
+//   return new Promise((resolve) => {
+//     setTimeout(resolve, millisecondsDuration);
+//   })
+// }
+
+// export preload, setup and draw
+module.exports = { preload, setup, draw }
