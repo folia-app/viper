@@ -25,7 +25,7 @@ function setParams() {
   debug = false
   animated = false
   loop = false
-  keepRunning = false
+  keepRunning = true
   dropShadowColor = "rgba(0, 0, 0, 0.008)"
   drawings = true
   includeShadow = true
@@ -33,14 +33,14 @@ function setParams() {
   startingY = false // 450t.75
   startingAng = false // 182
   egg = false
-  bg = "solid" // "solid", "gradient", "image"
+  bg = "image" // "solid", "gradient", "image"
   dropShadowLoop = bg == "solid" ? 25 : 50
-  save = true
+  save = false
   taperEnd = false
   skipToEnd = false
-  dontCross = true
+  dontCross = false
   bodyOffset = Math.floor(Math.random() * totalBodies)
-  bodies = patterns
+  // bodies = patterns
 }
 function setup() {
   setParams()
