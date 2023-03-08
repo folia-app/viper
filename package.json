@@ -5,6 +5,9 @@
   "repository": "https://github.com/folia-app/wander",
   "author": "okwme",
   "license": "MIT",
+  "scripts": {
+    "start": "npx netlify dev"
+  },
   "dependencies": {
     "canvas": "^2.11.0",
     "netlify-cli": "^12.13.1"

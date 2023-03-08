@@ -1,54 +1,80 @@
 var x, y, width, minLen, maxLen, strokeW, margin,
   limit, angleDistanceMin, startPos, previousAng,
   strokeStyle, totalLength = 0, allLines = [], allColors = [],
-  img, dropShadowColor, dropShadowLoop
+  img, dropShadowColor, dropShadowLoop,
+  totalHeads = 7, totalBodies = 8, totalTails = 6, totalBG = 3, totalPatterns = 8,
+  tails = [], heads = [], bodies = [], bgs = [], patterns = [],
+  head, tail, bgImg,
+  imagePath = "http://localhost:8888",
+  matchTail = true
+
+
 function setParams() {
-  head = Math.random() > 0.5 ? head1 : head2
   width = 500
-  maxLen = width / 6
+  maxLen = 100
   minLen = maxLen / 2
   strokeW = 45 //minLen / 1
   margin = 50
-  maxNumberOfLines = 25
+  maxNumberOfLines = 12
   angleDistanceMin = 60
-  startPos = "center"
+  startPos = "random" // "bottom", "center", "random"
   strokeStyle = "random"
   fps = 5
-  bgColor = "white"//"rgb(249,229,188)"
+  bgColor = "rgb(226,226,226)"
   rotationMode = CENTER
   debug = false
   animated = false
   loop = false
   keepRunning = false
   dropShadowColor = "rgba(0, 0, 0, 0.008)"
-  dropShadowLoop = 20
   drawings = true
-  includeShadow = false
+  includeShadow = true
   startingX = false // 76.09
   startingY = false // 450t.75
   startingAng = false // 182
   egg = false
-  bg = "solid"
+  bg = "solid" // "solid", "gradient", "image"
+  dropShadowLoop = bg == "solid" ? 25 : 50
   save = true
+  taperEnd = false
+  skipToEnd = false
+  dontCross = true
+  bodyOffset = Math.floor(Math.random() * totalBodies)
+  bodies = patterns
 }
 function setup() {
   setParams()
   configureCanvas()
   // img.mask(mask)
 }
+
 function preload() {
-  img = loadImage('http://localhost:8888/assets/snake_body1.png');
-  img2 = loadImage('http://localhost:8888/assets/snake_body2.png');
-  img3 = loadImage('http://localhost:8888/assets/snake_body3.png');
-  img4 = loadImage('http://localhost:8888/assets/snake_body4.png');
-  head1 = loadImage('http://localhost:8888/assets/head.png');
-  head2 = loadImage('http://localhost:8888/assets/snake_head2.png');
-  bgImg = loadImage('http://localhost:8888/assets/bg1.jpeg');
-  bgImg2 = loadImage('http://localhost:8888/assets/bg2.jpeg');
-  // mask = loadImage('http://localhost:8888/assets/black-semi-opaque.png');
-  // mask = loadImage('http://localhost:8888/assets/rounded.png');
-  mask = loadImage('http://localhost:8888/assets/rounded.png');
-  // img = mask, img2 = mask, img3 = mask, img4 = mask
+  var tailRandom = Math.ceil(Math.random() * totalTails)
+  console.log({ tailRandom })
+  tail = loadImage(imagePath + `/tail/${tailRandom}.png`)
+  if (tailRandom < 6 && matchTail) {
+    head = loadImage(imagePath + `/head/${tailRandom}.png`)
+  } else {
+    head = loadImage(imagePath + `/head/${Math.ceil(Math.random() * totalHeads)}.png`)
+  }
+  bgImg = loadImage(imagePath + `/bg/${Math.ceil(Math.random() * totalBG)}.jpeg`)
+
+  for (var i = 1; i <= totalBodies; i++) {
+    bodies.push(loadImage(imagePath + `/body/${i}.png`))
+  }
+  // for (var i = 1; i <= totalBG; i++) {
+  //   bgs.push(loadImage(imagePath + `/bg/${i}.jpeg`)) // uses jpeg instead of png
+  // }
+  for (var i = 1; i <= totalTails; i++) {
+    tails.push(loadImage(imagePath + `/tail/${i}.png`))
+  }
+  for (var i = 1; i <= totalPatterns; i++) {
+    patterns.push(loadImage(imagePath + `/pattern/${i}.jpg`)) // uses jpg
+  }
+
+  // mask = loadImage(imagePath + '/black-semi-opaque.png');
+  // mask = loadImage(imagePath + '/rounded.png');
+  mask = loadImage(imagePath + '/rounded.png');
 }
 
 function configureCanvas() {
@@ -61,6 +87,9 @@ function configureCanvas() {
     case "center":
       x = width / 2;
       y = width / 2;
+    case "random":
+      x = Math.floor(Math.random() * width)
+      y = Math.floor(Math.random() * width)
   }
   if (startingAng) {
     previousAng = startingAng
@@ -78,7 +107,6 @@ function configureCanvas() {
     startingY = y
   }
   frameRate(fps);
-  addBackground()
 
   strokeWeight(strokeW);
   imageMode(rotationMode);
@@ -87,6 +115,7 @@ function configureCanvas() {
   if (debug) {
     strokeW = 3
   }
+  addBackground()
 
 }
 const Y_AXIS = 1;
@@ -128,8 +157,7 @@ function addBackground() {
       b2 = color(0);
       setGradient(0, 0, width, height, b1, b2, Y_AXIS);
     } else if (bg == "image") {
-      console.log('set image', width)
-      image(bgImg2, 0, 0, width, width);
+      image(bgImg, width / 2, width / 2, width, width);
     } else {
       throw new Error(`Background type ${bg} not supported`)
     }
@@ -190,43 +218,44 @@ function addCartesian() {
   textSize(16);
   strokeWeight(3)
   stroke(0)
-  line(width / 2, 0, width / 2, width)
-  line(0, width / 2, width, width / 2)
+  // line(width / 2, 0, width / 2, width)
+  // line(0, width / 2, width, width / 2)
   strokeWeight(1)
-  for (var i = 0; i < width; i += 50) {
-    line(i, 0, i, width)
-    stroke(11)
-    strokeWeight(0)
-    strokeWeight(1)
-    line(0, i, width, i)
-  }
-  line(margin, margin, width - margin, margin)
-  line(width - margin, margin, width - margin, width - margin)
-  line(width - margin, width - margin, margin, width - margin)
-  line(margin, width - margin, margin, margin)
+  // for (var i = 0; i < width; i += 50) {
+  //   line(i, 0, i, width)
+  //   stroke(11)
+  //   strokeWeight(0)
+  //   strokeWeight(1)
+  //   line(0, i, width, i)
+  // }
+  // line(margin, margin, width - margin, margin)
+  // line(width - margin, margin, width - margin, width - margin)
+  // line(width - margin, width - margin, margin, width - margin)
+  // line(margin, width - margin, margin, margin)
 
-  stroke("green")
-  for (var i = 0; i < 12; i++) {
-    var cardinalX = (width / 2) + Math.cos(((i * 30)) * Math.PI / 180) * 225
-    var cardinalY = (width / 2) + Math.sin(((i * 30)) * Math.PI / 180) * 225
-    strokeWeight(0)
-    fill("green")
-    text(i * 30, cardinalX, cardinalY)
-    strokeWeight(1)
-    line(width / 2, width / 2, cardinalX, cardinalY)
+  // stroke("green")
+  // for (var i = 0; i < 12; i++) {
+  //   var cardinalX = (width / 2) + Math.cos(((i * 30)) * Math.PI / 180) * 225
+  //   var cardinalY = (width / 2) + Math.sin(((i * 30)) * Math.PI / 180) * 225
+  //   strokeWeight(0)
+  //   fill("green")
+  //   text(i * 30, cardinalX, cardinalY)
+  //   strokeWeight(1)
+  //   line(width / 2, width / 2, cardinalX, cardinalY)
 
-  }
+  // }
 
   // stroke("red")
   // for (var i = 0; i < 8; i++) {
   //   var cardinalX = (width / 2) + Math.cos(((i * 45)) * Math.PI / 180) * 500
   //   var cardinalY = (width / 2) + Math.sin(((i * 45)) * Math.PI / 180) * 500
-  //   line(width / 2, width / 2, cardinalX, cardinalY)
+  //   line(width  2, width / 2, cardinalX, cardinalY)
   // }
 
 }
 
 var saved = false
+var printedDone = false
 async function draw() {
   totalLength++
   if (!keepRunning) {
@@ -241,15 +270,21 @@ async function draw() {
         previousAng = startingAng
         addBackground()
       }
+      var datetime = new Date().toISOString().replace(/:/g, '-');
       if (!saved && save) {
-        var datetime = new Date().toISOString().replace(/:/g, '-');
-        saveCanvas(canvas, 'viper-' + datetime, 'jpg');
         saved = true
+        setTimeout(() => {
+          saveCanvas(canvas, 'viper-' + datetime, 'jpg');
+        }, 5000)
+      }
+      if (!printedDone) {
+        console.log("Done at " + datetime)
+        printedDone = true
       }
       return
     }
   }
-  addBackground()
+
   // if totalLength is odd
   if (totalLength % 2 || !animated) {
     addLine()
@@ -259,12 +294,20 @@ async function draw() {
   } else {
     drawLines()
   }
+
+  if (totalLength != (maxNumberOfLines * (animated ? 2 : 1)) && skipToEnd) {
+    return
+  }
+  addBackground()
+
   if (!animated) {
     if (!drawings) {
       drawLines()
     } else {
-      drawLines()
-      drawImgs()
+      // drawLines()
+      if (!debug) {
+        drawImgs()
+      }
       // drawLines()
 
     }
@@ -384,44 +427,49 @@ function drawImgs() {
 
     // get the index of the item in allLines as the opposite of the position in the array
     var index = allLines.length - i - 1
+    var whichSegment = (index + bodyOffset) % bodies.length
+    pic = bodies[whichSegment]
     var flip = index % 4
     switch (flip) {
       case 0:
         flip1 = true
         flip2 = true
-        segColor = "red"
-        pic = img
         break;
       case 1:
         flip1 = false
         flip2 = true
-        segColor = "green"
-        pic = img2
         break;
       case 2:
         flip1 = true
         flip2 = false
-        segColor = "orange"
-        pic = img4
         break;
       case 3:
         flip1 = false
         flip2 = false
-        segColor = "yellow"
-        pic = img3
         break;
     }
 
+    if (taperEnd) {
+      var widthSteps = 1.5
+      var changeEvery = Math.floor(allLines.length / widthSteps)
+      var endWidth = strokeW / 1.5
+      var currentWidth = (endWidth * (Math.ceil(i / changeEvery)))
+      if (currentWidth <= 0) {
+        currentWidth = endWidth
+      }
+    } else {
+      currentWidth = strokeW
+    }
 
-    var strokeMask = createGraphics(l.len + (strokeW * 2), strokeW);
-    strokeMask.strokeWeight(strokeW)
-    strokeMask.line(strokeW / 2, strokeW / 2, l.len + (strokeW * 1.5), strokeW / 2)
+    var strokeMask = createGraphics(l.len + (currentWidth * 2), currentWidth);
+    strokeMask.strokeWeight(currentWidth)
+    strokeMask.line(currentWidth / 2, currentWidth / 2, l.len + (currentWidth * 1.5), currentWidth / 2)
 
 
-    var imagePattern = createGraphics(l.len + (strokeW * 2), strokeW);
+    var imagePattern = createGraphics(l.len + (currentWidth * 2), currentWidth);
     imagePattern.background(allColors[i])
-    // imagePattern.image(pic, 0, 0, l.len + (strokeW * 2), strokeW)
-    imagePattern.image(pic, 0, -strokeW / 2, l.len + (strokeW * 2), strokeW * 2)
+    // imagePattern.image(pic, 0, 0, l.len + (currentWidth * 2), currentWidth)
+    imagePattern.image(pic, 0, -currentWidth / 2, l.len + (currentWidth * 2), currentWidth * 2)
 
     imagePattern.loadPixels()
     strokeMask.loadPixels()
@@ -445,7 +493,7 @@ function drawImgs() {
     scale(flip1 ? -1 : 1, flip2 ? -1 : 1)
     // tint(segColor)
     // tint(allColors[i][0], allColors[i][1], allColors[i][2])
-    var segmentWeight = strokeW / 1.75 // strokeW - ((allLines.length - 1 - i) * diff)
+    var segmentWeight = currentWidth / 1.75 // strokeW - ((allLines.length - 1 - i) * diff)
 
     image(imagePattern, 0, 0, l.len + segmentWeight, segmentWeight);
     pop()
@@ -463,6 +511,18 @@ function drawImgs() {
         pop()
       } else {
         image(head, l.x2 + 30, l.y2 - 30, 70, 70);
+      }
+    }
+
+    // draw the tail
+    if (i == 0) {
+      if (l.x2 < l.x1) {//} && (l.x1 - l.x2) > margin) {
+        push()
+        scale(-1, 1)
+        image(tail, -l.x1 - 30, l.y1, 70, currentWidth);
+        pop()
+      } else {
+        image(tail, l.x1 - 30, l.y1, 70, currentWidth);
       }
     }
 
@@ -587,7 +647,7 @@ function pickAngle(x1, y1, _angleDistanceMin) {
     if (debug) {
       strokeWeight(0)
       fill("rgba(0,0,255,0.2)")
-      arc(x1, y1, 100, 100, previousAng - _angleDistanceMin, previousAng + _angleDistanceMin);
+      arc(x1, y1, 40, 40, previousAng - _angleDistanceMin, previousAng + _angleDistanceMin);
     }
     fill("black")
 
@@ -623,7 +683,7 @@ function pickAngle(x1, y1, _angleDistanceMin) {
   }
 
   if (!foundAng) {
-    if (parseInt(_angleDistanceMin) > 180) {
+    if (parseInt(_angleDistanceMin) >= 180) {
       console.log({ x, y, previousAng })
       loop = false
       throw new Error('INCREASED TO MAX AND STILL NO SUITABLE ANG')
@@ -676,21 +736,40 @@ function loopThroughAngles(x1, y1, previousAng, startingAngle, increaseLoop, _an
       }
     }
 
-
     // get the new position assuming maxLen is used
     var previewX = x1 + Math.cos(ang * Math.PI / 180) * (maxLen)
     var previewY = y1 + Math.sin(ang * Math.PI / 180) * (maxLen)
+    if (dontCross) {
+      var intersectsWithAnyOtherLine = false
+      for (var j = 0; j < allLines.length; j++) {
+        var curLine = allLines[j]
+
+        var intersect = intersects(x, y, previewX, previewY, curLine.x1, curLine.y1, curLine.x2, curLine.y2)
+
+        if (intersect) {
+          intersectsWithAnyOtherLine = true
+          // break out of the j loop
+          break
+        }
+      }
+      if (intersectsWithAnyOtherLine) {
+        if (debug) {
+          console.log(`intersectsWithAnyOtherLine ${intersectsWithAnyOtherLine} at ${ang}`)
+        }
+        continue
+      }
+    }
     if (debug) {
       console.log(`attempt ang ${ang} by changing by ${i}`)
-      strokeWeight(20)
-      stroke('red')
-      point(x1, y1)
+      // strokeWeight(5)
+      // stroke('red')
+      // point(x1, y1)
       stroke('blue')
       strokeWeight(0)
       fill("blue")
       text(`${Math.floor(x1)}, ${Math.floor(y1)}`, x1 + 5, y1 - 5)
       stroke(strokeColor)
-      strokeWeight(3)
+      strokeWeight(2)
       line(x1, y1, previewX, previewY)
       strokeWeight(0)
       fill("blue")
@@ -756,3 +835,15 @@ function sleep(millisecondsDuration) {
     setTimeout(resolve, millisecondsDuration);
   })
 }
+// returns true if the line from (a,b)->(c,d) intersects with (p,q)->(r,s)
+function intersects(a, b, c, d, p, q, r, s) {
+  var det, gamma, lambda;
+  det = (c - a) * (s - q) - (r - p) * (d - b);
+  if (det === 0) {
+    return false;
+  } else {
+    lambda = ((s - q) * (r - a) + (p - r) * (s - b)) / det;
+    gamma = ((b - d) * (r - a) + (c - a) * (s - b)) / det;
+    return (0 < lambda && lambda < 1) && (0 < gamma && gamma < 1);
+  }
+};
