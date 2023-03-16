@@ -1,7 +1,7 @@
 var x, y, width, minLen, maxLen, strokeW, margin,
   limit, angleDistanceMin, startPos, previousAng,
   strokeStyle, totalLength = 0, allLines = [], allColors = [],
-  img, dropShadowColor, dropShadowLoop,
+  img, dropShadowColor, dropShadowLoop, dropShadowOffset,
   totalHeads = 7, totalBodies = 8, totalTails = 6, totalBG = 3, totalPatterns = 8,
   tails = [], heads = [], bodies = [], bgs = [], patterns = [],
   head, tail, bgImg,
@@ -27,6 +27,10 @@ function setParams() {
   loop = false
   keepRunning = false
   dropShadowColor = "rgba(0, 0, 0, 0.008)"
+  dropShadowOffset = {
+    x: 25,
+    y: 25
+  }
   drawings = true
   includeShadow = true
   startingX = false // 76.09
@@ -358,12 +362,12 @@ function addDropShadowTip(l) {
     strokeWeight(0)
     fill(dropShadowColor)
     var diameter = getShadowWeight(i)
-    arc(l.x1, l.y1, diameter, diameter, l.ang + 90, l.ang - 90);
+    arc(l.x1 + dropShadowOffset.x, l.y1 + dropShadowOffset.y, diameter, diameter, l.ang + 90, l.ang - 90);
     noFill()
 
     startDropShadow(i)
-    vertex(l.x1, l.y1)
-    vertex((l.x1 + l.x2) / 2, (l.y1 + l.y2) / 2);
+    vertex(l.x1 + dropShadowOffset.x, l.y1 + dropShadowOffset.y)
+    vertex(((l.x1 + l.x2) / 2) + dropShadowOffset.x, ((l.y1 + l.y2) / 2) + dropShadowOffset.y);
     endShape();
   }
 }
@@ -373,14 +377,14 @@ function addDropShadowEnd(l) {
 
     startDropShadow(i)
     // strokeCap(ROUND);
-    vertex((l.x1 + l.x2) / 2, (l.y1 + l.y2) / 2);
-    vertex(l.x2, l.y2)
+    vertex(((l.x1 + l.x2) / 2) + dropShadowOffset.x, ((l.y1 + l.y2) / 2) + dropShadowOffset.y);
+    vertex(l.x2 + dropShadowOffset.x, l.y2 + dropShadowOffset.y);
     endDropShadow()
 
     strokeWeight(0)
     fill(dropShadowColor)
     var diameter = getShadowWeight(i)
-    arc(l.x2, l.y2, diameter, diameter, l.ang - 90, l.ang + 90);
+    arc(l.x2 + dropShadowOffset.x, l.y2 + dropShadowOffset.y, diameter, diameter, l.ang - 90, l.ang + 90);
     noFill()
   }
 }
@@ -389,9 +393,9 @@ function addDropShadow2(l, l2) {
   for (var i = 0; i < dropShadowLoop; i++) {
     startDropShadow(i)
 
-    vertex((l.x1 + l.x2) / 2, (l.y1 + l.y2) / 2);
-    vertex(l.x2, l.y2);
-    vertex((l2.x1 + l2.x2) / 2, (l2.y1 + l2.y2) / 2);
+    vertex(((l.x1 + l.x2) / 2) + dropShadowOffset.x, ((l.y1 + l.y2) / 2) + dropShadowOffset.y);
+    vertex(l.x2 + dropShadowOffset.x, l.y2 + dropShadowOffset.y);
+    vertex(((l2.x1 + l2.x2) / 2) + dropShadowOffset.x, ((l2.y1 + l2.y2) / 2) + dropShadowOffset.y);
 
     endDropShadow()
   }
