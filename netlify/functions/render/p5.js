@@ -15,9 +15,9 @@ function setParams() {
   minLen = maxLen / 2
   strokeW = 45 //minLen / 1
   margin = 50
-  maxNumberOfLines = 12
+  maxNumberOfLines = 10
   angleDistanceMin = 60
-  startPos = "random" // "bottom", "center", "random"
+  startPos = "center" // "bottom", "center", "random"
   strokeStyle = "random"
   fps = 5
   bgColor = "rgb(226,226,226)"
@@ -25,17 +25,17 @@ function setParams() {
   debug = false
   animated = false
   loop = false
-  keepRunning = true
+  keepRunning = false
   dropShadowColor = "rgba(0, 0, 0, 0.008)"
   drawings = true
   includeShadow = true
   startingX = false // 76.09
   startingY = false // 450t.75
-  startingAng = false // 182
+  startingAng = 90//false // 182
   egg = false
-  bg = "image" // "solid", "gradient", "image"
+  bg = "solid" // "solid", "gradient", "image"
   dropShadowLoop = bg == "solid" ? 25 : 50
-  save = false
+  save = true
   taperEnd = false
   skipToEnd = false
   dontCross = false
@@ -50,7 +50,6 @@ function setup() {
 
 function preload() {
   var tailRandom = Math.ceil(Math.random() * totalTails)
-  console.log({ tailRandom })
   tail = loadImage(imagePath + `/tail/${tailRandom}.png`)
   if (tailRandom < 6 && matchTail) {
     head = loadImage(imagePath + `/head/${tailRandom}.png`)
@@ -87,6 +86,7 @@ function configureCanvas() {
     case "center":
       x = width / 2;
       y = width / 2;
+      break;
     case "random":
       x = Math.floor(Math.random() * width)
       y = Math.floor(Math.random() * width)
@@ -96,6 +96,7 @@ function configureCanvas() {
   } else {
     startingAng = 0
   }
+
   if (startingX) {
     x = startingX
   } else {
@@ -495,6 +496,9 @@ function drawImgs() {
     // tint(allColors[i][0], allColors[i][1], allColors[i][2])
     var segmentWeight = currentWidth / 1.75 // strokeW - ((allLines.length - 1 - i) * diff)
 
+    stroke("black")
+    strokeWeight(segmentWeight + 2)
+    line(-l.len / 2, 0, l.len / 2, 0)
     image(imagePattern, 0, 0, l.len + segmentWeight, segmentWeight);
     pop()
 
