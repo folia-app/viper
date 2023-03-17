@@ -2,7 +2,8 @@ var x, y, width, minLen, maxLen, strokeW, margin,
   limit, angleDistanceMin, startPos, previousAng,
   strokeStyle, totalLength = 0, allLines = [], allColors = [],
   img, dropShadowColor, dropShadowLoop, dropShadowOffset,
-  totalHeads = 7, totalBodies = 8, totalTails = 6, totalBG = 3, totalPatterns = 8,
+  headOffset, headOffsets, tailOffset, tailOffsets,
+  totalHeads = 9, totalBodies = 8, totalTails = 7, totalBG = 3, totalPatterns = 8,
   tails = [], heads = [], bodies = [], bgs = [], patterns = [],
   head, tail, bgImg,
   imagePath = "http://localhost:8888",
@@ -10,35 +11,36 @@ var x, y, width, minLen, maxLen, strokeW, margin,
 
 
 function setParams() {
-  width = 500
-  maxLen = 100
+  width = 900
+  maxLen = width / 5
   minLen = maxLen / 2
-  strokeW = 45 //minLen / 1
-  margin = 50
-  maxNumberOfLines = 10
+  strokeW = width / 10 //minLen / 1
+  headWidth = strokeW * 1.55
+  margin = headWidth
+  maxNumberOfLines = 12
   angleDistanceMin = 60
   startPos = "center" // "bottom", "center", "random"
-  strokeStyle = "random"
+  strokeStyle = "none" // "randomGreen", "random", "gettingDarker", "none"
   fps = 5
   bgColor = "rgb(226,226,226)"
   rotationMode = CENTER
   debug = false
   animated = false
   loop = false
-  keepRunning = false
+  keepRunning = true
   dropShadowColor = "rgba(0, 0, 0, 0.008)"
   dropShadowOffset = {
-    x: 25,
-    y: 25
+    x: 15,
+    y: 15
   }
   drawings = true
-  includeShadow = true
+  includeShadow = false
   startingX = false // 76.09
   startingY = false // 450t.75
-  startingAng = 90//false // 182
+  startingAng = false // 182
   egg = false
   bg = "solid" // "solid", "gradient", "image"
-  dropShadowLoop = bg == "solid" ? 25 : 50
+  dropShadowLoop = bg == "solid" ? 20 : 50
   save = true
   taperEnd = false
   skipToEnd = false
@@ -52,14 +54,98 @@ function setup() {
   // img.mask(mask)
 }
 
+var defaultHeadOffsets = {
+  xFactor: 2,
+  yFactor: 2.5
+}
+
+headOffsets = {
+  _1: {
+    xFactor: 1.8,
+    yFactor: 2.3
+  },
+  _2: {
+    xFactor: 10,
+    yFactor: 2.1
+  },
+  _3: {
+    xFactor: 2.2,
+    yFactor: 2.2
+  },
+  _4: {
+    xFactor: 2.2,
+    yFactor: 2.2
+  },
+  _5: {
+    xFactor: 2.3,
+    yFactor: 2.4
+  },
+  _6: {
+    xFactor: 2.5,
+    yFactor: 1.9
+  },
+  _7: {
+    xFactor: 1.9,
+    yFactor: 3
+  },
+  _8: {
+    xFactor: 2,
+    yFactor: 2
+  },
+  _9: {
+    xFactor: 3.3,
+    yFactor: 2.6
+  }
+}
+
+var defaultTailOffsets = {
+  xFactor: 2,
+  yFactor: 0
+}
+
+tailOffsets = {
+  _1: {
+    xFactor: 2.1,
+    yFactor: 0.05
+  },
+  _3: {
+    xFactor: 1.9,
+    yFactor: 0.2
+  },
+  _4: {
+    xFactor: 1.8,
+    yFactor: -0.2
+  },
+  _5: {
+    xFactor: 1.8,
+    yFactor: 0
+  },
+  _6: {
+    xFactor: 1.7,
+    yFactor: 0.3
+  },
+  _7: {
+    xFactor: 1.8,
+    yFactor: 0.2
+  }
+}
+
 function preload() {
-  var tailRandom = Math.ceil(Math.random() * totalTails)
+  var tailRandom = 7//Math.ceil(Math.random() * totalTails)
+  var headRandom;
   tail = loadImage(imagePath + `/tail/${tailRandom}.png`)
-  if (tailRandom < 6 && matchTail) {
+  if (tailRandom < 7 && matchTail) {
+    headRandom = tailRandom
     head = loadImage(imagePath + `/head/${tailRandom}.png`)
   } else {
-    head = loadImage(imagePath + `/head/${Math.ceil(Math.random() * totalHeads)}.png`)
+    headRandom = totalTails + Math.floor(Math.random() * (totalHeads - totalTails + 1))
+    console.log(headRandom)
+    head = loadImage(imagePath + `/head/${headRandom}.png`)
   }
+
+  headOffset = headOffsets.hasOwnProperty("_" + headRandom) ? headOffsets["_" + headRandom] : defaultHeadOffsets
+  tailOffset = tailOffsets.hasOwnProperty("_" + tailRandom) ? tailOffsets["_" + tailRandom] : defaultTailOffsets
+
   bgImg = loadImage(imagePath + `/bg/${Math.ceil(Math.random() * totalBG)}.jpeg`)
 
   for (var i = 1; i <= totalBodies; i++) {
@@ -114,6 +200,7 @@ function configureCanvas() {
   frameRate(fps);
 
   strokeWeight(strokeW);
+  rectMode(rotationMode)
   imageMode(rotationMode);
   angleMode(DEGREES);
   strokeCap(ROUND);
@@ -331,9 +418,10 @@ function setStrokeColor() {
       c = [percentageOfTotal255, percentageOfTotal255, percentageOfTotal255]
       break;
     case "randomGreen":
-    default:
       c = [0, random(100, 200), 0]
       break;
+    default:
+      c = bgColor
   }
   return c
 }
@@ -501,7 +589,7 @@ function drawImgs() {
     var segmentWeight = currentWidth / 1.75 // strokeW - ((allLines.length - 1 - i) * diff)
 
     stroke("black")
-    strokeWeight(segmentWeight + 2)
+    strokeWeight(segmentWeight + (segmentWeight * 0.1))
     line(-l.len / 2, 0, l.len / 2, 0)
     image(imagePattern, 0, 0, l.len + segmentWeight, segmentWeight);
     pop()
@@ -512,14 +600,36 @@ function drawImgs() {
 
     // draw the head
     if (i == allLines.length - 1) {
+      // stroke("rgba(255,0,0,0.1)")
+      noStroke()
+      fill("rgba(255,0,0,0.1)")
+      // var headOffset = {
+      //   xFactor: 2,
+      //   yFactor: 2.5
+      // }
+
+      var calcHeadOffset = {
+        x: headWidth / headOffset.xFactor,
+        y: headWidth / headOffset.yFactor
+      }
       if (l.x2 < l.x1) {//} && (l.x1 - l.x2) > margin) {
         push()
         scale(-1, 1)
-        image(head, -l.x2 + 30, l.y2 - 30, 70, 70);
+        // rect((-l.x2) + calcHeadOffset.x, l.y2 - calcHeadOffset.y, headWidth)
+        image(head, (-l.x2) + calcHeadOffset.x, l.y2 - calcHeadOffset.y, headWidth, headWidth);
         pop()
       } else {
-        image(head, l.x2 + 30, l.y2 - 30, 70, 70);
+        // rect(l.x2 + calcHeadOffset.x, l.y2 - calcHeadOffset.y, headWidth)
+        image(head, l.x2 + calcHeadOffset.x, l.y2 - calcHeadOffset.y, headWidth, headWidth);
       }
+    }
+
+    var tailLength = currentWidth * 1.4
+    var tailWidth = tailLength / 2
+
+    var calcTailOffset = {
+      x: tailLength / tailOffset.xFactor,
+      y: tailWidth * tailOffset.yFactor
     }
 
     // draw the tail
@@ -527,10 +637,10 @@ function drawImgs() {
       if (l.x2 < l.x1) {//} && (l.x1 - l.x2) > margin) {
         push()
         scale(-1, 1)
-        image(tail, -l.x1 - 30, l.y1, 70, currentWidth);
+        image(tail, -l.x1 - calcTailOffset.x, l.y1 - calcTailOffset.y, tailLength, tailWidth);
         pop()
       } else {
-        image(tail, l.x1 - 30, l.y1, 70, currentWidth);
+        image(tail, l.x1 - calcTailOffset.x, l.y1 - calcTailOffset.y, tailLength, tailWidth);
       }
     }
 
