@@ -5,13 +5,13 @@ var x, y, width, minLen, maxLen, strokeW, margin,
   headOffset, headOffsets, tailOffset, tailOffsets,
   totalHeads = 9, totalBodies = 8, totalTails = 7, totalBG = 3, totalPatterns = 8,
   tails = [], heads = [], bodies = [], bgs = [], patterns = [],
-  head, tail, bgImg,
+  head, tail, bgImg, makeMask,
   imagePath = "http://localhost:8888",
   matchTail = true
 
 
 function setParams() {
-  width = 900
+  width = 1000
   maxLen = width / 5
   minLen = maxLen / 2
   strokeW = width / 10 //minLen / 1
@@ -27,7 +27,7 @@ function setParams() {
   debug = false
   animated = false
   loop = false
-  keepRunning = true
+  keepRunning = false
   dropShadowColor = "rgba(0, 0, 0, 0.008)"
   dropShadowOffset = {
     x: 15,
@@ -46,6 +46,7 @@ function setParams() {
   skipToEnd = false
   dontCross = false
   bodyOffset = Math.floor(Math.random() * totalBodies)
+  makeMask = false
   // bodies = patterns
 }
 function setup() {
@@ -131,7 +132,7 @@ tailOffsets = {
 }
 
 function preload() {
-  var tailRandom = 7//Math.ceil(Math.random() * totalTails)
+  var tailRandom = Math.ceil(Math.random() * totalTails)
   var headRandom;
   tail = loadImage(imagePath + `/tail/${tailRandom}.png`)
   if (tailRandom < 7 && matchTail) {
@@ -554,22 +555,27 @@ function drawImgs() {
       currentWidth = strokeW
     }
 
-    var strokeMask = createGraphics(l.len + (currentWidth * 2), currentWidth);
-    strokeMask.strokeWeight(currentWidth)
-    strokeMask.line(currentWidth / 2, currentWidth / 2, l.len + (currentWidth * 1.5), currentWidth / 2)
+    var imagePattern
+    if (makeMask) {
+      var strokeMask = createGraphics(l.len + (currentWidth * 2), currentWidth);
+      strokeMask.strokeWeight(currentWidth)
+      strokeMask.line(currentWidth / 2, currentWidth / 2, l.len + (currentWidth * 1.5), currentWidth / 2)
 
 
-    var imagePattern = createGraphics(l.len + (currentWidth * 2), currentWidth);
-    imagePattern.background(allColors[i])
-    // imagePattern.image(pic, 0, 0, l.len + (currentWidth * 2), currentWidth)
-    imagePattern.image(pic, 0, -currentWidth / 2, l.len + (currentWidth * 2), currentWidth * 2)
+      imagePattern = createGraphics(l.len + (currentWidth * 2), currentWidth);
+      imagePattern.background(allColors[i])
+      // imagePattern.image(pic, 0, 0, l.len + (currentWidth * 2), currentWidth)
+      imagePattern.image(pic, 0, -currentWidth / 2, l.len + (currentWidth * 2), currentWidth * 2)
 
-    imagePattern.loadPixels()
-    strokeMask.loadPixels()
-    for (let j = 0; j < imagePattern.pixels.length; j += 4) {
-      imagePattern.pixels[j + 3] = strokeMask.pixels[j + 3]
+      imagePattern.loadPixels()
+      strokeMask.loadPixels()
+      for (let j = 0; j < imagePattern.pixels.length; j += 4) {
+        imagePattern.pixels[j + 3] = strokeMask.pixels[j + 3]
+      }
+      imagePattern.updatePixels()
+    } else {
+      imagePattern = pic
     }
-    imagePattern.updatePixels()
 
     push()
     var xDist = Math.abs(l.x2 - l.x1)
@@ -586,12 +592,18 @@ function drawImgs() {
     scale(flip1 ? -1 : 1, flip2 ? -1 : 1)
     // tint(segColor)
     // tint(allColors[i][0], allColors[i][1], allColors[i][2])
-    var segmentWeight = currentWidth / 1.75 // strokeW - ((allLines.length - 1 - i) * diff)
-
-    stroke("black")
-    strokeWeight(segmentWeight + (segmentWeight * 0.1))
-    line(-l.len / 2, 0, l.len / 2, 0)
-    image(imagePattern, 0, 0, l.len + segmentWeight, segmentWeight);
+    var segmentWeight, addToLength
+    if (makeMask) {
+      segmentWeight = currentWidth / 1.75 // strokeW - ((allLines.length - 1 - i) * diff)
+      stroke("black")
+      strokeWeight(segmentWeight + (segmentWeight * 0.1))
+      line(-l.len / 2, 0, l.len / 2, 0)
+      addToLength = segmentWeight
+    } else {
+      segmentWeight = currentWidth / 1.2
+      addToLength = segmentWeight / 2
+    }
+    image(imagePattern, 0, 0, l.len + addToLength, segmentWeight);
     pop()
 
 
