@@ -5,7 +5,7 @@ var x, y, width, minLen, maxLen, strokeW, margin,
   headOffset, headOffsets, tailOffset, tailOffsets,
   totalHeads = 9, totalBodies = 8, totalTails = 7, totalBG = 3, totalPatterns = 8,
   tails = [], heads = [], bodies = [], bgs = [], patterns = [],
-  head, tail, bgImg, makeMask,
+  head, tail, bgImg, makeMask, hole,
   imagePath = "http://localhost:8888",
   matchTail = true
 
@@ -19,7 +19,7 @@ function setParams() {
   margin = headWidth
   maxNumberOfLines = 12
   angleDistanceMin = 60
-  startPos = "center" // "bottom", "center", "random"
+  startPos = "random" // "bottom", "center", "random"
   strokeStyle = "none" // "randomGreen", "random", "gettingDarker", "none"
   fps = 5
   bgColor = "rgb(226,226,226)"
@@ -27,7 +27,7 @@ function setParams() {
   debug = false
   animated = false
   loop = false
-  keepRunning = false
+  keepRunning = true
   dropShadowColor = "rgba(0, 0, 0, 0.008)"
   dropShadowOffset = {
     x: 15,
@@ -165,6 +165,9 @@ function preload() {
   // mask = loadImage(imagePath + '/black-semi-opaque.png');
   // mask = loadImage(imagePath + '/rounded.png');
   mask = loadImage(imagePath + '/rounded.png');
+
+
+  hole = loadImage(imagePath + "/holes/1.png")
 }
 
 function configureCanvas() {
@@ -555,6 +558,13 @@ function drawImgs() {
       currentWidth = strokeW
     }
 
+    if (i == 0) {
+      // draw the hole
+      var holeWidth = currentWidth * 2.5
+      image(hole, startingX - (currentWidth / 8), startingY - (currentWidth / 4), holeWidth, holeWidth);
+
+    }
+
     var imagePattern
     if (makeMask) {
       var strokeMask = createGraphics(l.len + (currentWidth * 2), currentWidth);
@@ -645,7 +655,8 @@ function drawImgs() {
     }
 
     // draw the tail
-    if (i == 0) {
+    if (i == 0 && keepRunning && allLines.length >= maxNumberOfLines) {
+
       if (l.x2 < l.x1) {//} && (l.x1 - l.x2) > margin) {
         push()
         scale(-1, 1)
