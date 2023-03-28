@@ -1,7 +1,7 @@
 <html>
 
 <head>
-  <!-- <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.js"></script> -->
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.js"></script>
   <script src="https://unpkg.com/petite-vue"></script>
   <script src="./wander.js"></script>
 </head>
@@ -22,7 +22,7 @@
     img, dropShadowColor, dropShadowLoop, dropShadowOffset,
     headOffset, headOffsets, tailOffset, tailOffsets,
     totalHeads = 9, totalBodies = 8, totalTails = 7, totalBG = 3, totalPatterns = 8,
-    tails = [], heads = [], bodies = [], bgs = [], patterns = [],
+    tails = [], heads = [], bodies = [], bgs = [], patterns = [], whichSegment,
     head, tail, bgImg, makeMask, hole,
     imagePath = "http://localhost:8888",
     matchTail = true, firstSet = false
@@ -69,10 +69,10 @@
 
   function setParams() {
     width = 800
-    maxLen = width / 6
+    maxLen = width / 12
     minLen = maxLen
-    strokeW = width / 10 //minLen / 1
-    headWidth = strokeW * 1.55
+    strokeW = width / 12 //minLen / 1
+    headWidth = strokeW * 1.8
     margin = headWidth
     maxNumberOfLines = 12
     angleDistanceMin = 60
@@ -110,7 +110,12 @@
     makeMask = false
     dontClearBG = false
     preset = false
+    sameSegment = true
     // bodies = patterns
+
+    // which Segment is random selection from allLines
+    whichSegment = Math.floor(random(0, bodies.length))
+
   }
   function setup() {
     if (!firstSet) {
@@ -608,7 +613,7 @@
 
       // get the index of the item in allLines as the opposite of the position in the array
       var index = allLines.length - i - 1
-      var whichSegment = (index + bodyOffset) % bodies.length
+      whichSegment = sameSegment ? whichSegment : (index + bodyOffset) % bodies.length
       pic = bodies[whichSegment]
       var flip = index % 4
       switch (flip) {
@@ -732,7 +737,7 @@
 
       var tailLength = currentWidth * 1.4
       var tailWidth = tailLength / 2
-
+      console.log({ tailLength })
       var calcTailOffset = {
         x: tailLength / tailOffset.xFactor,
         y: tailWidth * tailOffset.yFactor
@@ -984,7 +989,7 @@
       var newY = Math.floor(previousY + Math.sin(newAngle * Math.PI / 180) * (lineLength))
       // if it does, return the new point
       if (!outSideCanvas(newX, newY, width, margin)) {
-        return { x: newX, y: newY, tries: i + 1, angle: newAngle }
+        return { x: newX, y: newY, tries: i + 1, angle: newAngle, failed }
       }
       failed.push({ changeBy, newAngle, newX, newY })
     }
