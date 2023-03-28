@@ -66,8 +66,9 @@
     minLen = maxLen
     strokeW = width / 12 //minLen / 1
     headWidth = strokeW * 1.8
+
     margin = headWidth
-    maxNumberOfLines = 24
+    maxNumberOfLines = 2
     angleDistanceMin = 60
     startPos = "random" // "bottom", "center", "random"
     strokeStyle = "random" // "randomGreen", "random", "gettingDarker", "none"
@@ -100,7 +101,7 @@
     skipToEnd = false
     dontCross = false
     bodyOffset = Math.floor(Math.random() * totalBodies)
-    makeMask = true
+    makeMask = false
     dontClearBG = false
     preset = false
     sameSegment = true
@@ -600,10 +601,10 @@
         // arc(l.x1, l.y1, 40, 40, l.ang - angleDistanceMin, l.ang + angleDistanceMin);
       } catch (e) { }
 
-      stroke("red")
-      strokeWeight(4)
+      stroke("black")
+      strokeWeight(width / 80)
       line(l.x1, l.y1, l.x2, l.y2)
-      strokeWeight(10)
+      strokeWeight(width / 40)
       stroke('red')
       point(l.x1, l.y1)
       stroke('blue')
@@ -616,7 +617,7 @@
         previewX = l.failed[j].newX
         previewY = l.failed[j].newY
         stroke(l.failed[j].randomColor)
-        strokeWeight(4)
+        strokeWeight(width / 80)
         line(l.x1, l.y1, previewX, previewY)
         strokeWeight(0)
         fill("blue")
@@ -627,7 +628,7 @@
       try {
         strokeWeight(0)
         fill("rgba(0,0,255,0.4)")
-        arc(l.x2, l.y2, 40, 40, l.ang - angleDistanceMin, l.ang + angleDistanceMin);
+        arc(l.x2, l.y2, width / 10, width / 10, l.ang - angleDistanceMin, l.ang + angleDistanceMin);
       } catch (e) { }
     }
   }
@@ -733,6 +734,7 @@
           segmentWeight = currentWidth / 1.2
           addToLength = segmentWeight / 2
         }
+        // console.log(`segment is ${l.len + addToLength} x ${segmentWeight} pixels`)
         image(imagePattern, 0, 0, l.len + addToLength, segmentWeight);
         pop()
 
