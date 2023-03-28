@@ -2,19 +2,20 @@
 
 <head>
   <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.js"></script>
-  <script src="https://unpkg.com/petite-vue"></script>
   <script src="./wander.js"></script>
 </head>
 
 <body>
   <div id="sketch-holder">
   </div>
-  <div v-scope>
-    <button @click="stopAnimation">{{stop ? 'play' : 'stop'}}</button>
-  </div>
 </body>
 
 <script>
+  // on click #sketch-holder, set stop to !stop
+  document.getElementById('sketch-holder').addEventListener('click', () => {
+    stop = !stop
+  })
+
   var stop = false
   var x, y, width, minLen, maxLen, strokeW, margin,
     angleDistanceMin, startPos, previousAng,
@@ -26,14 +27,6 @@
     head, tail, bgImg, makeMask, hole,
     imagePath = "http://localhost:8888",
     matchTail = true, firstSet = false
-
-  PetiteVue.createApp({
-    stop: stop,
-    stopAnimation() {
-      stop = !stop
-      this.stop = stop
-    }
-  }).mount()
 
 
   var createCoordinates = () => {
@@ -74,11 +67,11 @@
     strokeW = width / 12 //minLen / 1
     headWidth = strokeW * 1.8
     margin = headWidth
-    maxNumberOfLines = 12
+    maxNumberOfLines = 24
     angleDistanceMin = 60
     startPos = "random" // "bottom", "center", "random"
     strokeStyle = "random" // "randomGreen", "random", "gettingDarker", "none"
-    fps = 5
+    fps = 6
     bgColor = "rgb(226,226,226)"
     try {
       rotationMode = CENTER
@@ -107,7 +100,7 @@
     skipToEnd = false
     dontCross = false
     bodyOffset = Math.floor(Math.random() * totalBodies)
-    makeMask = false
+    makeMask = true
     dontClearBG = false
     preset = false
     sameSegment = true
@@ -290,9 +283,6 @@
       imageMode(rotationMode);
       angleMode(DEGREES);
       strokeCap(ROUND);
-      if (debug) {
-        strokeW = 3
-      }
       addBackground()
     } catch (e) {
       // console.log(e)
@@ -328,54 +318,50 @@
 
   function addBackground() {
     if (debug) {
-      if (totalLength == 0) {
-        addCartesian()
-      }
+      addCartesian()
+    } else if (bg == "solid") {
+      background(bgColor);
+    } else if (bg == "gradient") {
+      b1 = color(255);
+      b2 = color(0);
+      setGradient(0, 0, width, height, b1, b2, Y_AXIS);
+    } else if (bg == "image") {
+      image(bgImg, width / 2, width / 2, width, width);
     } else {
-      if (bg == "solid") {
-        background(bgColor);
-      } else if (bg == "gradient") {
-        b1 = color(255);
-        b2 = color(0);
-        setGradient(0, 0, width, height, b1, b2, Y_AXIS);
-      } else if (bg == "image") {
-        image(bgImg, width / 2, width / 2, width, width);
-      } else {
-        throw new Error(`Background type ${bg} not supported`)
-      }
-      // ellipse(width / 2, width / 2, width / 4, width / 3,)
-      // scale(this.scalar);
-      if (egg) {
-        fill("rgb(249,229,188)")
-        stroke("black")
-        strokeWeight(2)
-        var direction = totalLength % 12
-        var tilt = totalLength % 6
-        tilt -= 3
-        tilt *= 5
-        tilt = direction >= 6 ? tilt * -1 : tilt
-        push()
-        translate(width / 2, (width / 2) + 100);
-        rotate(tilt)
-        beginShape();
-        vertex(0, -100);
-        scale(2)
-        bezierVertex(25, -100, 40, -65, 40, -40);
-        bezierVertex(40, -15, 25, 0, 0, 0);
-        bezierVertex(-25, 0, -40, -15, -40, -40);
-        bezierVertex(-40, -65, -25, -100, 0, -100);
-        endShape();
-        pop()
-
-        push()
-        fill("black")
-        translate(width / 2, (width / 2) + 100);
-        rotate(tilt)
-        star(0, -100, 25, 50, 5)
-        pop()
-      }
-
+      throw new Error(`Background type ${bg} not supported`)
     }
+    // ellipse(width / 2, width / 2, width / 4, width / 3,)
+    // scale(this.scalar);
+    if (egg) {
+      fill("rgb(249,229,188)")
+      stroke("black")
+      strokeWeight(2)
+      var direction = totalLength % 12
+      var tilt = totalLength % 6
+      tilt -= 3
+      tilt *= 5
+      tilt = direction >= 6 ? tilt * -1 : tilt
+      push()
+      translate(width / 2, (width / 2) + 100);
+      rotate(tilt)
+      beginShape();
+      vertex(0, -100);
+      scale(2)
+      bezierVertex(25, -100, 40, -65, 40, -40);
+      bezierVertex(40, -15, 25, 0, 0, 0);
+      bezierVertex(-25, 0, -40, -15, -40, -40);
+      bezierVertex(-40, -65, -25, -100, 0, -100);
+      endShape();
+      pop()
+
+      push()
+      fill("black")
+      translate(width / 2, (width / 2) + 100);
+      rotate(tilt)
+      star(0, -100, 25, 50, 5)
+      pop()
+    }
+
   }
 
   function star(x, y, radius1, radius2, npoints) {
@@ -402,18 +388,18 @@
     stroke(0)
     // line(width / 2, 0, width / 2, width)
     // line(0, width / 2, width, width / 2)
-    strokeWeight(1)
-    // for (var i = 0; i < width; i += 50) {
-    //   line(i, 0, i, width)
-    //   stroke(11)
-    //   strokeWeight(0)
-    //   strokeWeight(1)
-    //   line(0, i, width, i)
-    // }
+    strokeWeight(5)
+    for (var i = 0; i < width; i += 100) {
+      line(i, 0, i, width)
+      stroke(11)
+      strokeWeight(0)
+      strokeWeight(1)
+      line(0, i, width, i)
+    }
     line(margin, margin, width - margin, margin)
-    line(width - margin, margin, width - margin, width - margin)
-    line(width - margin, width - margin, margin, width - margin)
-    line(margin, width - margin, margin, margin)
+    line(width - margin, margin, width - margin, width)
+    line(width - margin, width, margin, width)
+    line(margin, width, margin, margin)
 
     // stroke("green")
     // for (var i = 0; i < 12; i++) {
@@ -431,7 +417,7 @@
     // for (var i = 0; i < 8; i++) {
     //   var cardinalX = (width / 2) + Math.cos(((i * 45)) * Math.PI / 180) * 500
     //   var cardinalY = (width / 2) + Math.sin(((i * 45)) * Math.PI / 180) * 500
-    //   line(width  2, width / 2, cardinalX, cardinalY)
+    //   line(width / 2, width / 2, cardinalX, cardinalY)
     // }
 
   }
@@ -490,9 +476,10 @@
         drawLines()
       } else {
         // drawLines()
-        if (!debug) {
-          drawImgs()
+        if (debug) {
+          drawDebug()
         }
+        drawImgs()
         // drawLines()
 
       }
@@ -603,6 +590,48 @@
 
   }
 
+  function drawDebug() {
+    for (var i = 0; i < allLines.length; i++) {
+      var l = allLines[i]
+
+      try {
+        strokeWeight(0)
+        fill("rgba(0,0,255,0.4)")
+        // arc(l.x1, l.y1, 40, 40, l.ang - angleDistanceMin, l.ang + angleDistanceMin);
+      } catch (e) { }
+
+      stroke("red")
+      strokeWeight(4)
+      line(l.x1, l.y1, l.x2, l.y2)
+      strokeWeight(10)
+      stroke('red')
+      point(l.x1, l.y1)
+      stroke('blue')
+      strokeWeight(0)
+      fill("blue")
+      text(`${Math.floor(l.x1)}, ${Math.floor(l.y1)} `, l.x1 + 5, l.y1 - 5)
+
+
+      for (var j = 0; j < l.failed.length; j++) {
+        previewX = l.failed[j].newX
+        previewY = l.failed[j].newY
+        stroke(l.failed[j].randomColor)
+        strokeWeight(4)
+        line(l.x1, l.y1, previewX, previewY)
+        strokeWeight(0)
+        fill("blue")
+        halfX = l.x1 > previewX ? l.x1 - ((l.x1 - previewX) / 2) : previewX - ((previewX - l.x1) / 2)
+        halfY = l.y1 > previewY ? l.y1 - ((l.y1 - previewY) / 2) : previewY - ((previewY - l.y1) / 2)
+        text(j + 1, halfX + 5, halfY);
+      }
+      try {
+        strokeWeight(0)
+        fill("rgba(0,0,255,0.4)")
+        arc(l.x2, l.y2, 40, 40, l.ang - angleDistanceMin, l.ang + angleDistanceMin);
+      } catch (e) { }
+    }
+  }
+
   function drawImgs() {
     for (var i = 0; i < allLines.length; i++) {
       // start new relative translation and rotation
@@ -647,67 +676,70 @@
         currentWidth = strokeW
       }
 
-      if (i == 0) {
+      if (i == 0 && !debug) {
         // draw the hole
         var holeWidth = currentWidth * 2.5
         image(hole, startingX - (currentWidth / 8), startingY - (currentWidth / 4), holeWidth, holeWidth);
 
       }
 
-      var imagePattern
-      if (makeMask) {
-        var strokeMask = createGraphics(l.len + (currentWidth * 2), currentWidth);
-        strokeMask.strokeWeight(currentWidth)
-        strokeMask.line(currentWidth / 2, currentWidth / 2, l.len + (currentWidth * 1.5), currentWidth / 2)
+      if (!debug) {
+
+        var imagePattern
+        if (makeMask) {
+          var strokeMask = createGraphics(l.len + (currentWidth * 2), currentWidth);
+          strokeMask.strokeWeight(currentWidth)
+          strokeMask.line(currentWidth / 2, currentWidth / 2, l.len + (currentWidth * 1.5), currentWidth / 2)
 
 
-        imagePattern = createGraphics(l.len + (currentWidth * 2), currentWidth);
-        imagePattern.background(allColors[i])
-        // imagePattern.image(pic, 0, 0, l.len + (currentWidth * 2), currentWidth)
-        imagePattern.image(pic, 0, -currentWidth / 2, l.len + (currentWidth * 2), currentWidth * 2)
+          imagePattern = createGraphics(l.len + (currentWidth * 2), currentWidth);
+          imagePattern.background(allColors[i])
+          // imagePattern.image(pic, 0, 0, l.len + (currentWidth * 2), currentWidth)
+          imagePattern.image(pic, 0, -currentWidth / 2, l.len + (currentWidth * 2), currentWidth * 2)
 
-        imagePattern.loadPixels()
-        strokeMask.loadPixels()
-        for (let j = 0; j < imagePattern.pixels.length; j += 4) {
-          imagePattern.pixels[j + 3] = strokeMask.pixels[j + 3]
+          imagePattern.loadPixels()
+          strokeMask.loadPixels()
+          for (let j = 0; j < imagePattern.pixels.length; j += 4) {
+            imagePattern.pixels[j + 3] = strokeMask.pixels[j + 3]
+          }
+          imagePattern.updatePixels()
+        } else {
+          imagePattern = pic
         }
-        imagePattern.updatePixels()
-      } else {
-        imagePattern = pic
+
+        push()
+        var xDist = Math.abs(l.x2 - l.x1)
+        var yDist = Math.abs(l.y2 - l.y1)
+        var fractionOfTotal = 1 / 2
+        var p = {
+          x: l.x1 + ((l.x2 < l.x1 ? -1 : 1) * xDist) * fractionOfTotal,
+          y: l.y1 + ((l.y2 < l.y1 ? -1 : 1) * yDist) * fractionOfTotal
+        }
+        translate(p.x, p.y);
+        rotate(l.ang)
+
+        push()
+        scale(flip1 ? -1 : 1, flip2 ? -1 : 1)
+        // tint(segColor)
+        // tint(allColors[i][0], allColors[i][1], allColors[i][2])
+        var segmentWeight, addToLength
+        if (makeMask) {
+          segmentWeight = currentWidth / 1.75 // strokeW - ((allLines.length - 1 - i) * diff)
+          stroke("black")
+          strokeWeight(segmentWeight + (segmentWeight * 0.1))
+          line(-l.len / 2, 0, l.len / 2, 0)
+          addToLength = segmentWeight
+        } else {
+          segmentWeight = currentWidth / 1.2
+          addToLength = segmentWeight / 2
+        }
+        image(imagePattern, 0, 0, l.len + addToLength, segmentWeight);
+        pop()
+
+
+        // revert to original translation and rotation
+        pop()
       }
-
-      push()
-      var xDist = Math.abs(l.x2 - l.x1)
-      var yDist = Math.abs(l.y2 - l.y1)
-      var fractionOfTotal = 1 / 2
-      var p = {
-        x: l.x1 + ((l.x2 < l.x1 ? -1 : 1) * xDist) * fractionOfTotal,
-        y: l.y1 + ((l.y2 < l.y1 ? -1 : 1) * yDist) * fractionOfTotal
-      }
-      translate(p.x, p.y);
-      rotate(l.ang)
-
-      push()
-      scale(flip1 ? -1 : 1, flip2 ? -1 : 1)
-      // tint(segColor)
-      // tint(allColors[i][0], allColors[i][1], allColors[i][2])
-      var segmentWeight, addToLength
-      if (makeMask) {
-        segmentWeight = currentWidth / 1.75 // strokeW - ((allLines.length - 1 - i) * diff)
-        stroke("black")
-        strokeWeight(segmentWeight + (segmentWeight * 0.1))
-        line(-l.len / 2, 0, l.len / 2, 0)
-        addToLength = segmentWeight
-      } else {
-        segmentWeight = currentWidth / 1.2
-        addToLength = segmentWeight / 2
-      }
-      image(imagePattern, 0, 0, l.len + addToLength, segmentWeight);
-      pop()
-
-
-      // revert to original translation and rotation
-      pop()
 
       // draw the head
       if (i == allLines.length - 1) {
@@ -737,7 +769,6 @@
 
       var tailLength = currentWidth * 1.4
       var tailWidth = tailLength / 2
-      console.log({ tailLength })
       var calcTailOffset = {
         x: tailLength / tailOffset.xFactor,
         y: tailWidth * tailOffset.yFactor
@@ -847,7 +878,8 @@
       x2: x2,
       y2: y2,
       ang: ang,
-      len: len
+      len: len,
+      failed: angResults.failed
     }
     allLines.push(newLine)
     allColors.unshift(c)
@@ -967,21 +999,49 @@
     var angleDelta = Math.floor(Math.random() * maxDifferenceBetweenAngles)
 
     // this ensures that the search for a working angle doesn't always start by adding to the angle (turning clockwise)
-    if (angleDelta < maxDifferenceBetweenAngles / 2) {
+    if (angleDelta <= (maxDifferenceBetweenAngles / 2)) {
       angleDelta = angleDelta * -1
     }
+
+    // this ensures that if the first solution doesn't work, the next one isn't always the first solution through addition (turn clockwise)
+    var isOddAdditionalRandom = 1
+    // if angleDelta is odd, then isOddAdditionalRandom will be -1
+    if (angleDelta % 2 == 0) {
+      isOddAdditionalRandom = -1
+    }
+
     // keeping track of the failed attempts allows you to debug
     var failed = []
     // changeByAmount is the amount that the angle will be changed by each time. It should remain lower than maxDifferenceBetweenAngles
-    var changeByAmount = 59
+    var changeByAmount = maxDifferenceBetweenAngles - 1
     var anglesInACircle = 360
     for (var i = 0; i < anglesInACircle / changeByAmount; i++) {
+      // first try, i == 0 so isOdd is false
+      // second try, i == 1 so isOdd is true
+      // third try, i == 2 so isOdd is false
+      // fourth try, i == 3 so isOdd is true
       var iIsOdd = i % 2 == 0 ? false : true
-      var addOrRemove = iIsOdd ? -1 : 1
-      var timesTried = Math.floor(i / 2)
 
+      // first try, addOrRemove should be 1
+      // second try, addOrRemove should be -1
+      // third try, addOrRemove should be 1
+      // fourth try, addOrRemove should be -1
+      var addOrRemove = (iIsOdd ? -1 : 1)
+
+      // first try, i == 0 and timesTried should be 0
+      // second try, i == 1 and timesTried should be 1
+      // third try, i == 2 and timesTried should be 1
+      // fourth try, i == 3 and timesTried should be 2
+      var timesTried = Math.ceil(i / 2)
+
+      // first try should be the angleDelta
+      // second try should be the angleDelta + changeByAmount
+      // third try should be the angleDelta - changeByAmount
+      // fourth try should be the angleDelta + (2 * changeByAmount)
       var changeBy = angleDelta + (timesTried * changeByAmount) * -1 * addOrRemove
-      var newAngle = previousAngle + changeBy
+
+      // actually applying the change to the angle should also be randomly additional or subtractive
+      var newAngle = previousAngle + (changeBy * isOddAdditionalRandom)
       newAngle = newAngle < 0 ? 360 + newAngle : (newAngle > 360 ? newAngle % 360 : newAngle)
 
       // check if the angle works with that distance
@@ -991,7 +1051,8 @@
       if (!outSideCanvas(newX, newY, width, margin)) {
         return { x: newX, y: newY, tries: i + 1, angle: newAngle, failed }
       }
-      failed.push({ changeBy, newAngle, newX, newY })
+      var randomColor = `rgb(${Math.ceil(random(0, 255))}, ${Math.ceil(random(0, 255))}, ${Math.ceil(random(0, 255))})`
+      failed.push({ changeBy, newAngle, newX, newY, randomColor })
     }
     console.log({ previousX, previousY, previousAngle, maxDifferenceBetweenAngles, lineLength, width, margin })
     console.log({ failed })
