@@ -17,7 +17,7 @@
   })
 
   var stop = false
-  var x, y, width, minLen, maxLen, strokeW, margin,
+  var x, y, width, minLen, maxLen, strokeW, margin, buffer,
     angleDistanceMin, startPos, previousAng,
     strokeStyle, totalLength = 0, allLines = [], allColors = [], presetLines = [], presetColors = [],
     img, dropShadowColor, dropShadowLoop, dropShadowOffset,
@@ -68,12 +68,12 @@
     headWidth = strokeW * 2
 
     margin = headWidth
-    maxNumberOfLines = 4
+    maxNumberOfLines = 36
     angleDistanceMin = 60
     startPos = "random" // "bottom", "center", "random"
     strokeStyle = "random" // "randomGreen", "random", "gettingDarker", "none"
     fps = 50
-    tweens = 8
+    tweens = 6
     bgColor = "rgb(226,226,226)"
     try {
       rotationMode = CENTER
@@ -114,6 +114,7 @@
     if (bg == "fourGradient") {
       bgGradientColors = [[randomNum(0, 255), randomNum(0, 255), randomNum(0, 255)], [randomNum(0, 255), randomNum(0, 255), randomNum(0, 255)], [randomNum(0, 255), randomNum(0, 255), randomNum(0, 255)], [randomNum(0, 255), randomNum(0, 255), randomNum(0, 255)]];
     }
+    buffer = -margin / 2//0 //- margin//width / 3
   }
   function setup() {
     if (!firstSet) {
@@ -138,8 +139,8 @@
       yFactor: 2.3
     },
     _2: {
-      xFactor: 10,
-      yFactor: 2.1
+      xFactor: 2.5,
+      yFactor: 2.3
     },
     _3: {
       xFactor: 2.2,
@@ -211,14 +212,14 @@
 
   function preload() {
 
-    var tailRandom = 7//Math.ceil(Math.random() * totalTails)
+    var tailRandom = Math.ceil(Math.random() * totalTails)
     var headRandom;
     tail = loadImage(imagePath + `/tail/${tailRandom}.png`)
     if (tailRandom < 6 && matchTail) {
       headRandom = tailRandom
       head = loadImage(imagePath + `/head/${tailRandom}.png`)
     } else {
-      headRandom = 7//totalTails + Math.floor(Math.random() * (totalHeads - totalTails + 1))
+      headRandom = totalTails + Math.floor(Math.random() * (totalHeads - totalTails + 1))
       head = loadImage(imagePath + `/head/${headRandom}.png`)
     }
 
@@ -416,6 +417,7 @@
     angleMode(DEGREES);
   }
   function addCartesian() {
+
     background(bgColor);
     textSize(16);
     strokeWeight(3)
@@ -432,9 +434,12 @@
     }
     rectMode(CORNER)
     strokeWeight(0)
-    rect(0, 0, width, margin)
-    rect(0, margin, margin, width)
-    rect(width - margin, margin, margin, width)
+    fill('rgba(255,255,0,0.5)')
+    rect(0, 0, width, -buffer)
+    rect(0, -buffer, -buffer, width)
+    rect(width - -buffer, -buffer, -buffer, width)
+    rect(-buffer, width - -buffer, width - - buffer - - buffer, -buffer)
+
     rectMode(rotationMode)
     strokeWeight(1)
 
@@ -510,11 +515,9 @@
     if (!dontClearBG) {
       addBackground()
     }
-
-
-    if (debug) {
-      drawDebug()
-    }
+    // if (debug) {
+    //   drawDebug()
+    // }
     drawSegments()
   }
   function setStrokeColor() {
@@ -635,7 +638,8 @@
       strokeWeight(debugLineWeight)
       line(l.x1, l.y1, l.x2, l.y2)
       strokeWeight(width / 40)
-      stroke('rgb(0,255,0)')
+      // stroke('rgb(0,255,0)')
+      stroke('green')
       point(l.x1, l.y1)
       point(l.x2, l.y2)
       stroke('blue')
@@ -661,7 +665,8 @@
       }
       try {
         strokeWeight(0)
-        fill("rgba(0,0,255,0.4)")
+        // fill("rgba(0,0,255,0.4)")
+        // fill('green')
         arc(l.x2, l.y2, maxLen * 2, maxLen * 2, l.ang - angleDistanceMin, l.ang + angleDistanceMin);
       } catch (e) { }
     }
@@ -752,7 +757,8 @@
       var b = (i == 0 && !debug && animated) || (i == 1 && totalLength > ((maxNumberOfLines) * tweens) && !debug && animated)
       if (a || b) {
         // draw the hole
-        var holeWidth = currentWidth * 2.5
+        var holeWidth = currentWidth * 2
+        console.log({ holeWidth })
         // push()
         // tint(255, 127)
         image(hole, startingX - (currentWidth / 8), startingY - (currentWidth / 4), holeWidth, holeWidth);
@@ -761,35 +767,14 @@
 
 
       if (i !== allLines.length - 1 || !headAsSegment) {
-        if (drawings) {
+        if (drawings && !debug) {
 
           // get the index of the item in allLines as the opposite of the position in the array
           var index = allLines.length - i - 1
           whichSegment = sameSegment ? whichSegment : (index + bodyOffset) % bodies.length
           pic = bodies[whichSegment]
-          var flip = index % 1
-          var flip1 = x2 < x1
           var flip1 = (x1 - x2) > (width / 80)
-          var flip2 = flip1//x2 < x1//y1 > y2
-          // switch (flip) {
-          //   case 0:
-          //     flip1 = true
-          //     flip2 = true
-          //     break;
-          //   case 1:
-          //     flip1 = false
-          //     flip2 = true
-          //     break;
-          //   case 2:
-          //     flip1 = true
-          //     flip2 = false
-          //     break;
-          //   case 3:
-          //     flip1 = false
-          //     flip2 = false
-          //     break;
-          // }
-
+          var flip2 = flip1
 
           if (!debug) {
 
@@ -860,6 +845,42 @@
             // revert to original translation and rotation
             pop()
           }
+        } else if (debug) {
+          stroke("black")
+          var debugLineWeight = width / 50
+
+          strokeWeight(debugLineWeight)
+          line(x1, y1, x2, y2)
+          strokeWeight(debugLineWeight)
+          stroke('rgb(0,255,0)')
+          point(x1, y1)
+          point(x2, y2)
+          stroke('blue')
+          strokeWeight(0)
+          fill("blue")
+          text(`${Math.floor(x1)}, ${Math.floor(y1)} `, x1 + 5, y1 - 5)
+
+
+          for (var j = 0; j < l.failed.length; j++) {
+            previewX = l.failed[j].newX
+            previewY = l.failed[j].newY
+            stroke(l.failed[j].randomColor)
+            strokeWeight(debugLineWeight)
+            line(x1, y1, previewX, previewY)
+            strokeWeight(0)
+            fill("blue")
+            halfX = x1 > previewX ? x1 - ((x1 - previewX) / 2) : previewX - ((previewX - x1) / 2)
+            halfY = y1 > previewY ? y1 - ((y1 - previewY) / 2) : previewY - ((previewY - y1) / 2)
+            text(j + 1, halfX + 5, halfY);
+            strokeWeight(debugLineWeight)
+            stroke("red")
+            point(previewX, previewY)
+          }
+          try {
+            strokeWeight(0)
+            fill("rgba(0,0,255,0.4)")
+            arc(x2, y2, maxLen, maxLen, ang - angleDistanceMin, ang + angleDistanceMin);
+          } catch (e) { }
         } else {
           stroke("black")
           var segmentWeight = strokeW / 1.75 // strokeW - ((allLines.length - 1 - i) * diff)
@@ -1133,7 +1154,6 @@
   function outSideCanvas(x, y, width, margin) {
     // if (x < 0 || x > width || y < 0 || y > width) {//- margin) {
     // if (x < (margin / 2) || x > width - (margin / 2) || y < margin || y > width) {//- margin) {
-    var buffer = -margin / 2//0 //- margin//width / 3
     if (x < 0 - buffer || x > width + buffer || y < 0 - buffer || y > width + buffer) {//- margin) {
       return true
     }
