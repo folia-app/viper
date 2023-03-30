@@ -24,7 +24,7 @@
     headOffset, headOffsets, tailOffset, tailOffsets,
     totalHeads = 9, totalBodies = 8, totalTails = 7, totalBG = 3, totalPatterns = 8,
     tails = [], heads = [], bodies = [], bgs = [], patterns = [], whichSegment,
-    head, tail, bgImg, makeMask, hole,
+    head, tail, bgImg, makeMask, hole, tweens,
     imagePath = "http://localhost:8888",
     matchTail = true, firstSet = false
 
@@ -68,18 +68,19 @@
     headWidth = strokeW * 1.8
 
     margin = headWidth
-    maxNumberOfLines = 2
+    maxNumberOfLines = 30
     angleDistanceMin = 60
     startPos = "random" // "bottom", "center", "random"
     strokeStyle = "random" // "randomGreen", "random", "gettingDarker", "none"
-    fps = 6
+    fps = 8
+    tweens = 6
     bgColor = "rgb(226,226,226)"
     try {
       rotationMode = CENTER
     } catch (e) {
       // console.log(e)
     }
-    debug = false
+    debug = true
     animated = false
     makeLoop = false
     keepRunning = true
@@ -208,7 +209,6 @@
       head = loadImage(imagePath + `/head/${tailRandom}.png`)
     } else {
       headRandom = totalTails + Math.floor(Math.random() * (totalHeads - totalTails + 1))
-      console.log(headRandom)
       head = loadImage(imagePath + `/head/${headRandom}.png`)
     }
 
@@ -397,29 +397,43 @@
       strokeWeight(1)
       line(0, i, width, i)
     }
-    line(margin, margin, width - margin, margin)
-    line(width - margin, margin, width - margin, width)
-    line(width - margin, width, margin, width)
-    line(margin, width, margin, margin)
+    rectMode(CORNER)
+    strokeWeight(0)
+    rect(0, 0, width, margin)
+    rect(0, margin, margin, width)
+    rect(width - margin, margin, margin, width)
+    rectMode(rotationMode)
+    strokeWeight(1)
 
-    // stroke("green")
-    // for (var i = 0; i < 12; i++) {
-    //   var cardinalX = (width / 2) + Math.cos(((i * 30)) * Math.PI / 180) * 225
-    //   var cardinalY = (width / 2) + Math.sin(((i * 30)) * Math.PI / 180) * 225
-    //   strokeWeight(0)
-    //   fill("green")
-    //   text(i * 30, cardinalX, cardinalY)
-    //   strokeWeight(1)
-    //   line(width / 2, width / 2, cardinalX, cardinalY)
 
-    // }
+    // line(margin, margin, width - margin, margin)
+    // line(width - margin, margin, width - margin, width)
+    // line(width - margin, width, margin, width)
+    // line(margin, width, margin, margin)
 
-    // stroke("red")
-    // for (var i = 0; i < 8; i++) {
-    //   var cardinalX = (width / 2) + Math.cos(((i * 45)) * Math.PI / 180) * 500
-    //   var cardinalY = (width / 2) + Math.sin(((i * 45)) * Math.PI / 180) * 500
-    //   line(width / 2, width / 2, cardinalX, cardinalY)
-    // }
+
+    stroke("green")
+    for (var i = 0; i < 12; i++) {
+      var cardinalX = (width / 2) + Math.cos(((i * 30)) * Math.PI / 180) * 225
+      var cardinalY = (width / 2) + Math.sin(((i * 30)) * Math.PI / 180) * 225
+      strokeWeight(0)
+      fill("green")
+      text(i * 30, cardinalX, cardinalY)
+      strokeWeight(1)
+      line(width / 2, width / 2, cardinalX, cardinalY)
+
+    }
+
+    stroke("red")
+    fill("red")
+    for (var i = 0; i < 8; i++) {
+      var cardinalX = (width / 2) + Math.cos(((i * 45)) * Math.PI / 180) * (width / 2.5)
+      var cardinalY = (width / 2) + Math.sin(((i * 45)) * Math.PI / 180) * (width / 2.5)
+      strokeWeight(1)
+      line(width / 2, width / 2, cardinalX, cardinalY)
+      strokeWeight(0)
+      text(i * (360 / 8), cardinalX, cardinalY)
+    }
 
   }
 
@@ -429,7 +443,7 @@
     if (stop) return
     totalLength++
     if (!keepRunning) {
-      if (totalLength > (maxNumberOfLines * (animated ? 2 : 1))) {
+      if (totalLength > (maxNumberOfLines * (animated ? tweens : 1))) {
         if (makeLoop) {
           totalLength = 0
           allLines = []
@@ -455,38 +469,23 @@
       }
     }
 
-    // if totalLength is odd
-    // if (totalLength % 2 || !animated) {
-    addLine()
-    //   if (animated && !drawings) {
-    //     drawMidLines()
-    //   }
-    // } else {
-    //   drawLines()
-    // }
 
-    if (totalLength != (maxNumberOfLines * (animated ? 2 : 1)) && skipToEnd) {
-      return
+    if ((totalLength % tweens == 1) || !animated) {
+      addLine()
     }
+
     if (!dontClearBG) {
       addBackground()
     }
 
-    if (!animated) {
-      if (!drawings) {
-        drawLines()
-      } else {
-        // drawLines()
-        if (debug) {
-          drawDebug()
-        }
-        drawImgs()
-        // drawLines()
-
+    if (!drawings) {
+      drawLines()
+    } else {
+      if (debug) {
+        drawDebug()
       }
+      drawImgs()
     }
-    // shouldSave image
-
   }
   function setStrokeColor() {
     var c
@@ -602,10 +601,11 @@
       } catch (e) { }
 
       stroke("black")
-      strokeWeight(width / 80)
+      var debugLineWeight = width / 40
+      strokeWeight(debugLineWeight)
       line(l.x1, l.y1, l.x2, l.y2)
       strokeWeight(width / 40)
-      stroke('red')
+      stroke('rgb(0,255,0)')
       point(l.x1, l.y1)
       stroke('blue')
       strokeWeight(0)
@@ -617,18 +617,21 @@
         previewX = l.failed[j].newX
         previewY = l.failed[j].newY
         stroke(l.failed[j].randomColor)
-        strokeWeight(width / 80)
+        strokeWeight(debugLineWeight)
         line(l.x1, l.y1, previewX, previewY)
         strokeWeight(0)
         fill("blue")
         halfX = l.x1 > previewX ? l.x1 - ((l.x1 - previewX) / 2) : previewX - ((previewX - l.x1) / 2)
         halfY = l.y1 > previewY ? l.y1 - ((l.y1 - previewY) / 2) : previewY - ((previewY - l.y1) / 2)
         text(j + 1, halfX + 5, halfY);
+        strokeWeight(width / 40)
+        stroke("red")
+        point(previewX, previewY)
       }
       try {
         strokeWeight(0)
         fill("rgba(0,0,255,0.4)")
-        arc(l.x2, l.y2, width / 10, width / 10, l.ang - angleDistanceMin, l.ang + angleDistanceMin);
+        arc(l.x2, l.y2, maxLen, maxLen, l.ang - angleDistanceMin, l.ang + angleDistanceMin);
       } catch (e) { }
     }
   }
@@ -801,61 +804,117 @@
     }
   }
 
-  function drawMidLines() {
-    for (var i = 0; i < allLines.length; i++) {
-      var x1, y1, x2, y2
-      var l = allLines[i]
-      if (i == 0) {
-        x1 = l.x1
-        y1 = l.y1
-        x2 = (l.x1 + l.x2) / 2
-        y2 = (l.y1 + l.y2) / 2
-      } else {
-        var prevL = allLines[i - 1]
-        x1 = (prevL.x1 + prevL.x2) / 2
-        y1 = (prevL.y1 + prevL.y2) / 2
+  // function drawMidLines() {
+  //   for (var i = 0; i < allLines.length; i++) {
+  //     var x1, y1, x2, y2
+  //     var l = allLines[i]
+  //     if (i == 0) {
+  //       x1 = l.x1
+  //       y1 = l.y1
+  //       x2 = (l.x1 + l.x2) / 2
+  //       y2 = (l.y1 + l.y2) / 2
+  //     } else {
+  //       var prevL = allLines[i - 1]
+  //       x1 = (prevL.x1 + prevL.x2) / 2
+  //       y1 = (prevL.y1 + prevL.y2) / 2
 
-        x2 = (l.x1 + l.x2) / 2
-        y2 = (l.y1 + l.y2) / 2
-      }
-      var c = allColors[i]
-      stroke("rgba(0, 0, 0, 1)")
-      strokeWeight(strokeW + 2)
-      line(x1, y1, x2, y2)
-      if (!debug) {
-        // stroke(c)
-        // strokeWeight(strokeW)
-        // line(x1, y1, x2, y2)
-      }
+  //       x2 = (l.x1 + l.x2) / 2
+  //       y2 = (l.y1 + l.y2) / 2
+  //     }
+  //     var c = allColors[i]
+  //     stroke("rgba(0, 0, 0, 1)")
+  //     strokeWeight(strokeW + 2)
+  //     line(x1, y1, x2, y2)
+  //     if (!debug) {
+  //       // stroke(c)
+  //       // strokeWeight(strokeW)
+  //       // line(x1, y1, x2, y2)
+  //     }
 
-    }
-  }
+  //   }
+  // }
 
   function drawLines() {
+    // console.log('----------------drawLines----------------')
+    // console.log(`there are ${allLines.length} lines`)
     // var diff = Math.floor(strokeW / allLines.length)
-
     for (var i = 0; i < allLines.length; i++) {
-      var l = allLines[i]
-      var c = allColors[i]
-      if (!debug && includeShadow) {
-        addDropShadow(i, allLines)
+      if (i == 0 && allLines.length > maxNumberOfLines) {
+        continue
       }
-      stroke("black")
-      // make segmentWeight a fraction of the length of allLines
+      // console.log(`###########${i}`)
+      var l = allLines[i]
+      // console.log('current line')
+      // console.log(`l.x1: ${l.x1}, l.y1: ${l.y1}, l.x2: ${l.x2}, l.y2: ${l.y2}`)
 
+      var c = allColors[i]
+      if (animated) {
+        var offsetTilNextSegment = totalLength % tweens
+        if (i == 0 && allLines.length <= maxNumberOfLines) {
+          lastLine = {
+            x1: startingX,
+            y1: startingY,
+            x2: startingX,
+            y2: startingY
+          }
+        } else {
+          lastLine = allLines[i - 1]
+        }
+
+        // console.log('lastLine')
+        // console.log(`ll.x1: ${lastLine.x1}, ll.y1: ${lastLine.y1}, ll.x2: ${lastLine.x2}, ll.y2: ${lastLine.y2}`)
+
+        // normally we draw each line x1,y1 to x2,y2
+        // x1,y1 is the end of the previous line
+        // x2,y2 is the end of the current line
+        x1 = offsetTilNextSegment == 0 ? l.x1 : ((l.x1 - lastLine.x1) * (offsetTilNextSegment / tweens)) + lastLine.x1
+        y1 = offsetTilNextSegment == 0 ? l.y1 : ((l.y1 - lastLine.y1) * (offsetTilNextSegment / tweens)) + lastLine.y1
+        x2 = offsetTilNextSegment == 0 ? l.x2 : ((l.x2 - lastLine.x2) * (offsetTilNextSegment / tweens)) + lastLine.x2
+        y2 = offsetTilNextSegment == 0 ? l.y2 : ((l.y2 - lastLine.y2) * (offsetTilNextSegment / tweens)) + lastLine.y2
+
+        // console.log(`tween line # ${offsetTilNextSegment} of ${tweens}`)
+        // console.log(`x1: ${x1}, y1: ${y1}, x2: ${x2}, y2: ${y2}`)
+        // point(x1, y1)
+        // point(x2, y2)
+
+        // if (i == allLines.length - 1) {
+        //   x1 = x
+        //   y1 = y
+        // }
+      } else {
+        x1 = l.x1
+        x2 = l.x2
+        y1 = l.y1
+        y2 = l.y2
+      }
+
+      // TODO: add drop shadow
+      // if (includeShadow) {
+      //   addDropShadow(i, allLines)
+      // }
+
+      stroke("black")
       var segmentWeight = strokeW / 1.75 // strokeW - ((allLines.length - 1 - i) * diff)
       strokeWeight(segmentWeight + 2)
-      line(l.x1, l.y1, l.x2, l.y2)
-      if (!debug) {
-        stroke(c)
-        strokeWeight(segmentWeight)
-        line(l.x1, l.y1, l.x2, l.y2)
-      }
+      line(x1, y1, x2, y2)
+      stroke(c)
+      strokeWeight(segmentWeight)
+      line(x1, y1, x2, y2)
+
+      // stroke("red")
+      // strokeWeight(10)
+      // point(lastLine.x1, lastLine.y1)
+      // point(lastLine.x2, lastLine.y2)
+
+      // stroke("blue")
+      // point(l.x1, l.y1)
+      // point(l.x2, l.y2)
     }
   }
 
 
   function addLine() {
+    console.log('----addLine----')
     if (presetLines.length > 0) {
       var l = presetLines.shift()
       allLines.push(l)
@@ -866,7 +925,7 @@
       previousAng = Math.floor(Math.random() * 360)
     }
     var len = pickLength()
-    var angResults = returnNextPoint(x, y, previousAng, angleDistanceMin, len, width, margin)
+    var angResults = wander(x, y, previousAng, angleDistanceMin, len, width, margin)
     var ang = angResults.angle
     // var ang = pickAngle(x, y, angleDistanceMin)
     x2 = x + Math.cos(ang * Math.PI / 180) * len
@@ -886,7 +945,9 @@
     allLines.push(newLine)
     allColors.unshift(c)
 
-    if (allLines.length > maxNumberOfLines) {
+    var addToMax = animated ? 1 : 0
+
+    if (allLines.length > maxNumberOfLines + addToMax) {
       allLines.shift()
       allColors.shift()
     }
@@ -919,18 +980,128 @@
     }
   };
 
-  // pickAngle
-  /*
-  The pickAngle function is the heart of the algorithm.
-  It takes the current x and y coordinates and returns an angle that is within the angleDistanceMin of the previous angle.
-  It then checks whether this new angle is within the bounds of the canvas.
-  If it is not, it will try to find an angle that is within the bounds of the canvas.
-  It does this by adding increments to the new angle until it reaches the angleDistanceMin.
-  If it still can't find an angle it will repeat the process, only this time removing increments from the new angle.
-  If this still doesn't work it will try increasing the angleDistanceMin and doing both adding and removing again.
-  If this still doens't work it will continue to increase the angleDistanceMin and repeat the attempts until angleDistanceMin is 180.
-  If it still does not find a working angle by then it will throw an Error and print the coordinates that it was unable to succeed from.
-  */
+
+  // wander is the heart of the algorithm
+  // it takes the previous line's end point and angle and returns a new angle
+  // the new angle is within the maxDifferenceBetweenAngles of the previous angle
+  // the new angle is also within the margin of the canvas
+  // if the new angle doesn't work, it tries again, increasing until the worst case scenario which is 180 degrees
+  // it's been optimized to find a solution 100% of the time in under 
+  function wander(previousX, previousY, previousAngle, maxDifferenceBetweenAngles, lineLength, width, margin) {
+
+    // maxDifferenceBetweenAngles cannot be greater than 180
+    if (maxDifferenceBetweenAngles > 180) throw new Error('maxDifferenceBetweenAngles cannot be greater than 180')
+
+    // get a random amount to change the angle by
+    var angleDelta = Math.floor(Math.random() * maxDifferenceBetweenAngles)
+
+    // this ensures that the search for a working angle doesn't always start by adding to the angle (turning clockwise)
+    if (angleDelta < maxDifferenceBetweenAngles / 2) {
+      angleDelta = angleDelta * -1
+    }
+
+    // this ensures that if the first solution doesn't work, the next one isn't always the first solution through addition (turn clockwise)
+    var isOddAdditionalRandom = 1
+    // if angleDelta is odd, then isOddAdditionalRandom will be -1
+    if (angleDelta % 2 == 0) {
+      isOddAdditionalRandom = -1
+    }
+
+    // keeping track of the failed attempts allows you to debug
+    var failed = []
+    // changeByAmount is the amount that the angle will be changed by each time. It should remain lower than maxDifferenceBetweenAngles
+    var changeByAmount = 59
+    var anglesInACircle = 360
+    for (var i = 0; i < anglesInACircle / changeByAmount; i++) {
+      // first try, i == 0 so isOdd is false
+      // second try, i == 1 so isOdd is true
+      // third try, i == 2 so isOdd is false
+      // fourth try, i == 3 so isOdd is true
+      var iIsOdd = i % 2 == 0 ? false : true
+
+      // first try, addOrRemove should be 1
+      // second try, addOrRemove should be -1
+      // third try, addOrRemove should be 1
+      // fourth try, addOrRemove should be -1
+      var addOrRemove = iIsOdd ? -1 : 1
+
+      // first try, i == 0 and timesTried should be 0
+      // second try, i == 1 and timesTried should be 1
+      // third try, i == 2 and timesTried should be 1
+      // fourth try, i == 3 and timesTried should be 2
+      var timesTried = Math.floor(i / 2)
+
+      // first try should be the angleDelta
+      // second try should be the angleDelta + changeByAmount
+      // third try should be the angleDelta - changeByAmount
+      // fourth try should be the angleDelta + (2 * changeByAmount)
+      var changeBy = angleDelta + (timesTried * changeByAmount) * -1 * addOrRemove
+
+      // actually applying the change to the angle should also be randomly additional or subtractive
+      var newAngle = previousAngle + (changeBy)// * isOddAdditionalRandom)
+      newAngle = newAngle < 0 ? 360 + newAngle : (newAngle > 360 ? newAngle % 360 : newAngle)
+
+      // check if the angle works with that distance
+      var newX = Math.floor(previousX + Math.cos(newAngle * Math.PI / 180) * (lineLength))
+      var newY = Math.floor(previousY + Math.sin(newAngle * Math.PI / 180) * (lineLength))
+      // if it does, return the new point
+      if (!outSideCanvas(newX, newY, width, margin)) {
+        return { x: newX, y: newY, tries: i + 1, angle: newAngle, failed }
+      }
+      var randomColor = `rgb(${Math.ceil(random(0, 255))}, ${Math.ceil(random(0, 255))}, ${Math.ceil(random(0, 255))})`
+      failed.push({ changeBy, newAngle, newX, newY, randomColor })
+    }
+    console.log({ previousX, previousY, previousAngle, maxDifferenceBetweenAngles, lineLength, width, margin })
+    console.log({ failed })
+    throw new Error(`Unable to find a new point from(${previousX}, ${previousY}, ${previousAngle})`)
+  }
+
+  function outSideCanvas(x, y, width, margin) {
+    if (x < margin || x > width - margin || y < margin || y > width) {//- margin) {
+      return true
+    }
+    return false
+  }
+
+  function returnNextPoint(previousX, previousY, previousAngle, maxDifferenceBetweenAngles, lineLength, width, margin) {
+
+    // maxDifferenceBetweenAngles cannot be greater than 180
+    if (maxDifferenceBetweenAngles > 180) throw new Error('maxDifferenceBetweenAngles cannot be greater than 180')
+
+    // get a random amount to change the angle by
+    var angleDelta = Math.floor(Math.random() * maxDifferenceBetweenAngles)
+
+    // this ensures that the search for a working angle doesn't always start by adding to the angle (turning clockwise)
+    if (angleDelta < maxDifferenceBetweenAngles / 2) {
+      angleDelta = angleDelta * -1
+    }
+    // keeping track of the failed attempts allows you to debug
+    var failed = []
+    // changeByAmount is the amount that the angle will be changed by each time. It should remain lower than maxDifferenceBetweenAngles
+    var changeByAmount = 59
+    var anglesInACircle = 360
+    for (var i = 0; i < anglesInACircle / changeByAmount; i++) {
+      var iIsOdd = i % 2 == 0 ? false : true
+      var addOrRemove = iIsOdd ? -1 : 1
+      var timesTried = Math.floor(i / 2)
+
+      var changeBy = angleDelta + (timesTried * changeByAmount) * -1 * addOrRemove
+      var newAngle = previousAngle + changeBy
+      newAngle = newAngle < 0 ? 360 + newAngle : (newAngle > 360 ? newAngle % 360 : newAngle)
+
+      // check if the angle works with that distance
+      var newX = Math.floor(previousX + Math.cos(newAngle * Math.PI / 180) * (lineLength))
+      var newY = Math.floor(previousY + Math.sin(newAngle * Math.PI / 180) * (lineLength))
+      // if it does, return the new point
+      if (!outSideCanvas(newX, newY, width, margin)) {
+        return { x: newX, y: newY, tries: i + 1, angle: newAngle }
+      }
+      failed.push({ changeBy, newAngle, newX, newY })
+    }
+    console.log({ previousX, previousY, previousAngle, maxDifferenceBetweenAngles, lineLength, width, margin })
+    console.log({ failed })
+    throw new Error(`Unable to find a new point from(${previousX}, ${previousY}, ${previousAngle})`)
+  }
 
 
   function testAlgo() {
@@ -965,344 +1136,11 @@
     console.log(`Average tries: ${totalTries / attempts}`)
     console.log(`Failures: ${totalFailures} (${Math.floor((totalFailures / attempts) * 100)}%)`)
   }
+  testAlgo()
 
-  function testOld() {
-    var maxTries = 0
-    var totalTries = 0
-    var totalFailures = 0
-    var attempts = 1_000_000
-    for (var i = 0; i < attempts; i++) {
-      firstSet = false
-      setup()
-      previousAng = Math.floor(Math.random() * 360)
-      try {
-        var results = pickAngle(x, y, angleDistanceMin)
-        totalTries += results.attempts
-        if (results.attempts > maxTries) maxTries = results.attempts
-      } catch (e) {
-        console.log({ e })
-        totalFailures += 1
-      }
-    }
-    console.log(`----old algo-----`)
-    console.log(`Max tries: ${maxTries}`)
-    console.log(`Average tries: ${totalTries / attempts}`)
-    console.log(`Failures: ${totalFailures} (${Math.floor((totalFailures / attempts) * 100)}%)`)
-  }
-  // testOld()
-  // testAlgo()
-
-  function returnNextPoint(previousX, previousY, previousAngle, maxDifferenceBetweenAngles, lineLength, width, margin) {
-
-    // maxDifferenceBetweenAngles cannot be greater than 180
-    if (maxDifferenceBetweenAngles > 180) throw new Error('maxDifferenceBetweenAngles cannot be greater than 180')
-
-    // get a random amount to change the angle by
-    var angleDelta = Math.floor(Math.random() * maxDifferenceBetweenAngles)
-
-    // this ensures that the search for a working angle doesn't always start by adding to the angle (turning clockwise)
-    if (angleDelta <= (maxDifferenceBetweenAngles / 2)) {
-      angleDelta = angleDelta * -1
-    }
-
-    // this ensures that if the first solution doesn't work, the next one isn't always the first solution through addition (turn clockwise)
-    var isOddAdditionalRandom = 1
-    // if angleDelta is odd, then isOddAdditionalRandom will be -1
-    if (angleDelta % 2 == 0) {
-      isOddAdditionalRandom = -1
-    }
-
-    // keeping track of the failed attempts allows you to debug
-    var failed = []
-    // changeByAmount is the amount that the angle will be changed by each time. It should remain lower than maxDifferenceBetweenAngles
-    var changeByAmount = maxDifferenceBetweenAngles - 1
-    var anglesInACircle = 360
-    for (var i = 0; i < anglesInACircle / changeByAmount; i++) {
-      // first try, i == 0 so isOdd is false
-      // second try, i == 1 so isOdd is true
-      // third try, i == 2 so isOdd is false
-      // fourth try, i == 3 so isOdd is true
-      var iIsOdd = i % 2 == 0 ? false : true
-
-      // first try, addOrRemove should be 1
-      // second try, addOrRemove should be -1
-      // third try, addOrRemove should be 1
-      // fourth try, addOrRemove should be -1
-      var addOrRemove = (iIsOdd ? -1 : 1)
-
-      // first try, i == 0 and timesTried should be 0
-      // second try, i == 1 and timesTried should be 1
-      // third try, i == 2 and timesTried should be 1
-      // fourth try, i == 3 and timesTried should be 2
-      var timesTried = Math.ceil(i / 2)
-
-      // first try should be the angleDelta
-      // second try should be the angleDelta + changeByAmount
-      // third try should be the angleDelta - changeByAmount
-      // fourth try should be the angleDelta + (2 * changeByAmount)
-      var changeBy = angleDelta + (timesTried * changeByAmount) * -1 * addOrRemove
-
-      // actually applying the change to the angle should also be randomly additional or subtractive
-      var newAngle = previousAngle + (changeBy * isOddAdditionalRandom)
-      newAngle = newAngle < 0 ? 360 + newAngle : (newAngle > 360 ? newAngle % 360 : newAngle)
-
-      // check if the angle works with that distance
-      var newX = Math.floor(previousX + Math.cos(newAngle * Math.PI / 180) * (lineLength))
-      var newY = Math.floor(previousY + Math.sin(newAngle * Math.PI / 180) * (lineLength))
-      // if it does, return the new point
-      if (!outSideCanvas(newX, newY, width, margin)) {
-        return { x: newX, y: newY, tries: i + 1, angle: newAngle, failed }
-      }
-      var randomColor = `rgb(${Math.ceil(random(0, 255))}, ${Math.ceil(random(0, 255))}, ${Math.ceil(random(0, 255))})`
-      failed.push({ changeBy, newAngle, newX, newY, randomColor })
-    }
-    console.log({ previousX, previousY, previousAngle, maxDifferenceBetweenAngles, lineLength, width, margin })
-    console.log({ failed })
-    throw new Error(`Unable to find a new point from(${previousX}, ${previousY}, ${previousAngle})`)
-  }
-
-  function outSideCanvas(x, y, width, margin) {
-    if (x < margin || x > width - margin || y < margin || y > width) {//- margin) {
-      return true
-    }
-    return false
-  }
-
-  function random(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min
-  }
-
-
-  function pickAngle(x1, y1, _angleDistanceMin) {
-    var attempts = 0
-    if (isNaN(_angleDistanceMin)) {
-      _angleDistanceMin = 0
-    } else if (_angleDistanceMin > 180) {
-      _angleDistanceMin = 180
-    }
-    var startingAngle
-    if (previousAng) {
-      var delta = Math.ceil(random(-1 * _angleDistanceMin, _angleDistanceMin))
-      if (debug) {
-        console.log({ x1, y1, previousAng, _angleDistanceMin, delta })
-      }
-      var startingAngle = previousAng + delta
-      startingAngle = startingAngle < 0 ? 360 + startingAngle : (startingAngle > 360 ? startingAngle % 360 : startingAngle)
-      if (debug) {
-        try {
-          strokeWeight(0)
-          fill("rgba(0,0,255,0.2)")
-          arc(x1, y1, 40, 40, previousAng - _angleDistanceMin, previousAng + _angleDistanceMin);
-        } catch (e) { }
-      }
-      try {
-        fill("black")
-      } catch (e) { }
-
-    } else {
-      startingAngle = Math.ceil(random(0, 360))
-      // startingAngle = Math.ceil(random(0, 12)) * 30
-
-    }
-
-    // try to find an angle that is not too close to the previous one
-    var foundAng = false
-
-    // if the eventual angle (ang) is unacceptable, we will attempt to increase or decrease
-    // the ang until an acceptable one is found  
-    // increaseLoop determines whether we increase or decrease and has a 50/50 chance of being true or false
-    var increaseLoop = startingAngle > 180
-    if (debug) {
-      var strokeColor = `rgb(${Math.ceil(random(0, 255))}, ${Math.ceil(random(0, 255))}, ${Math.ceil(random(0, 255))})`
-    }
-    let loopThroughResults1 = loopThroughAngles(x1, y1, previousAng, startingAngle, increaseLoop, _angleDistanceMin, strokeColor)
-    attempts += loopThroughResults1.attempts
-    if (debug) {
-      console.log(`loopThroughResults1 ${loopThroughResults1.foundAng ? 'succeeded' : 'failed'}(ang = ${loopThroughResults1.ang})`)
-    }
-    if (!loopThroughResults1.foundAng) {
-      increaseLoop = !increaseLoop
-      loopThroughResults2 = loopThroughAngles(x1, y1, previousAng, startingAngle, increaseLoop, _angleDistanceMin, strokeColor)
-      attempts += loopThroughResults2.attempts
-      if (debug) {
-        console.log(`loopThroughResults2 ${loopThroughResults2.foundAng ? 'succeeded' : 'failed'}(ang = ${loopThroughResults2.ang})`)
-      }
-      ang = loopThroughResults2.ang
-      foundAng = loopThroughResults2.foundAng
-    } else {
-      ang = loopThroughResults1.ang
-      foundAng = loopThroughResults1.foundAng
-    }
-
-    if (!foundAng) {
-      if (parseInt(_angleDistanceMin) >= 180) {
-        console.log({ x, y, previousAng })
-        makeLoop = false
-        throw new Error('INCREASED TO MAX AND STILL NO SUITABLE ANG')
-      } else {
-        // incrementBy should be increased maximum 3 times and on the last time equal 180 regardless of original angleDistanceMin
-        var incrementBy = (180 - angleDistanceMin) / 3
-        var results = pickAngle(x1, y1, (parseInt(_angleDistanceMin) + (incrementBy)))
-        ang = results.ang
-        attempts += results.attempts
-      }
-    }
-    return { ang, attempts }
-  }
-
-  function loopThroughAngles(x1, y1, previousAng, startingAngle, increaseLoop, _angleDistanceMin, strokeColor) {
-
-    var attempts = 0
-    var ang
-    var foundAng = false
-    var k = 0
-    var incrementBy = 33
-    var breakIntoNumberOfChunks = 6
-
-    var incrementUntil = 180
-    // if prevoiusAng exists
-    if (!isNaN(previousAng)) {
-
-      if (increaseLoop) {
-        _fromAngle = startingAngle
-        _toAngle = previousAng + _angleDistanceMin
-        // incrementUntil = getAngleDifference(startingAngle, previousAng + _angleDistanceMin)
-      } else {
-        _fromAngle = previousAng - _angleDistanceMin
-        _toAngle = startingAngle
-        // incrementUntil = getAngleDifference(previousAng - _angleDistanceMin, startingAngle)
-      }
-      if (_toAngle > _fromAngle) {
-        incrementUntil = _toAngle - _fromAngle
-      } else {
-        incrementUntil = getAngleDifference(_fromAngle, _toAngle)
-      }
-
-      if (debug) {
-        console.log(`angleDifference between ${_fromAngle} and ${_toAngle} is ${incrementUntil}`)
-      }
-      incrementBy = Math.ceil(incrementUntil / breakIntoNumberOfChunks)
-      if (debug) {
-        console.log(`when ${increaseLoop ? 'incrementing, add' : 'decrementing, remove'} ${incrementBy} to / from ${startingAngle} until ${incrementUntil} have been ${increaseLoop ? 'added' : 'removed'}} `)
-      }
-    } else {
-      if (debug) {
-        console.log(`first angle attempt is ${startingAngle} `)
-      }
-    }
-
-    for (var i = 0; i < incrementUntil; i += incrementBy) {
-      attempts++
-      k++
-      if (k > breakIntoNumberOfChunks) {
-        console.log({ k })
-        throw new Error("too many attempts")
-      }
-      if (increaseLoop) {
-        ang = (startingAngle + i) % 360
-      } else {
-        ang = (startingAngle - i)
-        if (ang < 0) {
-          ang = 360 + ang
-        }
-      }
-
-      // get the new position assuming maxLen is used
-      var previewX = x1 + Math.cos(ang * Math.PI / 180) * (maxLen)
-      var previewY = y1 + Math.sin(ang * Math.PI / 180) * (maxLen)
-      if (dontCross) {
-        var intersectsWithAnyOtherLine = false
-        for (var j = 0; j < allLines.length; j++) {
-          var curLine = allLines[j]
-
-          var intersect = intersects(x, y, previewX, previewY, curLine.x1, curLine.y1, curLine.x2, curLine.y2)
-
-          if (intersect) {
-            intersectsWithAnyOtherLine = true
-            // break out of the j makeLoop
-            break
-          }
-        }
-        if (intersectsWithAnyOtherLine) {
-          if (debug) {
-            console.log(`intersectsWithAnyOtherLine ${intersectsWithAnyOtherLine} at ${ang} `)
-          }
-          continue
-        }
-      }
-
-      if (debug) {
-        console.log(`attempt ang ${ang} by changing by ${i} `)
-        strokeWeight(5)
-        stroke('red')
-        point(x1, y1)
-        stroke('blue')
-        strokeWeight(0)
-        fill("blue")
-        text(`${Math.floor(x1)}, ${Math.floor(y1)} `, x1 + 5, y1 - 5)
-        stroke(strokeColor)
-        strokeWeight(2)
-        line(x1, y1, previewX, previewY)
-        strokeWeight(0)
-        fill("blue")
-        halfX = x1 > previewX ? x1 - ((x1 - previewX) / 2) : previewX - ((previewX - x1) / 2)
-        halfY = y1 > previewY ? y1 - ((y1 - previewY) / 2) : previewY - ((previewY - y1) / 2)
-        text(k, halfX, halfY);
-      }
-      // if the new position is outside the canvas plus some margin, skip this angle
-      if (
-        previewX > (width - (margin))
-        ||
-        previewX < (0 + (margin))
-        ||
-        previewY > (width - (margin / 4))
-        ||
-        previewY < (0 + (margin))
-      ) {
-        if (debug) {
-          console.log(`new point ${previewX},${previewY} is too close`)
-        }
-        continue
-      }
-      // if there are no previous directions to compare it with, use this one
-      if (previousAng == undefined) {
-        foundAng = true
-        break
-      }
-
-      var isWithinDistance = checkDistance(ang, previousAng, _angleDistanceMin)
-      if (!isWithinDistance) {
-        // console.log(`not within distance(${ang} and ${previousAng} are not within ${_angleDistanceMin})`)
-        break
-      }
-
-      foundAng = true
-      break
-    }
-    return { foundAng, ang, attempts }
-  }
-
-  function getAngleDifference(ang1, ang2) {
-    var distance = Math.abs(modulo(ang1, 360) - modulo(ang2, 360))
-    distance = Math.min(distance, 360 - distance)
-    return distance
-  }
-
-  function checkDistance(ang1, ang2, _angleDistanceMin) {
-    var distance = getAngleDifference(ang1, ang2)
-    if (debug) {
-      console.log(`distance between ${ang1} and ${ang2} is ${distance} (min ${_angleDistanceMin})`)
-    }
-    return distance <= _angleDistanceMin
-  }
-
-  function modulo(x, y) {
-    var xPrime = x;
-    while (xPrime < 0) {
-      xPrime += y; // ASSUMES y > 0
-    }
-    return xPrime % y;
-  }
+  // function random(min, max) {
+  //   return Math.floor(Math.random() * (max - min + 1)) + min
+  // }
 </script>
 
 </html>
