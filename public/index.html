@@ -22,9 +22,9 @@
     strokeStyle, totalLength = 0, allLines = [], allColors = [], presetLines = [], presetColors = [],
     img, dropShadowColor, dropShadowLoop, dropShadowOffset,
     headOffset, headOffsets, tailOffset, tailOffsets,
-    totalHeads = 9, totalBodies = 8, totalTails = 7, totalBG = 3, totalPatterns = 8,
+    totalHeads = 8, totalBodies = 8, totalTails = 7, totalBG = 3, totalPatterns = 8,
     tails = [], heads = [], bodies = [], bgs = [], patterns = [], whichSegment,
-    head, tail, bgImg, makeMask, hole, tweens,
+    head, tail, bgImg, makeMask, hole, tweens, bgGradientColors,
     imagePath = "http://localhost:8888",
     matchTail = true, firstSet = false
 
@@ -61,27 +61,27 @@
   }
 
   function setParams() {
-    width = 800
+    width = 343
     maxLen = width / 12
     minLen = maxLen
-    strokeW = width / 12 //minLen / 1
-    headWidth = strokeW * 1.8
+    strokeW = maxLen//width / 6 //minLen / 1
+    headWidth = strokeW * 2
 
     margin = headWidth
-    maxNumberOfLines = 30
+    maxNumberOfLines = 4
     angleDistanceMin = 60
     startPos = "random" // "bottom", "center", "random"
     strokeStyle = "random" // "randomGreen", "random", "gettingDarker", "none"
-    fps = 8
-    tweens = 6
+    fps = 50
+    tweens = 8
     bgColor = "rgb(226,226,226)"
     try {
       rotationMode = CENTER
     } catch (e) {
       // console.log(e)
     }
-    debug = true
-    animated = false
+    debug = false
+    animated = true
     makeLoop = false
     keepRunning = true
     dropShadowColor = "rgba(0, 0, 0, 0.008)"
@@ -95,22 +95,25 @@
     startingY = false // width - margin
     startingAng = false //135
     egg = false
-    bg = "image" // "solid", "gradient", "image"
+    bg = "fourGradient" // "solid", "gradient", "image", "fourGradient"
     dropShadowLoop = bg == "solid" ? 20 : 50
     shouldSave = false
     taperEnd = false
     skipToEnd = false
     dontCross = false
     bodyOffset = Math.floor(Math.random() * totalBodies)
-    makeMask = false
+    makeMask = true
     dontClearBG = false
     preset = false
-    sameSegment = true
+    sameSegment = false
+    headAsSegment = false
     // bodies = patterns
 
     // which Segment is random selection from allLines
     whichSegment = Math.floor(random(0, bodies.length))
-
+    if (bg == "fourGradient") {
+      bgGradientColors = [[randomNum(0, 255), randomNum(0, 255), randomNum(0, 255)], [randomNum(0, 255), randomNum(0, 255), randomNum(0, 255)], [randomNum(0, 255), randomNum(0, 255), randomNum(0, 255)], [randomNum(0, 255), randomNum(0, 255), randomNum(0, 255)]];
+    }
   }
   function setup() {
     if (!firstSet) {
@@ -200,22 +203,30 @@
     }
   }
 
+  var bgFamilies = [
+    9, // bg1 has 9 variations
+    9, // bg2 has 9 variations
+    3
+  ]
+
   function preload() {
-    var tailRandom = Math.ceil(Math.random() * totalTails)
+
+    var tailRandom = 7//Math.ceil(Math.random() * totalTails)
     var headRandom;
     tail = loadImage(imagePath + `/tail/${tailRandom}.png`)
-    if (tailRandom < 7 && matchTail) {
+    if (tailRandom < 6 && matchTail) {
       headRandom = tailRandom
       head = loadImage(imagePath + `/head/${tailRandom}.png`)
     } else {
-      headRandom = totalTails + Math.floor(Math.random() * (totalHeads - totalTails + 1))
+      headRandom = 7//totalTails + Math.floor(Math.random() * (totalHeads - totalTails + 1))
       head = loadImage(imagePath + `/head/${headRandom}.png`)
     }
 
     headOffset = headOffsets.hasOwnProperty("_" + headRandom) ? headOffsets["_" + headRandom] : defaultHeadOffsets
     tailOffset = tailOffsets.hasOwnProperty("_" + tailRandom) ? tailOffsets["_" + tailRandom] : defaultTailOffsets
-
-    bgImg = loadImage(imagePath + `/bg/${Math.ceil(Math.random() * totalBG)}.jpeg`)
+    var bgFamily = 3//Math.ceil(Math.random() * totalBG)
+    var specificBG = Math.ceil(Math.random() * bgFamilies[bgFamily - 1])
+    bgImg = loadImage(imagePath + `/bg/bg${bgFamily}_${specificBG}.png`)
 
     for (var i = 1; i <= totalBodies; i++) {
       bodies.push(loadImage(imagePath + `/body/${i}.png`))
@@ -295,6 +306,26 @@
   const X_AXIS = 2;
   let b1, b2, c1, c2;
 
+  var savedBG = false
+  function fourColorGradient(colors, resolution) {
+    if (!savedBG) {
+      console.log('make bg')
+      savedBG = createGraphics(width, width)
+      for (let i = 0; i < resolution; i++) {
+        for (let j = 0; j < resolution; j++) {
+          let s = width / resolution;
+          let wx = i * s / width
+          let wy = j * s / width
+          savedBG.noStroke()
+          savedBG.fill(weightedAvgColor(weightedAvgColor(colors[0], colors[1], wx), weightedAvgColor(colors[3], colors[2], wx), wy))
+          savedBG.rect(i * s, j * s, s, s)
+        }
+      }
+    }
+
+    image(savedBG, width / 2, width / 2, width, width)
+  }
+
   function setGradient(x, y, w, h, c1, c2, axis) {
     noFill();
 
@@ -322,6 +353,8 @@
       addCartesian()
     } else if (bg == "solid") {
       background(bgColor);
+    } else if (bg == "fourGradient") {
+      fourColorGradient(bgGradientColors, width)
     } else if (bg == "gradient") {
       b1 = color(255);
       b2 = color(0);
@@ -478,14 +511,11 @@
       addBackground()
     }
 
-    if (!drawings) {
-      drawLines()
-    } else {
-      if (debug) {
-        drawDebug()
-      }
-      drawImgs()
+
+    if (debug) {
+      drawDebug()
     }
+    drawSegments()
   }
   function setStrokeColor() {
     var c
@@ -607,6 +637,7 @@
       strokeWeight(width / 40)
       stroke('rgb(0,255,0)')
       point(l.x1, l.y1)
+      point(l.x2, l.y2)
       stroke('blue')
       strokeWeight(0)
       fill("blue")
@@ -631,41 +662,78 @@
       try {
         strokeWeight(0)
         fill("rgba(0,0,255,0.4)")
-        arc(l.x2, l.y2, maxLen, maxLen, l.ang - angleDistanceMin, l.ang + angleDistanceMin);
+        arc(l.x2, l.y2, maxLen * 2, maxLen * 2, l.ang - angleDistanceMin, l.ang + angleDistanceMin);
       } catch (e) { }
     }
   }
 
-  function drawImgs() {
+  // function dist(x1, y1, x2, y2) {
+  //   return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2))
+  // }
+
+  var renderedBodies = {}
+
+  function drawSegments() {
     for (var i = 0; i < allLines.length; i++) {
+      if (i == 0 && allLines.length > maxNumberOfLines) {
+        continue
+      }
       // start new relative translation and rotation
       var l = allLines[i]
-      if (includeShadow) {
-        addDropShadow(i, allLines)
+      var c = allColors[i]
+
+      if (animated) {
+        var offsetTilNextSegment = totalLength % tweens
+        if (i == 0 && allLines.length <= maxNumberOfLines) {
+          lastLine = {
+            x1: startingX,
+            y1: startingY,
+            x2: startingX,
+            y2: startingY
+          }
+        } else {
+          lastLine = allLines[i - 1]
+        }
+
+        // console.log('lastLine')
+        // console.log(`ll.x1: ${lastLine.x1}, ll.y1: ${lastLine.y1}, ll.x2: ${lastLine.x2}, ll.y2: ${lastLine.y2}`)
+
+        // normally we draw each line x1,y1 to x2,y2
+        // x1,y1 is the end of the previous line
+        // x2,y2 is the end of the current line
+        x1 = offsetTilNextSegment == 0 ? l.x1 : ((l.x1 - lastLine.x1) * (offsetTilNextSegment / tweens)) + lastLine.x1
+        y1 = offsetTilNextSegment == 0 ? l.y1 : ((l.y1 - lastLine.y1) * (offsetTilNextSegment / tweens)) + lastLine.y1
+        x2 = offsetTilNextSegment == 0 ? l.x2 : ((l.x2 - lastLine.x2) * (offsetTilNextSegment / tweens)) + lastLine.x2
+        y2 = offsetTilNextSegment == 0 ? l.y2 : ((l.y2 - lastLine.y2) * (offsetTilNextSegment / tweens)) + lastLine.y2
+
+        // len is the distance between x1,y1 and x2,y2
+        len = dist(x1, y1, x2, y2)
+        ang = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+
+
+        // console.log(`tween line # ${offsetTilNextSegment} of ${tweens}`)
+        // console.log(`x1: ${x1}, y1: ${y1}, x2: ${x2}, y2: ${y2}`)
+        // point(x1, y1)
+        // point(x2, y2)
+
+        // if (i == allLines.length - 1) {
+        //   x1 = x
+        //   y1 = y
+        // }
+      } else {
+        x1 = l.x1
+        x2 = l.x2
+        y1 = l.y1
+        y2 = l.y2
+        len = l.len
+        ang = l.ang
       }
 
-      // get the index of the item in allLines as the opposite of the position in the array
-      var index = allLines.length - i - 1
-      whichSegment = sameSegment ? whichSegment : (index + bodyOffset) % bodies.length
-      pic = bodies[whichSegment]
-      var flip = index % 4
-      switch (flip) {
-        case 0:
-          flip1 = true
-          flip2 = true
-          break;
-        case 1:
-          flip1 = false
-          flip2 = true
-          break;
-        case 2:
-          flip1 = true
-          flip2 = false
-          break;
-        case 3:
-          flip1 = false
-          flip2 = false
-          break;
+
+
+
+      if (includeShadow) {
+        addDropShadow(i, allLines)
       }
 
       if (taperEnd) {
@@ -680,95 +748,126 @@
         currentWidth = strokeW
       }
 
-      if (i == 0 && !debug) {
+      var a = (i == 0 && !debug && !animated)
+      var b = (i == 0 && !debug && animated) || (i == 1 && totalLength > ((maxNumberOfLines) * tweens) && !debug && animated)
+      if (a || b) {
         // draw the hole
         var holeWidth = currentWidth * 2.5
+        // push()
+        // tint(255, 127)
         image(hole, startingX - (currentWidth / 8), startingY - (currentWidth / 4), holeWidth, holeWidth);
-
+        // pop()
       }
 
-      if (!debug) {
 
-        var imagePattern
-        if (makeMask) {
-          var strokeMask = createGraphics(l.len + (currentWidth * 2), currentWidth);
-          strokeMask.strokeWeight(currentWidth)
-          strokeMask.line(currentWidth / 2, currentWidth / 2, l.len + (currentWidth * 1.5), currentWidth / 2)
+      if (i !== allLines.length - 1 || !headAsSegment) {
+        if (drawings) {
+
+          // get the index of the item in allLines as the opposite of the position in the array
+          var index = allLines.length - i - 1
+          whichSegment = sameSegment ? whichSegment : (index + bodyOffset) % bodies.length
+          pic = bodies[whichSegment]
+          var flip = index % 1
+          var flip1 = x2 < x1
+          var flip1 = (x1 - x2) > (width / 80)
+          var flip2 = flip1//x2 < x1//y1 > y2
+          // switch (flip) {
+          //   case 0:
+          //     flip1 = true
+          //     flip2 = true
+          //     break;
+          //   case 1:
+          //     flip1 = false
+          //     flip2 = true
+          //     break;
+          //   case 2:
+          //     flip1 = true
+          //     flip2 = false
+          //     break;
+          //   case 3:
+          //     flip1 = false
+          //     flip2 = false
+          //     break;
+          // }
 
 
-          imagePattern = createGraphics(l.len + (currentWidth * 2), currentWidth);
-          imagePattern.background(allColors[i])
-          // imagePattern.image(pic, 0, 0, l.len + (currentWidth * 2), currentWidth)
-          imagePattern.image(pic, 0, -currentWidth / 2, l.len + (currentWidth * 2), currentWidth * 2)
+          if (!debug) {
 
-          imagePattern.loadPixels()
-          strokeMask.loadPixels()
-          for (let j = 0; j < imagePattern.pixels.length; j += 4) {
-            imagePattern.pixels[j + 3] = strokeMask.pixels[j + 3]
+            var imagePattern
+            if (makeMask) {
+              var renderedID = whichSegment
+              if (!renderedBodies[renderedID]) {
+                console.log('new mask')
+                var strokeMask = createGraphics(len + (currentWidth * 2), currentWidth);
+                strokeMask.strokeWeight(currentWidth)
+                strokeMask.line(currentWidth / 2, currentWidth / 2, len + (currentWidth * 1.5), currentWidth / 2)
+
+
+                imagePattern = createGraphics(len + (currentWidth * 2), currentWidth);
+                imagePattern.background(c)
+                // imagePattern.image(pic, 0, 0, len + (currentWidth * 2), currentWidth)
+                imagePattern.image(pic, 0, -currentWidth / 2, len + (currentWidth * 2), currentWidth * 2)
+
+                imagePattern.loadPixels()
+                strokeMask.loadPixels()
+                for (let j = 0; j < imagePattern.pixels.length; j += 4) {
+                  imagePattern.pixels[j + 3] = strokeMask.pixels[j + 3]
+                }
+                imagePattern.updatePixels()
+                // console.log({ l })
+                renderedBodies[renderedID] = imagePattern
+                // l.maskedImage = imagePattern
+                // allLines[i].maskedImage = imagePattern
+                // console.log({ l })
+              } else {
+                imagePattern = renderedBodies[renderedID]
+              }
+            } else {
+              imagePattern = pic
+            }
+
+            push()
+            var xDist = Math.abs(x2 - x1)
+            var yDist = Math.abs(y2 - y1)
+            var fractionOfTotal = 1 / 2
+            var p = {
+              x: x1 + ((x2 < x1 ? -1 : 1) * xDist) * fractionOfTotal,
+              y: y1 + ((y2 < y1 ? -1 : 1) * yDist) * fractionOfTotal
+            }
+            translate(p.x, p.y);
+            rotate(ang)
+
+            push()
+            scale(flip1 ? -1 : 1, flip2 ? -1 : 1)
+            // tint(segColor)
+            // tint(c[0], c[1], c[2])
+            var segmentWeight, addToLength
+            if (makeMask) {
+              segmentWeight = currentWidth / 1.75 // strokeW - ((allLines.length - 1 - i) * diff)
+              stroke("black")
+              strokeWeight(segmentWeight + (segmentWeight * 0.1))
+              line(-len / 2, 0, len / 2, 0)
+              addToLength = segmentWeight
+            } else {
+              segmentWeight = currentWidth / 1.2
+              addToLength = segmentWeight / 2
+            }
+            // console.log(`segment is ${len + addToLength} x ${segmentWeight} pixels`)
+            image(imagePattern, 0, 0, len + addToLength, segmentWeight);
+            pop()
+
+
+            // revert to original translation and rotation
+            pop()
           }
-          imagePattern.updatePixels()
         } else {
-          imagePattern = pic
-        }
-
-        push()
-        var xDist = Math.abs(l.x2 - l.x1)
-        var yDist = Math.abs(l.y2 - l.y1)
-        var fractionOfTotal = 1 / 2
-        var p = {
-          x: l.x1 + ((l.x2 < l.x1 ? -1 : 1) * xDist) * fractionOfTotal,
-          y: l.y1 + ((l.y2 < l.y1 ? -1 : 1) * yDist) * fractionOfTotal
-        }
-        translate(p.x, p.y);
-        rotate(l.ang)
-
-        push()
-        scale(flip1 ? -1 : 1, flip2 ? -1 : 1)
-        // tint(segColor)
-        // tint(allColors[i][0], allColors[i][1], allColors[i][2])
-        var segmentWeight, addToLength
-        if (makeMask) {
-          segmentWeight = currentWidth / 1.75 // strokeW - ((allLines.length - 1 - i) * diff)
           stroke("black")
-          strokeWeight(segmentWeight + (segmentWeight * 0.1))
-          line(-l.len / 2, 0, l.len / 2, 0)
-          addToLength = segmentWeight
-        } else {
-          segmentWeight = currentWidth / 1.2
-          addToLength = segmentWeight / 2
-        }
-        // console.log(`segment is ${l.len + addToLength} x ${segmentWeight} pixels`)
-        image(imagePattern, 0, 0, l.len + addToLength, segmentWeight);
-        pop()
-
-
-        // revert to original translation and rotation
-        pop()
-      }
-
-      // draw the head
-      if (i == allLines.length - 1) {
-        // stroke("rgba(255,0,0,0.1)")
-        noStroke()
-        fill("rgba(255,0,0,0.1)")
-        // var headOffset = {
-        //   xFactor: 2,
-        //   yFactor: 2.5
-        // }
-
-        var calcHeadOffset = {
-          x: headWidth / headOffset.xFactor,
-          y: headWidth / headOffset.yFactor
-        }
-        if (l.x2 < l.x1) {//} && (l.x1 - l.x2) > margin) {
-          push()
-          scale(-1, 1)
-          // rect((-l.x2) + calcHeadOffset.x, l.y2 - calcHeadOffset.y, headWidth)
-          image(head, (-l.x2) + calcHeadOffset.x, l.y2 - calcHeadOffset.y, headWidth, headWidth);
-          pop()
-        } else {
-          // rect(l.x2 + calcHeadOffset.x, l.y2 - calcHeadOffset.y, headWidth)
-          image(head, l.x2 + calcHeadOffset.x, l.y2 - calcHeadOffset.y, headWidth, headWidth);
+          var segmentWeight = strokeW / 1.75 // strokeW - ((allLines.length - 1 - i) * diff)
+          strokeWeight(segmentWeight + 2)
+          line(x1, y1, x2, y2)
+          stroke(c)
+          strokeWeight(segmentWeight)
+          line(x1, y1, x2, y2)
         }
       }
 
@@ -780,16 +879,70 @@
       }
 
       // draw the tail
-      if (i == 0 && keepRunning && allLines.length >= maxNumberOfLines) {
-
-        if (l.x2 < l.x1) {//} && (l.x1 - l.x2) > margin) {
+      var a = i == 0 && keepRunning && (totalLength > maxNumberOfLines) && !animated
+      var b = i == 1 && keepRunning && (totalLength > ((maxNumberOfLines + 1) * tweens)) && animated
+      // console.log({ i, keepRunning, totalLength, maxNumberOfLines, tweens })
+      // console.log({ a, b })
+      if ((a) || (b)) {
+        if ((x1 - x2) > (width / 80)) {
+          // if (x2 < x1) {//} && (x1 - x2) > margin) {
           push()
           scale(-1, 1)
-          image(tail, -l.x1 - calcTailOffset.x, l.y1 - calcTailOffset.y, tailLength, tailWidth);
+          var tailX = -x1 - calcTailOffset.x
+          var tailY = y1 - calcTailOffset.y
+          image(tail, tailX, tailY, tailLength, tailWidth);
           pop()
         } else {
-          image(tail, l.x1 - calcTailOffset.x, l.y1 - calcTailOffset.y, tailLength, tailWidth);
+
+          var tailX = x1 - calcTailOffset.x
+          var tailY = y1 - calcTailOffset.y
+          image(tail, tailX, tailY, tailLength, tailWidth);
         }
+      }
+
+
+      // draw the head
+      if (i == allLines.length - 1) {
+        // stroke("rgba(255,0,0,0.1)")
+        noStroke()
+        fill("rgba(255,0,0,0.5)")
+        // var headOffset = {
+        //   xFactor: 2,
+        //   yFactor: 2.5
+        // }
+
+        if (headAsSegment) {
+          push()
+          rectMode(CORNER);
+          imageMode(CORNER);
+          translate(x1, y1)
+          rotate(ang)
+          if ((x1 - x2) > (width / 80)) { // changes to left direction by minimum amount
+            scale(1, -1)
+          }
+          headX = -5
+          headY = 5
+          image(head, headX, headY, headWidth, -headWidth)
+          pop()
+          rectMode(rotationMode);
+          imageMode(rotationMode);
+        } else {
+          var calcHeadOffset = {
+            x: headWidth / headOffset.xFactor,
+            y: headWidth / headOffset.yFactor
+          }
+          if ((l.x1 - l.x2) > (width / 80)) {
+            push()
+            scale(-1, 1)
+            // rect((-l.x2) + calcHeadOffset.x, l.y2 - calcHeadOffset.y, headWidth)
+            image(head, (-x2) + calcHeadOffset.x, y2 - calcHeadOffset.y, headWidth, headWidth);
+            pop()
+          } else {
+            // rect(l.x2 + calcHeadOffset.x, l.y2 - calcHeadOffset.y, headWidth)
+            image(head, x2 + calcHeadOffset.x, y2 - calcHeadOffset.y, headWidth, headWidth);
+          }
+        }
+
       }
 
       // // draw the shaddow on the entrance of the egg
@@ -834,87 +987,8 @@
   //   }
   // }
 
-  function drawLines() {
-    // console.log('----------------drawLines----------------')
-    // console.log(`there are ${allLines.length} lines`)
-    // var diff = Math.floor(strokeW / allLines.length)
-    for (var i = 0; i < allLines.length; i++) {
-      if (i == 0 && allLines.length > maxNumberOfLines) {
-        continue
-      }
-      // console.log(`###########${i}`)
-      var l = allLines[i]
-      // console.log('current line')
-      // console.log(`l.x1: ${l.x1}, l.y1: ${l.y1}, l.x2: ${l.x2}, l.y2: ${l.y2}`)
-
-      var c = allColors[i]
-      if (animated) {
-        var offsetTilNextSegment = totalLength % tweens
-        if (i == 0 && allLines.length <= maxNumberOfLines) {
-          lastLine = {
-            x1: startingX,
-            y1: startingY,
-            x2: startingX,
-            y2: startingY
-          }
-        } else {
-          lastLine = allLines[i - 1]
-        }
-
-        // console.log('lastLine')
-        // console.log(`ll.x1: ${lastLine.x1}, ll.y1: ${lastLine.y1}, ll.x2: ${lastLine.x2}, ll.y2: ${lastLine.y2}`)
-
-        // normally we draw each line x1,y1 to x2,y2
-        // x1,y1 is the end of the previous line
-        // x2,y2 is the end of the current line
-        x1 = offsetTilNextSegment == 0 ? l.x1 : ((l.x1 - lastLine.x1) * (offsetTilNextSegment / tweens)) + lastLine.x1
-        y1 = offsetTilNextSegment == 0 ? l.y1 : ((l.y1 - lastLine.y1) * (offsetTilNextSegment / tweens)) + lastLine.y1
-        x2 = offsetTilNextSegment == 0 ? l.x2 : ((l.x2 - lastLine.x2) * (offsetTilNextSegment / tweens)) + lastLine.x2
-        y2 = offsetTilNextSegment == 0 ? l.y2 : ((l.y2 - lastLine.y2) * (offsetTilNextSegment / tweens)) + lastLine.y2
-
-        // console.log(`tween line # ${offsetTilNextSegment} of ${tweens}`)
-        // console.log(`x1: ${x1}, y1: ${y1}, x2: ${x2}, y2: ${y2}`)
-        // point(x1, y1)
-        // point(x2, y2)
-
-        // if (i == allLines.length - 1) {
-        //   x1 = x
-        //   y1 = y
-        // }
-      } else {
-        x1 = l.x1
-        x2 = l.x2
-        y1 = l.y1
-        y2 = l.y2
-      }
-
-      // TODO: add drop shadow
-      // if (includeShadow) {
-      //   addDropShadow(i, allLines)
-      // }
-
-      stroke("black")
-      var segmentWeight = strokeW / 1.75 // strokeW - ((allLines.length - 1 - i) * diff)
-      strokeWeight(segmentWeight + 2)
-      line(x1, y1, x2, y2)
-      stroke(c)
-      strokeWeight(segmentWeight)
-      line(x1, y1, x2, y2)
-
-      // stroke("red")
-      // strokeWeight(10)
-      // point(lastLine.x1, lastLine.y1)
-      // point(lastLine.x2, lastLine.y2)
-
-      // stroke("blue")
-      // point(l.x1, l.y1)
-      // point(l.x2, l.y2)
-    }
-  }
-
 
   function addLine() {
-    console.log('----addLine----')
     if (presetLines.length > 0) {
       var l = presetLines.shift()
       allLines.push(l)
@@ -927,11 +1001,10 @@
     var len = pickLength()
     var angResults = wander(x, y, previousAng, angleDistanceMin, len, width, margin)
     var ang = angResults.angle
-    // var ang = pickAngle(x, y, angleDistanceMin)
+
     x2 = x + Math.cos(ang * Math.PI / 180) * len
     y2 = y + Math.sin(ang * Math.PI / 180) * len
     c = setStrokeColor()
-
 
     var newLine = {
       x1: x,
@@ -940,7 +1013,8 @@
       y2: y2,
       ang: ang,
       len: len,
-      failed: angResults.failed
+      failed: angResults.failed,
+      maskedImage: false
     }
     allLines.push(newLine)
     allColors.unshift(c)
@@ -996,7 +1070,7 @@
     var angleDelta = Math.floor(Math.random() * maxDifferenceBetweenAngles)
 
     // this ensures that the search for a working angle doesn't always start by adding to the angle (turning clockwise)
-    if (angleDelta < maxDifferenceBetweenAngles / 2) {
+    if (angleDelta <= (maxDifferenceBetweenAngles / 2)) {
       angleDelta = angleDelta * -1
     }
 
@@ -1010,7 +1084,7 @@
     // keeping track of the failed attempts allows you to debug
     var failed = []
     // changeByAmount is the amount that the angle will be changed by each time. It should remain lower than maxDifferenceBetweenAngles
-    var changeByAmount = 59
+    var changeByAmount = 45//(maxDifferenceBetweenAngles) - 1
     var anglesInACircle = 360
     for (var i = 0; i < anglesInACircle / changeByAmount; i++) {
       // first try, i == 0 so isOdd is false
@@ -1029,7 +1103,7 @@
       // second try, i == 1 and timesTried should be 1
       // third try, i == 2 and timesTried should be 1
       // fourth try, i == 3 and timesTried should be 2
-      var timesTried = Math.floor(i / 2)
+      var timesTried = Math.ceil(i / 2)
 
       // first try should be the angleDelta
       // second try should be the angleDelta + changeByAmount
@@ -1038,7 +1112,7 @@
       var changeBy = angleDelta + (timesTried * changeByAmount) * -1 * addOrRemove
 
       // actually applying the change to the angle should also be randomly additional or subtractive
-      var newAngle = previousAngle + (changeBy)// * isOddAdditionalRandom)
+      var newAngle = previousAngle + (changeBy * isOddAdditionalRandom)
       newAngle = newAngle < 0 ? 360 + newAngle : (newAngle > 360 ? newAngle % 360 : newAngle)
 
       // check if the angle works with that distance
@@ -1048,7 +1122,7 @@
       if (!outSideCanvas(newX, newY, width, margin)) {
         return { x: newX, y: newY, tries: i + 1, angle: newAngle, failed }
       }
-      var randomColor = `rgb(${Math.ceil(random(0, 255))}, ${Math.ceil(random(0, 255))}, ${Math.ceil(random(0, 255))})`
+      var randomColor = `rgb(${Math.ceil(randomNum(0, 255))}, ${Math.ceil(randomNum(0, 255))}, ${Math.ceil(randomNum(0, 255))})`
       failed.push({ changeBy, newAngle, newX, newY, randomColor })
     }
     console.log({ previousX, previousY, previousAngle, maxDifferenceBetweenAngles, lineLength, width, margin })
@@ -1057,52 +1131,14 @@
   }
 
   function outSideCanvas(x, y, width, margin) {
-    if (x < margin || x > width - margin || y < margin || y > width) {//- margin) {
+    // if (x < 0 || x > width || y < 0 || y > width) {//- margin) {
+    // if (x < (margin / 2) || x > width - (margin / 2) || y < margin || y > width) {//- margin) {
+    var buffer = -margin / 2//0 //- margin//width / 3
+    if (x < 0 - buffer || x > width + buffer || y < 0 - buffer || y > width + buffer) {//- margin) {
       return true
     }
     return false
   }
-
-  function returnNextPoint(previousX, previousY, previousAngle, maxDifferenceBetweenAngles, lineLength, width, margin) {
-
-    // maxDifferenceBetweenAngles cannot be greater than 180
-    if (maxDifferenceBetweenAngles > 180) throw new Error('maxDifferenceBetweenAngles cannot be greater than 180')
-
-    // get a random amount to change the angle by
-    var angleDelta = Math.floor(Math.random() * maxDifferenceBetweenAngles)
-
-    // this ensures that the search for a working angle doesn't always start by adding to the angle (turning clockwise)
-    if (angleDelta < maxDifferenceBetweenAngles / 2) {
-      angleDelta = angleDelta * -1
-    }
-    // keeping track of the failed attempts allows you to debug
-    var failed = []
-    // changeByAmount is the amount that the angle will be changed by each time. It should remain lower than maxDifferenceBetweenAngles
-    var changeByAmount = 59
-    var anglesInACircle = 360
-    for (var i = 0; i < anglesInACircle / changeByAmount; i++) {
-      var iIsOdd = i % 2 == 0 ? false : true
-      var addOrRemove = iIsOdd ? -1 : 1
-      var timesTried = Math.floor(i / 2)
-
-      var changeBy = angleDelta + (timesTried * changeByAmount) * -1 * addOrRemove
-      var newAngle = previousAngle + changeBy
-      newAngle = newAngle < 0 ? 360 + newAngle : (newAngle > 360 ? newAngle % 360 : newAngle)
-
-      // check if the angle works with that distance
-      var newX = Math.floor(previousX + Math.cos(newAngle * Math.PI / 180) * (lineLength))
-      var newY = Math.floor(previousY + Math.sin(newAngle * Math.PI / 180) * (lineLength))
-      // if it does, return the new point
-      if (!outSideCanvas(newX, newY, width, margin)) {
-        return { x: newX, y: newY, tries: i + 1, angle: newAngle }
-      }
-      failed.push({ changeBy, newAngle, newX, newY })
-    }
-    console.log({ previousX, previousY, previousAngle, maxDifferenceBetweenAngles, lineLength, width, margin })
-    console.log({ failed })
-    throw new Error(`Unable to find a new point from(${previousX}, ${previousY}, ${previousAngle})`)
-  }
-
 
   function testAlgo() {
     totalTries = 0
@@ -1117,6 +1153,7 @@
     var testPreviousAngle = 45
 
     var maxTries = 0
+    var tries = {}
 
     var testMaxDifferenceBetweenAngles = 30
     for (var i = 0; i < attempts; i++) {
@@ -1124,23 +1161,61 @@
       testStartingY = Math.floor(Math.random() * (testWidth - (testMargin * 2))) + testMargin
       testPreviousAngle = Math.floor(Math.random() * 360)
       try {
-        var results = returnNextPoint(testStartingX, testStartingY, testPreviousAngle, testMaxDifferenceBetweenAngles, testLineLength, testWidth, testMargin)
+        var results = wander(testStartingX, testStartingY, testPreviousAngle, testMaxDifferenceBetweenAngles, testLineLength, testWidth, testMargin)
         totalTries += results.tries
+        tries[results.tries] = tries[results.tries] ? tries[results.tries] + 1 : 1
         if (results.tries > maxTries) maxTries = results.tries
       } catch (e) {
         totalFailures += 1
       }
     }
+    // get the median
+    var modeMax = 0
+    var mode = 0
+    for (var key in tries) {
+      if (tries[key] > modeMax) {
+        modeMax = tries[key]
+        mode = key
+      }
+    }
     console.log(`----new algo-----`)
     console.log(`Max tries: ${maxTries}`)
     console.log(`Average tries: ${totalTries / attempts}`)
+    console.log(`Mode: ${mode} (${tries[mode]} times)`)
     console.log(`Failures: ${totalFailures} (${Math.floor((totalFailures / attempts) * 100)}%)`)
   }
-  testAlgo()
+  // testAlgo()
 
-  // function random(min, max) {
-  //   return Math.floor(Math.random() * (max - min + 1)) + min
-  // }
+  function randomNum(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min
+  }
+
+  function weightedAvgColor(a, b, w) {
+    let x, y, z;
+    w = w + (w - 0.5) * 0.45;  // Messed with the weight to get the color densities to match the image https://stackoverflow.com/questions/11482349/four-point-gradient-in-ios
+    if (w > 1) w = 0.99;
+    if (a[0] != b[0]) {
+      x = a[0] + (b[0] - a[0]) * w;
+    }
+    else {
+      x = a[0];
+    }
+
+    if (a[1] != b[1]) {
+      y = a[1] + (b[1] - a[1]) * w;
+    }
+    else {
+      y = a[1];
+    }
+
+    if (a[2] != b[2]) {
+      z = a[2] + (b[2] - a[2]) * w;
+    }
+    else {
+      z = a[2];
+    }
+    return [x, y, z]
+  }
 </script>
 
 </html>
