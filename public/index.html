@@ -310,7 +310,6 @@
   var savedBG = false
   function fourColorGradient(colors, resolution) {
     if (!savedBG) {
-      console.log('make bg')
       savedBG = createGraphics(width, width)
       for (let i = 0; i < resolution; i++) {
         for (let j = 0; j < resolution; j++) {
@@ -758,7 +757,7 @@
       if (a || b) {
         // draw the hole
         var holeWidth = currentWidth * 2
-        console.log({ holeWidth })
+
         // push()
         // tint(255, 127)
         image(hole, startingX - (currentWidth / 8), startingY - (currentWidth / 4), holeWidth, holeWidth);
@@ -782,7 +781,6 @@
             if (makeMask) {
               var renderedID = whichSegment
               if (!renderedBodies[renderedID]) {
-                console.log('new mask')
                 var strokeMask = createGraphics(len + (currentWidth * 2), currentWidth);
                 strokeMask.strokeWeight(currentWidth)
                 strokeMask.line(currentWidth / 2, currentWidth / 2, len + (currentWidth * 1.5), currentWidth / 2)
