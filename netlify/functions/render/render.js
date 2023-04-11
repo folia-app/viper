@@ -1,23 +1,55 @@
 const { Image, createCanvas } = require('canvas')
+const { setup, draw, nodePreload } = require('../../../public/wander.js')
+const p5 = require('node-p5')
+const { Viper } = require('./viper.js')
+const preloadFunctions = {
+  preloaded: function () {
+    return nodePreload(p5) //  tail, head, bgImg, bodies, bgs, tails, patterns, hole
+  },
+}
+
 // require('dotenv').config()
-var size = 2048
-var gridSize = 32
-var margin = 2
 
 // Docs on event and context https://docs.netlify.com/functions/build/#code-your-function-2
 const handler = async (event) => {
-  let circleSize, radius, offset, ctx
+  const address = event.queryStringParameters.address || null
+
+  function sketch(p, preloaded) {
+    var viper = new Viper(address)
+    p.setup = () => {
+      p.createCanvas(viper.width, viper.width)
+      viper.setup(p, preloaded)
+      p.noLoop()
+    }
+    p.draw = () => {
+      viper.makeSquare()
+      viper.draw(p, preloaded)
+    }
+  }
 
   try {
 
-    const canvas = createCanvas(size, size)
-    ctx = canvas.getContext('2d')
-    canvas.width = size
-    canvas.height = size
-    await makeImg()
-
-    var dataURL = canvas.toDataURL("image/jpeg", 1)//0.01)
-    dataURL = await replaceWhite(dataURL)
+    let p5Instance = p5.createSketch(sketch, preloadFunctions)
+    // console.log({ p5Instance })
+    // const canvas = createCanvas(size, size)
+    // ctx = canvas.getContext('2d')
+    // canvas.width = size
+    // canvas.height = size
+    // await makeImg()
+    // await new Promise((resolve) => {
+    //   setTimeout(() => {
+    //     p5Instance.saveCanvas(canvas, 'myCanvas', 'png').then(filename => {
+    //       console.log(`saved the canvas as ${filename}`);
+    //     });
+    //     resolve()
+    //   }, 100);
+    // })
+    await new Promise((resolve) => {
+      setTimeout(() => { resolve() }, 500)
+    })
+    // console.log('save', { p5Instance })
+    var dataURL = p5Instance.canvas.toDataURL("image/jpeg", 1)//0.01)
+    // dataURL = await replaceWhite(dataURL)
 
     return {
       statusCode: 200,

@@ -6,10 +6,13 @@
   "author": "okwme",
   "license": "MIT",
   "scripts": {
-    "start": "npx netlify dev"
+    "start": "npx netlify dev",
+    "watch": "npx watch 'yarn start' public"
   },
   "dependencies": {
     "canvas": "^2.11.0",
-    "netlify-cli": "^12.13.1"
+    "netlify-cli": "^12.13.1",
+    "node-p5": "^1.0.4",
+    "prando": "^6.0.1"
   }
 }
