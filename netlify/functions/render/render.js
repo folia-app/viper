@@ -1,35 +1,62 @@
 const { Image, createCanvas } = require('canvas')
 const { setup, draw, nodePreload } = require('../../../public/wander.js')
 const p5 = require('node-p5')
-const { Viper } = require('./viper.js')
-const preloadFunctions = {
-  preloaded: function () {
-    return nodePreload(p5) //  tail, head, bgImg, bodies, bgs, tails, patterns, hole
-  },
-}
+const { Viper } = require('../../../public/viper.js')
 
 // require('dotenv').config()
 
 // Docs on event and context https://docs.netlify.com/functions/build/#code-your-function-2
 const handler = async (event) => {
-  const address = event.queryStringParameters.address || null
-
-  function sketch(p, preloaded) {
-    var viper = new Viper(address)
-    p.setup = () => {
-      p.createCanvas(viper.width, viper.width)
-      viper.setup(p, preloaded)
-      p.noLoop()
-    }
-    p.draw = () => {
-      viper.makeSquare()
-      viper.draw(p, preloaded)
+  console.time()
+  let ready = false
+  const address = event.queryStringParameters.address || Math.random().toString()
+  var viper = new Viper(address)
+  const preloads = {
+    bgImg: viper.getBgImgURL() && p5.loadImage(viper.getBgImgURL()),
+    hole: viper.getHoleURL() && p5.loadImage(viper.getHoleURL()),
+    tail: viper.getHeadTailURL(false) && p5.loadImage(viper.getHeadTailURL(false)),
+    head: viper.getHeadTailURL(true) && p5.loadImage(viper.getHeadTailURL(true)),
+    bodies: async () => {
+      console.log('start preload')
+      console.timeLog()
+      var loadedBodies = []
+      var allBodies = viper.getBodiesURLs()
+      for (var i = 0; i < allBodies.length; i++) {
+        const url = allBodies[i]
+        const loaded = await p5.loadImage(url)()
+        loadedBodies.push(loaded)
+      }
+      console.log('end preload')
+      console.timeLog()
+      return loadedBodies
     }
   }
-
+  function sketch(p, preloaded) {
+    p.setup = () => {
+      try {
+        p.createCanvas(viper.width, viper.width)
+        p.noLoop()
+        viper.setup(p)
+      } catch (setupError) {
+        console.log({ setupError }, console.timeLog())
+      }
+    }
+    p.draw = () => {
+      console.log('draw')
+      console.timeLog()
+      viper.draw(preloaded)
+      // viper.draw(preloaded)
+      // viper.draw(preloaded)
+      ready = true
+    }
+  }
+  let foo
   try {
-
-    let p5Instance = p5.createSketch(sketch, preloadFunctions)
+    console.log('before create sketch')
+    console.timeLog()
+    let p5Instance = p5.createSketch(sketch, preloads)
+    console.log('after create sketch')
+    console.timeLog()
     // console.log({ p5Instance })
     // const canvas = createCanvas(size, size)
     // ctx = canvas.getContext('2d')
@@ -44,19 +71,32 @@ const handler = async (event) => {
     //     resolve()
     //   }, 100);
     // })
-    await new Promise((resolve) => {
-      setTimeout(() => { resolve() }, 500)
-    })
+    // await new Promise((resolve) => {
+    //   setTimeout(() => { resolve() }, 500)
+    // })
     // console.log('save', { p5Instance })
-    var dataURL = p5Instance.canvas.toDataURL("image/jpeg", 1)//0.01)
     // dataURL = await replaceWhite(dataURL)
-
+    await new Promise((resolve) => {
+      foo = setInterval(() => {
+        console.log(ready ? 'is ready' : 'not ready')
+        if (ready) {
+          clearInterval(foo)
+          resolve()
+        }
+      }, 500)
+    })
+    console.log('after interval')
+    console.timeLog()
+    var dataURL = p5Instance.canvas.toDataURL("image/png", 1)//0.01)
+    console.log('after toDataURL')
+    console.timeLog()
+    console.timeEnd()
     return {
       statusCode: 200,
       headers: {
-        'content-type': "image/jpeg",
+        'content-type': "image/png",
       },
-      body: dataURL.replace('data:image/jpeg;base64,', ''),
+      body: dataURL.replace('data:image/png;base64,', ''),
       isBase64Encoded: true
     }
 
@@ -69,6 +109,7 @@ const handler = async (event) => {
     //   // isBase64Encoded: true,
     // }
   } catch (error) {
+    clearInterval(foo)
     return { statusCode: 500, body: error.toString() }
   }
 
