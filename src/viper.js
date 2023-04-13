@@ -305,6 +305,15 @@ export class Viper {
     this.logs == "verbose" && console.timeLog("viper", "draw")
     if (typeof preloaded === 'undefined') {
       preloaded = this.preloaded
+    } else if (typeof this.bodies == "undefined") {
+      console.log('here')
+      this.bodies = []
+      for (var i = 0; i < this.totalBodies; i++) {
+        this.bodies.push(preloaded[`body_${i}`])
+      }
+      preloaded.bodies = this.bodies
+    } else {
+      preloaded.bodies = this.bodies
     }
     this.totalLength++
     if (this.setting == "server") {

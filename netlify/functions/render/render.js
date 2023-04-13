@@ -22,32 +22,26 @@ const handler = async (event) => {
   // })
 
   const preloads = {
-    bodies: () => {
-      return new Promise(async (resolve, reject) => {
-        console.log('start preload')
-        console.log(`p5 has a function called loadImage: ${p5.loadImage ? 'yes' : 'no'}`)
-        var loadedBodies = []
-        var allBodies = viper.getBodiesURLs()
-        for (var i = 0; i < allBodies.length; i++) {
-          const url = allBodies[i]
-          console.log({ bodiesURL: url })
-          const loaded = await p5.loadImage(url)()
-          loadedBodies.push(loaded)
-        }
-        console.log('end preload')
-        resolve(loadedBodies)
-      })
-    }
+    // bodies: new Promise(async (resolve, reject) => {
+    //   console.log('start preload')
+    //   console.log(`p5 has a function called loadImage: ${p5.loadImage ? 'yes' : 'no'}`)
+    //   var loadedBodies = []
+    //   var allBodies = viper.getBodiesURLs()
+    //   for (var i = 0; i < allBodies.length; i++) {
+    //     const url = allBodies[i]
+    //     console.log({ bodiesURL: url })
+    //     const loaded = p5.loadImage(url)
+    //     loadedBodies.push(loaded)
+    //   }
+    //   console.log('end preload')
+    //   resolve(loadedBodies)
+    // })
   }
+  viper.getBodiesURLs().forEach((url, i) => {
+    preloads[`body_${i}`] = p5.loadImage(url)
+  })
   if (viper.getBgImgURL()) {
-    preloads.bgImg = () => {
-      try {
-        throw new Error("test error")
-        return p5.loadImage(viper.getBgImgURL())
-      } catch (error) {
-        console.log({ error })
-      }
-    }
+    preloads.bgImg = p5.loadImage(viper.getBgImgURL())
   }
   if (viper.getHoleURL()) {
     preloads.hole = p5.loadImage(viper.getHoleURL())
@@ -85,7 +79,7 @@ const handler = async (event) => {
       foo = setInterval(() => {
         counted++
         console.log(ready ? 'is ready' : 'not ready')
-        if (counted > 100) {
+        if (counted > 10) {
           ready = true
         }
         if (ready) {
