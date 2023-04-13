@@ -1,7 +1,7 @@
-var Prando = require('prando');
+// var Prando = require('prando');
 // const p5 = require('node-p5')
-const fs = require('fs')
-
+// const fs = require('fs')
+let fs, Prando
 // import Prando from 'prando'
 // import fs from 'fs'
 class Viper {
@@ -9,14 +9,15 @@ class Viper {
     console.log('constructor')
 
     this.source = source
-    this.rng = new Prando(this.source);
 
     this.setting = setting
 
     if (this.setting === "browser") {
 
     } else if (this.setting == "server") {
-
+      fs = require('js')
+      Prando = require('prando')
+      this.rng = new Prando(this.source);
     }
 
     this.style = "maskClipRandom"
@@ -791,7 +792,10 @@ const tailOffsets = {
     yFactor: 0.2
   }
 }
-
-module.exports = {
-  Viper
+try {
+  module.exports = {
+    Viper
+  }
+} catch (e) {
+  console.log(e)
 }
