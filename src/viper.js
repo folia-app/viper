@@ -4,7 +4,7 @@ let fs
 
 function printFiles(path) {
   fs.readdirSync(path).forEach(file => {
-    console.log(file);
+    console.log(path + "/" + file)
   });
 }
 export class Viper {
@@ -35,6 +35,8 @@ export class Viper {
               })
             }
           })
+        } else if (file == "public") {
+          printFiles(process.cwd() + "/public")
         }
       });
     }
