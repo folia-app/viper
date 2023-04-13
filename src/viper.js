@@ -1,4 +1,5 @@
 import Prando from 'prando'
+
 // import fs from 'fs'
 let fs
 export class Viper {
@@ -67,22 +68,25 @@ export class Viper {
 
   preload() {
     console.log('viper preload command (only browser)')
-    try {
-      this.logs == "verbose" && console.timeLog("viper", "preload")
-      this.logs && console.log('preload')
-      this.preloaded = {}
+    if (this.setting !== "browser") {
+      try {
+        this.logs == "verbose" && console.timeLog("viper", "preload")
+        this.logs && console.log('preload')
+        this.preloaded = {}
 
-      this.preloaded.tail = window.loadImage('/tail/' + this.headTailRandom + '.png')
-      this.preloaded.head = window.loadImage('/head/' + this.headTailRandom + '.png')
-      this.preloaded.hole = window.loadImage('/holes/1.png')
-      this.preloaded.bodies = []
-      for (var i = 1; i <= this.totalBodies; i++) {
-        this.preloaded.bodies.push(window.loadImage(`/body/${i}.png`))
+        this.preloaded.tail = window.loadImage('/tail/' + this.headTailRandom + '.png')
+        this.preloaded.head = window.loadImage('/head/' + this.headTailRandom + '.png')
+        this.preloaded.hole = window.loadImage('/holes/1.png')
+        this.preloaded.bodies = []
+        for (var i = 1; i <= this.totalBodies; i++) {
+          this.preloaded.bodies.push(window.loadImage(`/body/${i}.png`))
+        }
+      } catch (preloadError) {
+        console.log({ preloadError })
       }
-    } catch (preloadError) {
-      console.log({ preloadError })
-    }
+    } else {
 
+    }
   }
 
   getHeadTailURL(isHead) {
@@ -99,9 +103,9 @@ export class Viper {
   }
 
   getHoleURL() {
-    if (this.style == "debug") {
-      return false
-    }
+    // if (this.style == "debug") {
+    //   return false
+    // }
     if (!this.holeImg) {
       this.holeImg = '1.png'
     }
@@ -113,9 +117,9 @@ export class Viper {
   }
 
   getBgImgURL() {
-    if (this.backgroundStyle !== "image") {
-      return false
-    }
+    // if (this.backgroundStyle !== "image") {
+    //   return false
+    // }
     if (!this.backgroundImg) {
       this.backgroundImg = 'bg3_' + this.random(1, 3) + '.png'
     }
@@ -169,6 +173,14 @@ export class Viper {
     this.rotate = p ? p.rotate.bind(p) : window.rotate
     this.scale = p ? p.scale.bind(p) : window.scale
     this.noStroke = p ? p.noStroke.bind(p) : window.noStroke
+
+
+    if (this.setting == "server") {
+
+
+    }
+
+
 
     this.canvas = this.createCanvas(this.width, this.width)
     if (typeof document !== "undefined") {
@@ -304,7 +316,6 @@ export class Viper {
     if (typeof preloaded === 'undefined') {
       preloaded = this.preloaded
     } else if (typeof this.bodies == "undefined") {
-      console.log('here')
       this.bodies = []
       for (var i = 0; i < this.totalBodies; i++) {
         this.bodies.push(preloaded[`body_${i}`])
@@ -830,8 +841,4 @@ const tailOffsets = {
     yFactor: 0.2
   }
 }
-
-// if(typeof exports === 'undefined'){
-//   var exports = this['sampleModule'] = {};
-// }
 
