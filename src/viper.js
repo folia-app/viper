@@ -90,7 +90,7 @@ export class Viper {
       this.tailImg = this.headImg
     }
     const img = isHead ? '/head/' + this.headImg : '/tail/' + this.tailImg
-    const imgURL = process.cwd() + "/public" + img
+    const imgURL = process.cwd() + "/dist" + img
     if (!fs.existsSync(imgURL)) {
       throw new Error('head/tail image not found: ' + imgURL)
     }
@@ -104,7 +104,7 @@ export class Viper {
     if (!this.holeImg) {
       this.holeImg = '1.png'
     }
-    const holeImgURL = process.cwd() + "/public/holes/" + this.holeImg
+    const holeImgURL = process.cwd() + "/dist/holes/" + this.holeImg
     if (!fs.existsSync(holeImgURL)) {
       throw new Error('hole image not found: ' + holeImgURL)
     }
@@ -118,7 +118,7 @@ export class Viper {
     if (!this.backgroundImg) {
       this.backgroundImg = 'bg3_' + this.random(1, 3) + '.png'
     }
-    const backgroundImageURL = process.cwd() + "/public/bg/" + this.backgroundImg
+    const backgroundImageURL = process.cwd() + "/dist/bg/" + this.backgroundImg
     if (!fs.existsSync(backgroundImageURL)) {
       throw new Error('background image not found: ' + backgroundImageURL)
     }
@@ -130,7 +130,7 @@ export class Viper {
     }
     const bodies = []
     for (var i = 1; i <= this.totalBodies; i++) {
-      const bodyURL = process.cwd() + `/public/body/${i}.png`
+      const bodyURL = process.cwd() + `/dist/body/${i}.png`
       if (!fs.existsSync(bodyURL)) {
         throw new Error('bodyURL image not found: ' + bodyURL)
       }
