@@ -24,13 +24,17 @@ export class Viper {
 
     } else if (this.setting == "server") {
       fs = eval('require')('fs')
-      console.log("---print contents of ", process.cwd())
       fs.readdirSync(process.cwd()).forEach(file => {
-        console.log(file);
+        console.log(process.cwd() + "/" + file);
         if (file == "dist") {
-          console.log("---print contents of ", process.cwd() + '/dist')
-
-          printFiles(process.cwd() + "/" + file)
+          fs.readdirSync(process.cwd() + "/dist").forEach(file => {
+            console.log(process.cwd() + "/dist" + "/" + file)
+            if (file == "public") {
+              fs.readdirSync(process.cwd() + "/dist").forEach(file => {
+                console.log(process.cwd() + "/dist/public/" + file)
+              })
+            }
+          })
         }
       });
     }
