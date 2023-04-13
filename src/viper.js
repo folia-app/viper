@@ -1,23 +1,23 @@
-// var Prando = require('prando');
-// const p5 = require('node-p5')
-// const fs = require('fs')
-let fs, Prando
-// import Prando from 'prando'
+import Prando from 'prando'
 // import fs from 'fs'
-class Viper {
+let fs
+export class Viper {
   constructor(source = "random-seed", setting = "server") {
-    console.log('constructor')
+    this.logs = false // false, true, "verbose"
+
+
+    this.logs && console.log('constructor')
+    this.logs == "verbose" && console.time("viper")
 
     this.source = source
+    this.rng = new Prando(this.source);
 
     this.setting = setting
 
     if (this.setting === "browser") {
 
     } else if (this.setting == "server") {
-      fs = require('js')
-      Prando = require('prando')
-      this.rng = new Prando(this.source);
+      fs = eval('require')('fs')
     }
 
     this.style = "maskClipRandom"
@@ -40,8 +40,8 @@ class Viper {
     this.maxNumberOfLines = 36
     this.maxLen = this.width / 12
     this.strokeW = this.maxLen
-    this.margin = this.strokeW
     this.headWidth = this.strokeW * 2
+    this.margin = this.headWidth
     this.angleDistanceMin = 60
     this.startPos = "random" // TODO: remove?
     this.strokeStyle = "random" // TODO: remove?
@@ -62,8 +62,24 @@ class Viper {
 
     this.headOffset = headOffsets.hasOwnProperty("_" + this.headTailRandom) ? headOffsets["_" + this.headTailRandom] : defaultHeadOffsets
     this.tailOffset = tailOffsets.hasOwnProperty("_" + this.headTailRandom) ? tailOffsets["_" + this.headTailRandom] : defaultTailOffsets
+  }
+
+  preload() {
+    this.logs == "verbose" && console.timeLog("viper", "preload")
+    this.logs && console.log('preload')
+    this.preloaded = {}
+
+    this.preloaded.tail = loadImage('/tail/' + this.headTailRandom + '.png')
+    this.preloaded.head = loadImage('/head/' + this.headTailRandom + '.png')
+    this.preloaded.hole = loadImage('/holes/1.png')
+    this.preloaded.bodies = []
+    for (var i = 1; i <= this.totalBodies; i++) {
+      this.preloaded.bodies.push(loadImage(`/body/${i}.png`))
+    }
+
 
   }
+
   getHeadTailURL(isHead) {
     if (!this.headImg || !this.tailImg) {
       this.headImg = this.headTailRandom + '.png'
@@ -120,7 +136,7 @@ class Viper {
   }
 
   setup(p) {
-    console.log('setup')
+    this.logs == "verbose" && console.timeLog("viper", "setup")
     this.point = p ? p.point.bind(p) : window.point
     this.line = p ? p.line.bind(p) : window.line
     this.fill = p ? p.fill.bind(p) : window.fill
@@ -221,7 +237,6 @@ class Viper {
   }
 
   drawBackground(preloaded) {
-    console.log('drawBackground')
     if (this.style == "debug") {
       this.drawCartesian()
       return
@@ -252,6 +267,7 @@ class Viper {
   }
 
   fourColorGradient() {
+    const resolution = this.width / 5
     if (!this.savedBG) {
       const colors = [
         [this.random(0, 255), this.random(0, 255), this.random(0, 255)],
@@ -260,14 +276,18 @@ class Viper {
         [this.random(0, 255), this.random(0, 255), this.random(0, 255)]
       ];
       this.savedBG = this.createGraphics(this.width, this.width)
-      for (let i = 0; i < this.width; i++) {
-        for (let j = 0; j < this.width; j++) {
-          let s = this.width / this.width;
+      for (let i = 0; i < resolution; i++) {
+        for (let j = 0; j < resolution; j++) {
+          let s = this.width / resolution;
           let wx = i * s / this.width
           let wy = j * s / this.width
           this.savedBG.noStroke()
-          this.savedBG.fill(weightedAvgColor(weightedAvgColor(colors[0], colors[1], wx), weightedAvgColor(colors[3], colors[2], wx), wy))
+          let c = weightedAvgColor(weightedAvgColor(colors[0], colors[1], wx), weightedAvgColor(colors[3], colors[2], wx), wy)
+          this.savedBG.fill(c)
           this.savedBG.rect(i * s, j * s, s, s)
+          // this.savedBG.stroke(c)
+          // this.savedBG.strokeWeight(s * 2.9)
+          // this.savedBG.point(i * s, j * s)
         }
       }
     }
@@ -275,24 +295,29 @@ class Viper {
   }
 
   draw(preloaded) {
+    this.logs == "verbose" && console.timeLog("viper", "draw")
+    if (typeof preloaded === 'undefined') {
+      preloaded = this.preloaded
+    }
     this.totalLength++
-    console.log('draw')
     if (this.setting == "server") {
       this.addAllLines()
     } else if (this.totalLength % this.tweens == 1) {
       this.addLine()
     }
-
+    this.logs == "verbose" && console.timeLog("viper", "addLine")
     this.drawBackground(preloaded)
+    this.logs == "verbose" && console.timeLog("viper", "drawBackground")
     this.drawSegments(preloaded)
+    this.logs == "verbose" && console.timeLog("viper", "drawSegments")
   }
 
   drawSegments(preloaded) {
     for (var i = 0; i < this.allLines.length; i++) {
-      // if (i == 0 && this.allLines.length > this.maxNumberOfLines + 1) {
-      //   continue
-      // }
-      // TODO: figure out why this continue was here
+      // this is to prevent trying to draw one last segment that starts from startingX and startingY
+      if (this.setting == "browser" && i == 0 && this.allLines.length >= this.maxNumberOfLines + 1) {
+        continue
+      }
       // start new relative translation and rotation
       // var l = this.allLines[i]
       var c = this.allColors[i]
@@ -505,7 +530,7 @@ class Viper {
     if (this.setting == "browser") {
       let lastLine
       let offsetTilNextSegment = this.totalLength % this.tweens
-      if (i == 0 && this.allLines.length <= this.maxNumberOfLines) {
+      if (i == 0) {
         lastLine = {
           x1: this.startingX,
           y1: this.startingY,
@@ -575,7 +600,7 @@ class Viper {
   }
 
   addAllLines() {
-    for (let i = 0; i <= this.maxNumberOfLines + 5; i++) {
+    for (let i = 0; i < this.maxNumberOfLines; i++) {
       this.addLine()
       this.totalLength++
     }
@@ -677,9 +702,8 @@ class Viper {
 }
 
 function outSideCanvas(x, y, width, margin) {
-  // if (x < 0 || x > width || y < 0 || y > width) {//- margin) {
-  // if (x < (margin / 2) || x > width - (margin / 2) || y < margin || y > width) {//- margin) {
-  if (x < margin || x > width - margin || y < margin || y > width - margin) {//- margin) {
+  // note, this doesn't account for the margin of the bottom
+  if (x < margin || x > width - margin || y < margin || y > width) {
     return true
   }
   return false
@@ -792,10 +816,8 @@ const tailOffsets = {
     yFactor: 0.2
   }
 }
-try {
-  module.exports = {
-    Viper
-  }
-} catch (e) {
-  console.log(e)
-}
+
+// if(typeof exports === 'undefined'){
+//   var exports = this['sampleModule'] = {};
+// }
+

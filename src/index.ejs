@@ -1,0 +1,47 @@
+<html>
+
+<head>
+  <title>
+    <%= htmlWebpackPlugin.options.title %>
+  </title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="description" content="<%= htmlWebpackPlugin.options.metaDesc %>" />
+  <!-- <script src="https://cdn.jsdelivr.net/npm/prando@6.0.1/dist/Prando.umd.min.js"></script> -->
+  <% for (key in htmlWebpackPlugin.files.js) { %>
+    <script src="<%= htmlWebpackPlugin.files.js[key] %>"></script>
+    <% } %>
+
+      <script defer src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.js"></script>
+</head>
+
+<body>
+  <div id="sketch-holder">
+  </div>
+  <script>
+    var startedDrawing = false
+    var stop = false
+    document.getElementById('sketch-holder').addEventListener('click', () => {
+      stop = !stop
+    })
+    viper = new Viper("seed", "browser")
+    function preload() {
+      viper.preload()
+      console.log('preload')
+    }
+    function setup() {
+      console.log('setup')
+      viper.setup()
+    }
+    function draw() {
+      if (!startedDrawing) {
+        startedDrawing = true
+        console.log('draw')
+      }
+      if (stop) return
+      viper.draw()
+    }
+  </script>
+</body>
+
+</html>

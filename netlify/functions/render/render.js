@@ -1,13 +1,12 @@
 const { Image, createCanvas } = require('canvas')
-const { setup, draw, nodePreload } = require('../../../public/wander.js')
+// const { setup, draw, nodePreload } = require('../../../dist/wander.js')
 const p5 = require('node-p5')
-const { Viper } = require('../../../public/viper.js')
+const { Viper } = require('../../../dist/viper.js')
 
 // require('dotenv').config()
 
 // Docs on event and context https://docs.netlify.com/functions/build/#code-your-function-2
 const handler = async (event) => {
-  console.time()
   let ready = false
   const address = event.queryStringParameters.address || Math.random().toString()
   var viper = new Viper(address)
@@ -18,7 +17,6 @@ const handler = async (event) => {
     head: viper.getHeadTailURL(true) && p5.loadImage(viper.getHeadTailURL(true)),
     bodies: async () => {
       console.log('start preload')
-      console.timeLog()
       var loadedBodies = []
       var allBodies = viper.getBodiesURLs()
       for (var i = 0; i < allBodies.length; i++) {
@@ -27,7 +25,6 @@ const handler = async (event) => {
         loadedBodies.push(loaded)
       }
       console.log('end preload')
-      console.timeLog()
       return loadedBodies
     }
   }
@@ -38,47 +35,28 @@ const handler = async (event) => {
         p.noLoop()
         viper.setup(p)
       } catch (setupError) {
-        console.log({ setupError }, console.timeLog())
+        console.log({ setupError })
       }
     }
     p.draw = () => {
       console.log('draw')
-      console.timeLog()
       viper.draw(preloaded)
-      // viper.draw(preloaded)
-      // viper.draw(preloaded)
       ready = true
     }
   }
   let foo
   try {
     console.log('before create sketch')
-    console.timeLog()
     let p5Instance = p5.createSketch(sketch, preloads)
     console.log('after create sketch')
-    console.timeLog()
-    // console.log({ p5Instance })
-    // const canvas = createCanvas(size, size)
-    // ctx = canvas.getContext('2d')
-    // canvas.width = size
-    // canvas.height = size
-    // await makeImg()
-    // await new Promise((resolve) => {
-    //   setTimeout(() => {
-    //     p5Instance.saveCanvas(canvas, 'myCanvas', 'png').then(filename => {
-    //       console.log(`saved the canvas as ${filename}`);
-    //     });
-    //     resolve()
-    //   }, 100);
-    // })
-    // await new Promise((resolve) => {
-    //   setTimeout(() => { resolve() }, 500)
-    // })
-    // console.log('save', { p5Instance })
-    // dataURL = await replaceWhite(dataURL)
     await new Promise((resolve) => {
+      var counted = 0
       foo = setInterval(() => {
+        counted++
         console.log(ready ? 'is ready' : 'not ready')
+        if (counted > 100) {
+          ready = true
+        }
         if (ready) {
           clearInterval(foo)
           resolve()
@@ -86,15 +64,14 @@ const handler = async (event) => {
       }, 500)
     })
     console.log('after interval')
-    console.timeLog()
-    var dataURL = p5Instance.canvas.toDataURL("image/png", 1)//0.01)
+    var dataURL = p5Instance.canvas.toDataURL("image/png", 1)//0.04)
     console.log('after toDataURL')
-    console.timeLog()
-    console.timeEnd()
+    var datetime = new Date().toISOString().replace(/:/g, '-');
     return {
       statusCode: 200,
       headers: {
         'content-type': "image/png",
+        'Content-Disposition': `inline; filename="viper-${datetime}.png"`
       },
       body: dataURL.replace('data:image/png;base64,', ''),
       isBase64Encoded: true
