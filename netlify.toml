@@ -1,7 +1,6 @@
 # example netlify.toml
 [build]
   command = "yarn build"
-  #functions = "netlify/functions"
   publish = "dist"
 
   ## Uncomment to use this redirect for Single Page Applications like create-react-app.
@@ -21,8 +20,8 @@
   ## more info on configuring this file: https://docs.netlify.com/configure-builds/file-based-configuration/
 
 [functions]
-	directory = "netlify/functions"
-	included_files = ["./public"]
+	included_files = ["public/**"]
+  node_bundler = "esbuild" 
 
 [[headers]]
   for = "/*"
