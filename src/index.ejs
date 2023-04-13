@@ -19,12 +19,14 @@
   <div id="sketch-holder">
   </div>
   <script>
+    console.log(window.location.hash)
     var startedDrawing = false
     var stop = false
     document.getElementById('sketch-holder').addEventListener('click', () => {
       stop = !stop
     })
-    viper = new Viper("seed", "browser")
+
+    viper = new Viper(window.location.hash || Math.random().toString(), "browser")
     function preload() {
       viper.preload()
       console.log('preload')
