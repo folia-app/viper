@@ -86,8 +86,6 @@ export class Viper {
   }
 
   getHeadTailURL(isHead) {
-    console.log('this.headImg', this.headImg)
-    console.log('this.tailImg', this.tailImg)
     if (!this.headImg || !this.tailImg) {
       this.headImg = this.headTailRandom + '.png'
       this.tailImg = this.headImg

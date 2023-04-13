@@ -21,22 +21,8 @@ const handler = async (event) => {
   //   preloads[key] = p5.loadImage(viper[key])
   // })
 
-  const preloads = {
-    // bodies: new Promise(async (resolve, reject) => {
-    //   console.log('start preload')
-    //   console.log(`p5 has a function called loadImage: ${p5.loadImage ? 'yes' : 'no'}`)
-    //   var loadedBodies = []
-    //   var allBodies = viper.getBodiesURLs()
-    //   for (var i = 0; i < allBodies.length; i++) {
-    //     const url = allBodies[i]
-    //     console.log({ bodiesURL: url })
-    //     const loaded = p5.loadImage(url)
-    //     loadedBodies.push(loaded)
-    //   }
-    //   console.log('end preload')
-    //   resolve(loadedBodies)
-    // })
-  }
+  const preloads = {}
+
   viper.getBodiesURLs().forEach((url, i) => {
     preloads[`body_${i}`] = p5.loadImage(url)
   })
@@ -52,7 +38,6 @@ const handler = async (event) => {
   if (viper.getHeadTailURL(true)) {
     preloads.head = p5.loadImage(viper.getHeadTailURL(true))
   }
-  console.log({ preloads })
   function sketch(p, preloaded) {
     p.setup = () => {
       try {

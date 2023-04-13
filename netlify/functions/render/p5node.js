@@ -63,7 +63,8 @@ module.exports = {
         console.log('loadImage', src)
         mainSketch.loadImage(src).then(img => {
           resolve(img);
-        })
+        }).catch(console.error)
+
       });
     }
   },
