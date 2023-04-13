@@ -22,19 +22,21 @@ const handler = async (event) => {
   // })
 
   const preloads = {
-    bodies: async () => {
-      console.log('start preload')
-      console.log(`p5 has a function called loadImage: ${p5.loadImage ? 'yes' : 'no'}`)
-      var loadedBodies = []
-      var allBodies = viper.getBodiesURLs()
-      for (var i = 0; i < allBodies.length; i++) {
-        const url = allBodies[i]
-        console.log({ bodiesURL: url })
-        const loaded = await p5.loadImage(url)()
-        loadedBodies.push(loaded)
-      }
-      console.log('end preload')
-      return loadedBodies
+    bodies: () => {
+      return new Promise(async (resolve, reject) => {
+        console.log('start preload')
+        console.log(`p5 has a function called loadImage: ${p5.loadImage ? 'yes' : 'no'}`)
+        var loadedBodies = []
+        var allBodies = viper.getBodiesURLs()
+        for (var i = 0; i < allBodies.length; i++) {
+          const url = allBodies[i]
+          console.log({ bodiesURL: url })
+          const loaded = await p5.loadImage(url)()
+          loadedBodies.push(loaded)
+        }
+        console.log('end preload')
+        resolve(loadedBodies)
+      })
     }
   }
   if (viper.getBgImgURL()) {

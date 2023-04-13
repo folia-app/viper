@@ -15413,6 +15413,7 @@ module.exports = {
                   this._userNode &&
                     "string" == typeof this._userNode &&
                     (this._userNode = document.getElementById(this._userNode));
+                  console.log('this._isGlobal', this._isGlobal)
                   var e = (this._isGlobal ? window : this).preload;
                   if (e) {
                     var t = document.getElementById(this._loadingScreenId);
