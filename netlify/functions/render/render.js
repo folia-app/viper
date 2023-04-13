@@ -7,6 +7,7 @@ const { Viper } = require('../../../dist/viper.js')
 
 // Docs on event and context https://docs.netlify.com/functions/build/#code-your-function-2
 const handler = async (event) => {
+  console.log(`p5 has a function called loadImage: ${p5.loadImage ? 'yes' : 'no'}`)
   let ready = false
   const address = event.queryStringParameters.address || Math.random().toString()
   var viper = new Viper(address)
