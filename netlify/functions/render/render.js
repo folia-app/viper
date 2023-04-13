@@ -23,10 +23,12 @@ const handler = async (event) => {
   const preloads = {
     bodies: async () => {
       console.log('start preload')
+      console.log(`p5 has a function called loadImage: ${p5.loadImage ? 'yes' : 'no'}`)
       var loadedBodies = []
       var allBodies = viper.getBodiesURLs()
       for (var i = 0; i < allBodies.length; i++) {
         const url = allBodies[i]
+        console.log({ bodiesURL: url })
         const loaded = await p5.loadImage(url)()
         loadedBodies.push(loaded)
       }
@@ -46,6 +48,7 @@ const handler = async (event) => {
   if (viper.getHeadTailURL(true)) {
     preloads.head = p5.loadImage(viper.getHeadTailURL(true))
   }
+  console.log({ preloads })
   function sketch(p, preloaded) {
     p.setup = () => {
       try {
@@ -58,7 +61,6 @@ const handler = async (event) => {
     }
     p.draw = () => {
       console.log('draw')
-      console.log({ preloaded })
       viper.draw(preloaded)
       ready = true
     }
