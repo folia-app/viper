@@ -18,6 +18,10 @@ export class Viper {
 
     } else if (this.setting == "server") {
       fs = eval('require')('fs')
+      console.log("print contents of ", process.cwd())
+      fs.readdirSync(process.cwd()).forEach(file => {
+        console.log(file);
+      });
     }
 
     this.style = "maskClipRandom"
