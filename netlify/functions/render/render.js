@@ -1,5 +1,6 @@
 const { Image, createCanvas } = require('canvas')
-const p5 = require('node-p5')
+// const p5 = require('node-p5')
+const p5 = require('./p5node.js')
 const { Viper } = require('../../../dist/viper.js')
 
 // require('dotenv').config()
@@ -37,7 +38,14 @@ const handler = async (event) => {
     }
   }
   if (viper.getBgImgURL()) {
-    preloads.bgImg = p5.loadImage(viper.getBgImgURL())
+    preloads.bgImg = () => {
+      try {
+        throw new Error("test error")
+        return p5.loadImage(viper.getBgImgURL())
+      } catch (error) {
+        console.log({ error })
+      }
+    }
   }
   if (viper.getHoleURL()) {
     preloads.hole = p5.loadImage(viper.getHoleURL())

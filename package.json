@@ -12,9 +12,15 @@
     "build": "webpack --mode development && cp dist/viper.js netlify/functions/render/viper.js"
   },
   "dependencies": {
-    "canvas": "^2.11.0",
+    "axios": "^0.21.1",
+    "canvas": "^2.5.0",
+    "gifencoder": "^2.0.1",
+    "is-url": "^1.2.4",
+    "jimp": "^0.16.1",
+    "jsdom": "^15.1.1",
     "netlify-cli": "^12.13.1",
     "node-p5": "^1.0.4",
+    "png-file-stream": "^1.2.1",
     "prando": "^6.0.1"
   },
   "devDependencies": {
