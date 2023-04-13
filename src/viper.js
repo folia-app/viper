@@ -67,18 +67,21 @@ export class Viper {
 
   preload() {
     console.log('viper preload command (only browser)')
-    this.logs == "verbose" && console.timeLog("viper", "preload")
-    this.logs && console.log('preload')
-    this.preloaded = {}
+    try {
+      this.logs == "verbose" && console.timeLog("viper", "preload")
+      this.logs && console.log('preload')
+      this.preloaded = {}
 
-    this.preloaded.tail = window.loadImage('/tail/' + this.headTailRandom + '.png')
-    this.preloaded.head = window.loadImage('/head/' + this.headTailRandom + '.png')
-    this.preloaded.hole = window.loadImage('/holes/1.png')
-    this.preloaded.bodies = []
-    for (var i = 1; i <= this.totalBodies; i++) {
-      this.preloaded.bodies.push(window.loadImage(`/body/${i}.png`))
+      this.preloaded.tail = window.loadImage('/tail/' + this.headTailRandom + '.png')
+      this.preloaded.head = window.loadImage('/head/' + this.headTailRandom + '.png')
+      this.preloaded.hole = window.loadImage('/holes/1.png')
+      this.preloaded.bodies = []
+      for (var i = 1; i <= this.totalBodies; i++) {
+        this.preloaded.bodies.push(window.loadImage(`/body/${i}.png`))
+      }
+    } catch (preloadError) {
+      console.log({ preloadError })
     }
-
 
   }
 

@@ -8,7 +8,8 @@ module.exports = {
     viper: [path.resolve(__dirname, "src", "viper.js")],
   },
   externals: {
-    'fs': 'fs'
+    'fs': 'fs',
+    'window': 'window'
   },
   output: {
     clean: true,

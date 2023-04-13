@@ -1,5 +1,4 @@
 const { Image, createCanvas } = require('canvas')
-// const { setup, draw, nodePreload } = require('../../../dist/wander.js')
 const p5 = require('node-p5')
 const { Viper } = require('../../../dist/viper.js')
 
