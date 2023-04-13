@@ -380,7 +380,9 @@ module.exports = {
       c.preload = async () => {
         let keys = (typeof toPreload == "object") ? Object.keys(toPreload) : 0;
         //iterate through all the keys of the 'toPreload' object passed to createSketch
-        keys.forEach(async (key, i) => {
+        // keys.forEach(async (key, i) => {
+        for (let i = 0; i < keys.length; i++) {
+          let key = keys[i];
           console.log({ key, i, isFunction: typeof toPreload[key] === 'function', isPromise: toPreload[key] instanceof Promise })
           //if the 'function' parameter is a string, it means its a built in function of p5
           if (typeof toPreload[key] === 'function') {
@@ -419,7 +421,8 @@ module.exports = {
             }
 
           }
-        });
+        }
+        // });
       }
     });
     return mainSketch;
