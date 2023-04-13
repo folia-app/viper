@@ -1,6 +1,12 @@
 import Prando from 'prando'
 // import fs from 'fs'
 let fs
+
+function printFiles(path) {
+  fs.readdirSync(path).forEach(file => {
+    console.log(file);
+  });
+}
 export class Viper {
   constructor(source = "random-seed", setting = "server") {
     this.logs = false // false, true, "verbose"
@@ -18,9 +24,14 @@ export class Viper {
 
     } else if (this.setting == "server") {
       fs = eval('require')('fs')
-      console.log("print contents of ", process.cwd())
+      console.log("---print contents of ", process.cwd())
       fs.readdirSync(process.cwd()).forEach(file => {
         console.log(file);
+        if (file == "dist") {
+          console.log("---print contents of ", process.cwd() + '/dist')
+
+          printFiles(process.cwd() + "/" + file)
+        }
       });
     }
 
