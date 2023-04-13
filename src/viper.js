@@ -1,12 +1,6 @@
 import Prando from 'prando'
 // import fs from 'fs'
 let fs
-
-function printFiles(path) {
-  fs.readdirSync(path).forEach(file => {
-    console.log(path + "/" + file)
-  });
-}
 export class Viper {
   constructor(source = "random-seed", setting = "server") {
     this.logs = false // false, true, "verbose"
@@ -23,22 +17,8 @@ export class Viper {
     if (this.setting === "browser") {
 
     } else if (this.setting == "server") {
+      // so that webpack doesn't try to pack up fs for the browser
       fs = eval('require')('fs')
-      fs.readdirSync(process.cwd()).forEach(file => {
-        console.log(process.cwd() + "/" + file);
-        if (file == "dist") {
-          fs.readdirSync(process.cwd() + "/dist").forEach(file => {
-            console.log(process.cwd() + "/dist" + "/" + file)
-            if (file == "public") {
-              fs.readdirSync(process.cwd() + "/dist").forEach(file => {
-                console.log(process.cwd() + "/dist/public/" + file)
-              })
-            }
-          })
-        } else if (file == "public") {
-          printFiles(process.cwd() + "/public")
-        }
-      });
     }
 
     this.style = "maskClipRandom"
@@ -121,7 +101,7 @@ export class Viper {
     if (!this.holeImg) {
       this.holeImg = '1.png'
     }
-    const holeImgURL = process.cwd() + "/publc/holes/" + this.holeImg
+    const holeImgURL = process.cwd() + "/public/holes/" + this.holeImg
     if (!fs.existsSync(holeImgURL)) {
       throw new Error('hole image not found: ' + holeImgURL)
     }
