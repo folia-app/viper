@@ -40,6 +40,7 @@ const handler = async (event) => {
     }
     p.draw = () => {
       console.log('draw')
+      console.log({ preloaded })
       viper.draw(preloaded)
       ready = true
     }

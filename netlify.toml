@@ -21,7 +21,7 @@
 
 [functions]
 	included_files = ["public/**"]
-  external_node_modules = ["fs"]
+  #external_node_modules = ["fs"]
 
 [[headers]]
   for = "/*"
