@@ -384,14 +384,22 @@ module.exports = {
           console.log({ key, i, isFunction: typeof toPreload[key] === 'function', isPromise: toPreload[key] instanceof Promise })
           //if the 'function' parameter is a string, it means its a built in function of p5
           if (typeof toPreload[key] === 'function') {
+            let funcVal
             try {
-              let funcVal = toPreload[key]();
+              funcVal = toPreload[key]();
             } catch (runFunctionError) {
               console.log({ runFunctionError })
             }
             //check whether it returns a promise or just a value and add it to the returned 'preloaded' object
-            if (funcVal instanceof Promise) newObj[key] = await funcVal;
-            else newObj[key] = funcVal;
+            if (funcVal instanceof Promise) {
+              try {
+                newObj[key] = await funcVal;
+              } catch (awaitFunctionError) {
+                console.log({ awaitFunctionError })
+              }
+            } else {
+              newObj[key] = funcVal;
+            }
             //if it is a promise wait for it and add it to the object
           } else if (toPreload[key] instanceof Promise) {
             newObj[key] = await toPreload[key];
