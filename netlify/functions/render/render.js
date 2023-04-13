@@ -10,11 +10,17 @@ const handler = async (event) => {
   let ready = false
   const address = event.queryStringParameters.address || Math.random().toString()
   var viper = new Viper(address)
+
+  // var preloads = {}
+  // var possibleKeys = ['bgImg', 'hole', 'tail', 'head', 'bodies']
+  // possibleKeys.forEach(key => {
+  //   switch (key) {
+  //     case 
+  //   }
+  //   preloads[key] = p5.loadImage(viper[key])
+  // })
+
   const preloads = {
-    bgImg: viper.getBgImgURL() && p5.loadImage(viper.getBgImgURL()),
-    hole: viper.getHoleURL() && p5.loadImage(viper.getHoleURL()),
-    tail: viper.getHeadTailURL(false) && p5.loadImage(viper.getHeadTailURL(false)),
-    head: viper.getHeadTailURL(true) && p5.loadImage(viper.getHeadTailURL(true)),
     bodies: async () => {
       console.log('start preload')
       var loadedBodies = []
@@ -27,6 +33,18 @@ const handler = async (event) => {
       console.log('end preload')
       return loadedBodies
     }
+  }
+  if (viper.getBgImgURL()) {
+    preloads.bgImg = p5.loadImage(viper.getBgImgURL())
+  }
+  if (viper.getHoleURL()) {
+    preloads.hole = p5.loadImage(viper.getHoleURL())
+  }
+  if (viper.getHeadTailURL(false)) {
+    preloads.tail = p5.loadImage(viper.getHeadTailURL(false))
+  }
+  if (viper.getHeadTailURL(true)) {
+    preloads.head = p5.loadImage(viper.getHeadTailURL(true))
   }
   function sketch(p, preloaded) {
     p.setup = () => {

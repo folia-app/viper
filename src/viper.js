@@ -100,7 +100,7 @@ export class Viper {
 
   getHoleURL() {
     if (this.style == "debug") {
-      return
+      return false
     }
     if (!this.holeImg) {
       this.holeImg = '1.png'
@@ -114,7 +114,7 @@ export class Viper {
 
   getBgImgURL() {
     if (this.backgroundStyle !== "image") {
-      return
+      return false
     }
     if (!this.backgroundImg) {
       this.backgroundImg = 'bg3_' + this.random(1, 3) + '.png'
@@ -127,7 +127,7 @@ export class Viper {
   }
   getBodiesURLs() {
     if (this.style !== "maskClipRandom" && this.style !== "maskClipSame") {
-      return
+      return false
     }
     const bodies = []
     for (var i = 1; i <= this.totalBodies; i++) {
