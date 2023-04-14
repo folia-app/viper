@@ -8,6 +8,9 @@ const handler = async (event) => {
   var viper = new Viper(address)
 
   async function loadImages(p) {
+    console.time('loadImages')
+
+    // load bodies
     const bodyURLs = viper.getBodiesURLs()
     for (let i = 0; i < bodyURLs.length; i++) {
       const url = bodyURLs[i]
@@ -15,18 +18,51 @@ const handler = async (event) => {
         preloads[`body_${i}`] = await p.loadImage(url)
       }
     }
-    if (!preloads.bgImg) {
-      preloads.bgImg = await p.loadImage(viper.getBgImgURL())
+
+    // load bg, pick one
+    const bgURLS = viper.getBgURLs()
+    for (let i = 0; i < bgURLS.length; i++) {
+      const url = bgURLS[i]
+      if (!preloads[`bg_${i}`]) {
+        preloads[`bg_${i}`] = await p.loadImage(url)
+      }
     }
+    if (!preloads.bgImg) {
+      let randomBG = viper.random(0, bgURLS.length - 1)
+      preloads.bgImg = preloads[`bg_${randomBG}`]
+    }
+
+    // load hole
     if (!preloads.hole) {
       preloads.hole = await p.loadImage(viper.getHoleURL())
     }
+
+    // load tails, pick one
+    const tailURLS = viper.getTailURLs()
+    for (let i = 0; i < tailURLS.length; i++) {
+      const url = tailURLS[i]
+      if (!preloads[`tail_${i}`]) {
+        preloads[`tail_${i}`] = await p.loadImage(url)
+      }
+    }
     if (!preloads.tail) {
-      preloads.tail = await p.loadImage(viper.getHeadTailURL(false))
+      let randomTail = viper.random(0, tailURLS.length - 1)
+      preloads.tail = preloads[`tail_${randomTail}`]
+    }
+
+    // load heads, pick one
+    const headURLs = viper.getHeadURLs()
+    for (let i = 0; i < headURLs.length; i++) {
+      const url = headURLs[i]
+      if (!preloads[`head_${i}`]) {
+        preloads[`head_${i}`] = await p.loadImage(url)
+      }
     }
     if (!preloads.head) {
-      preloads.head = await p.loadImage(viper.getHeadTailURL(true))
+      let randomHead = viper.random(0, headURLs.length - 1)
+      preloads.head = preloads[`head_${randomHead}`]
     }
+    console.timeEnd('loadImages')
   }
 
   function sketch(p) {

@@ -57,6 +57,7 @@ export class Viper {
     this.renderedBodies = {}
     this.totalBodies = 8
     this.totalHeadsTails = 7
+    this.totalBgs = 3
     this.whichSegment = this.random(0, this.totalBodies)
     this.bodyOffset = this.random(0, this.totalBodies)
     this.headTailRandom = this.random(1, this.totalHeadsTails)
@@ -84,6 +85,24 @@ export class Viper {
     }
   }
 
+  getTailURLs() {
+    return this.getHeadTailURLs(false)
+  }
+  getHeadURLs() {
+    return this.getHeadTailURLs(true)
+  }
+  getHeadTailURLs(isHead) {
+    const units = []
+    for (let i = 1; i <= this.totalHeadsTails; i++) {
+      let filename = process.cwd() + (isHead ? '/public/head/' : '/public/tail/') + i + '.png'
+      if (!fs.existsSync(filename)) {
+        throw new Error((isHead ? 'head' : 'tail') + ' image not found: ' + filename)
+      }
+      units.push(filename)
+    }
+    return units
+  }
+
   getHeadTailURL(isHead) {
     if (!this.headImg || !this.tailImg) {
       this.headImg = this.headTailRandom + '.png'
@@ -98,9 +117,6 @@ export class Viper {
   }
 
   getHoleURL() {
-    // if (this.style == "debug") {
-    //   return false
-    // }
     if (!this.holeImg) {
       this.holeImg = '1.png'
     }
@@ -111,10 +127,19 @@ export class Viper {
     return holeImgURL
   }
 
+  getBgURLs() {
+    const bgs = []
+    for (let i = 0; i < this.totalBgs; i++) {
+      let filename = process.cwd() + '/public/bg/bg3_' + (i + 1) + '.png'
+      if (!fs.existsSync(filename)) {
+        throw new Error('background image not found: ' + filename)
+      }
+      bgs.push(filename)
+    }
+    return bgs
+  }
+
   getBgImgURL() {
-    // if (this.backgroundStyle !== "image") {
-    //   return false
-    // }
     if (!this.backgroundImg) {
       this.backgroundImg = 'bg3_' + this.random(1, 3) + '.png'
     }
