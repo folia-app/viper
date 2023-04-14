@@ -27,10 +27,8 @@ const handler = async (event) => {
         preloads[`bg_${i}`] = await p.loadImage(url)
       }
     }
-    if (!preloads.bgImg) {
-      let randomBG = viper.random(0, bgURLS.length - 1)
-      preloads.bgImg = preloads[`bg_${randomBG}`]
-    }
+    let randomBG = viper.random(0, bgURLS.length - 1)
+    preloads.bgImg = preloads[`bg_${randomBG}`]
 
     // load hole
     if (!preloads.hole) {
@@ -45,10 +43,8 @@ const handler = async (event) => {
         preloads[`tail_${i}`] = await p.loadImage(url)
       }
     }
-    if (!preloads.tail) {
-      let randomTail = viper.random(0, tailURLS.length - 1)
-      preloads.tail = preloads[`tail_${randomTail}`]
-    }
+    let randomTail = viper.random(0, tailURLS.length - 1)
+    preloads.tail = preloads[`tail_${randomTail}`]
 
     // load heads, pick one
     const headURLs = viper.getHeadURLs()
@@ -58,10 +54,9 @@ const handler = async (event) => {
         preloads[`head_${i}`] = await p.loadImage(url)
       }
     }
-    if (!preloads.head) {
-      let randomHead = viper.random(0, headURLs.length - 1)
-      preloads.head = preloads[`head_${randomHead}`]
-    }
+
+    let randomHead = viper.random(0, headURLs.length - 1)
+    preloads.head = preloads[`head_${randomHead}`]
     console.timeEnd('loadImages')
   }
 
