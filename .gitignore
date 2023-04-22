@@ -6,6 +6,8 @@
 # testing
 /coverage
 
+/animated-*
+
 # production
 /dist/*
 /build

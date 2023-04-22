@@ -1,14 +1,19 @@
 const p5 = require('node-p5')
 const { Viper } = require('../../../dist/viper.js')
-
+const fs = require('fs')
 const preloads = {}
 const handler = async (event) => {
   let readyToServe = false
   const address = event.queryStringParameters.address || Math.random().toString()
-  var viper = new Viper(address)
+  var viper = new Viper({
+    source: address,
+    style: 'randomColor',
+    backgroundStyle: 'fourGradient',
+    maxNumberOfLines: 18,
+    pattern: 'eight'
+  })
 
   async function loadImages(p) {
-    console.time('loadImages')
 
     // load bodies
     const bodyURLs = viper.getBodiesURLs()
@@ -57,27 +62,69 @@ const handler = async (event) => {
 
     let randomHead = viper.random(0, headURLs.length - 1)
     preloads.head = preloads[`head_${randomHead}`]
-    console.timeEnd('loadImages')
   }
 
   function sketch(p) {
+    let seconds = 3
+    switch (viper.pattern) {
+      case 'eight':
+        seconds = 3.2
+        break
+      case 'circle':
+        seconds = 4.1
+        break
+      case 'square':
+        seconds = 5.48
+        break
+      case 'heart':
+        seconds = 5.1
+        break
+      case 'randomLoop':
+        seconds = 6
+        break
+    }
+    let fps = 5
+    let totalFrames = seconds * fps
+    let framesSoFar = 0
     let readyToDraw = false
     p.setup = async () => {
       try {
         await loadImages(p)
-        p.createCanvas(viper.width, viper.width)
-        p.noLoop()
-        viper.setup(p)
+        // p.createCanvas(viper.width, viper.width)
+        viper.setup(p, "server")
+        viper.setting = "browser"
+        // viper.addAllLines()
+        console.log(viper.setting)
+        // p.noLoop()
         readyToDraw = true
+        var datetime = new Date().toISOString().replace(/:/g, '-');
+        console.time(datetime)
+
+        p.saveFrames(viper.canvas.drawingContext, 'animated-' + datetime, {
+          repeat: 0, quality: 30 // image quality (1-30). 1 is best but slow. Above 20 doesn't make much difference in speed. 10 is default.
+        }, seconds, fps).then(() => {
+          console.log('gif is done')
+          console.timeEnd(datetime)
+          readyToServe = true
+
+        })
       } catch (setupError) {
         console.log({ setupError })
       }
     }
     p.draw = () => {
+      p.noLoop()
       if (!readyToDraw) return
-      console.log('draw')
+      if (framesSoFar >= totalFrames) {
+        return
+      }
+      console.log('draw - ' + framesSoFar)
+      if (framesSoFar === totalFrames) {
+        console.log('done')
+        return
+      }
       viper.draw(preloads)
-      readyToServe = true
+      framesSoFar++
     }
   }
   let foo
@@ -96,6 +143,16 @@ const handler = async (event) => {
         }
       }, 500)
     })
+
+    // const filename = './animated/frame-000.png'
+    // const exists = fs.existsSync(filename)
+    // if (!exists) {
+    //   throw new Error(`File ${filename} does not exist`)
+    // } else {
+    //   console.log(`File ${filename} exists`)
+    // }
+    // const gif = fs.readFileSync(filename, "base64")
+    // const base64Gif = gif//.toString('base64')
 
     var dataURL = p5Instance.canvas.toDataURL("image/png", 1)//0.04)
     var datetime = new Date().toISOString().replace(/:/g, '-');
