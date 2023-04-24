@@ -1,8 +1,7 @@
 # example netlify.toml
 [build]
-  command = "# no build command"
-  functions = "netlify/functions"
-  publish = "public"
+  command = "yarn build"
+  publish = "dist"
 
   ## Uncomment to use this redirect for Single Page Applications like create-react-app.
   ## Not needed for static site generators.
@@ -20,6 +19,9 @@
 
   ## more info on configuring this file: https://docs.netlify.com/configure-builds/file-based-configuration/
 
+[functions]
+	included_files = ["public/**"]
+ # external_node_modules = ["fs", "jsdom", "path"]
 
 [[headers]]
   for = "/*"

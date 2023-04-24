@@ -7,9 +7,11 @@
 /coverage
 
 # production
+/dist/*
 /build
 /functions-build
 .cache
+/netlify/functions/render/viper.js
 
 # netlify
 .netlify
