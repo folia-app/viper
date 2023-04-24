@@ -1,4 +1,4 @@
-
+/*
 // on click #sketch-holder, set stop to !stop
 // box = document.getElementById('sketch-holder')
 // box && box.addEventListener('click', () => {
@@ -1368,4 +1368,4 @@ function weightedAvgColor(a, b, w) {
 
 module.exports = {
   setup, draw, nodePreload
-}
+}*/

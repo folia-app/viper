@@ -6,14 +6,16 @@
   "author": "okwme",
   "license": "MIT",
   "scripts": {
-    "start": "npx netlify dev",
+    "server": "npx netlify dev",
     "watch": "npx watch 'yarn build' src",
-    "dev": "webpack serve --mode development",
+    "dev-browser": "webpack serve --mode development",
+    "dev-server": "yarn watch & yarn server",
     "build": "webpack --mode development && cp dist/viper.js netlify/functions/render/viper.js"
   },
   "dependencies": {
+    "floyd-steinberg": "^1.0.6",
     "netlify-cli": "^12.13.1",
-    "node-p5": "^1.0.4",
+    "node-p5": "https://github.com/okwme/p5-node#96ac44f2b6c134f72e6898fbc829275b2c7b0fce",
     "prando": "^6.0.1"
   },
   "devDependencies": {

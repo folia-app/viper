@@ -2,10 +2,57 @@ import Prando from 'prando'
 // import fs from 'fs'
 let fs
 export class Viper {
-  constructor(source = "random-seed", setting = "server") {
-    this.logs = false // false, true, "verbose"
-
-
+  constructor(overwriteOptions = {}) {
+    const options = {
+      source: "random-seed",
+      setting: "server",
+      logs: false, // false, true, "verbose"
+      style: "randomColor"/*
+      // style options
+      // 1. maskClipRandom
+      // 1. maskClipSame
+      // 1. randomColor
+      // 1. debug
+      // 1. skeleton
+      // 1. randomGreen*/,
+      backgroundStyle: "fourGradient"/*
+      // backgroundStyle options
+      // 1. solid
+      // 1. gradient
+      // 1. fourGradient
+      // 1. image*/,
+      pattern: "eight"/*
+      // pattern options
+      // 1. random
+      // 1. circle
+      // 1. square
+      // 1. eight 
+      // 1. heart
+      // 1. randomLoop */,
+      width: 686,
+      maxNumberOfLines: 20,
+      maxLen: 686 / 12,
+      strokeW: 686 / 12,
+      headWidth: 686 / 12 * 2,
+      margin: 686 / 12 * 2,
+      angleDistanceMin: 60,
+      fps: 35,
+      tweens: 6,
+      bgColor: "rgb(226,226,226)",
+      hideHole: false,
+      hideHead: false,
+      hideTail: false,
+      hideSnake: false,
+      redrawBackground: true,
+      wanderLoopDuration: 2,
+      ...overwriteOptions
+    }
+    const {
+      source, setting, logs, style, backgroundStyle, pattern, wanderLoopDuration,
+      width, maxNumberOfLines, maxLen, strokeW, headWidth, margin, angleDistanceMin,
+      fps, tweens, bgColor, hideHole, hideHead, hideTail, redrawBackground, hideSnake
+    } = options
+    this.logs = logs
     this.logs && console.log('constructor')
     this.logs == "verbose" && console.time("viper")
 
@@ -13,44 +60,31 @@ export class Viper {
     this.rng = new Prando(this.source);
 
     this.setting = setting
-
-    if (this.setting === "browser") {
-
-    } else if (this.setting == "server") {
+    if (this.setting == "server") {
       // so that webpack doesn't try to pack up fs for the browser
       fs = eval('require')('fs')
     }
 
-    this.style = "maskClipRandom"
-    // style options
-    // 1. maskClipRandom
-    // 1. maskClipSame
-    // 1. randomColor
-    // 1. debug
-    // 1. skeleton
-    // 1. randomGreen
+    this.style = style
+    this.backgroundStyle = backgroundStyle
+    this.pattern = pattern
+    this.width = width
+    this.maxNumberOfLines = maxNumberOfLines
+    this.maxLen = maxLen
+    this.strokeW = strokeW
+    this.headWidth = headWidth
+    this.margin = margin
+    this.angleDistanceMin = angleDistanceMin
+    this.fps = fps
+    this.tweens = tweens
+    this.bgColor = bgColor
+    this.hideHole = hideHole
+    this.hideHead = hideHead
+    this.hideTail = hideTail
+    this.redrawBackground = redrawBackground
+    this.hideSnake = hideSnake
+    this.wanderLoopDuration = wanderLoopDuration
 
-    this.backgroundStyle = "fourGradient"
-    // backgroundStyle options
-    // 1. solid
-    // 1. gradient
-    // 1. fourGradient
-    // 1. image
-
-    this.width = 686//343
-    this.maxNumberOfLines = 36
-    this.maxLen = this.width / 12
-    this.strokeW = this.maxLen
-    this.headWidth = this.strokeW * 2
-    this.margin = this.headWidth
-    this.angleDistanceMin = 60
-    this.startPos = "random" // TODO: remove?
-    this.strokeStyle = "random" // TODO: remove?
-    this.fps = 35
-    this.tweens = 6
-    this.bgColor = "rgb(226,226,226)"
-    this.rotationMode = "center"
-    this.bgColor = "rgb(226,226,226)"
     this.allLines = []
     this.allColors = []
     this.totalLength = 0
@@ -72,7 +106,7 @@ export class Viper {
       this.logs == "verbose" && console.timeLog("viper", "preload")
       this.logs && console.log('preload')
       this.preloaded = {}
-
+      this.preloaded.bgImg = window.loadImage('/bg/bg3_' + this.random(1, this.totalBgs) + '.png')
       this.preloaded.tail = window.loadImage('/tail/' + this.headTailRandom + '.png')
       this.preloaded.head = window.loadImage('/head/' + this.headTailRandom + '.png')
       this.preloaded.hole = window.loadImage('/holes/1.png')
@@ -164,7 +198,8 @@ export class Viper {
     return bodies
   }
 
-  setup(p) {
+  async setup(p) {
+    console.log()
     this.logs == "verbose" && console.timeLog("viper", "setup")
     this.point = p ? p.point.bind(p) : window.point
     this.line = p ? p.line.bind(p) : window.line
@@ -183,7 +218,9 @@ export class Viper {
     this.background = p ? p.background.bind(p) : window.background
     this.CORNER = p ? p.CORNER : window.CORNER
     this.DEGREES = p ? p.DEGREES : window.DEGREES
+    this.RADIANS = p ? p.RADIANS : window.RADIANS
     this.ROUND = p ? p.ROUND : window.ROUND
+    this.CENTER = p ? p.CENTER : window.CENTER
     this.createCanvas = p ? p.createCanvas.bind(p) : window.createCanvas
     this.createGraphics = p ? p.createGraphics.bind(p) : window.createGraphics
     this.dist = p ? p.dist.bind(p) : window.dist
@@ -193,15 +230,7 @@ export class Viper {
     this.rotate = p ? p.rotate.bind(p) : window.rotate
     this.scale = p ? p.scale.bind(p) : window.scale
     this.noStroke = p ? p.noStroke.bind(p) : window.noStroke
-
-
-    if (this.setting == "server") {
-
-
-    }
-
-
-
+    this.clear = p ? p.clear.bind(p) : window.clear
     this.canvas = this.createCanvas(this.width, this.width)
     if (typeof document !== "undefined") {
       this.canvas.parent('sketch-holder')
@@ -212,42 +241,51 @@ export class Viper {
     this.startingX = x
     this.y = y
     this.startingY = y
-    this.previousAngle = Math.floor(this.random(0, 360))
+    this.previousAngle = 0//Math.floor(this.random(0, 360))
 
     this.frameRate(this.fps);
     this.strokeWeight(this.strokeW);
-    this.rectMode(this.rotationMode)
-    this.imageMode(this.rotationMode);
+    this.rectMode(this.CENTER)
+    this.imageMode(this.CENTER);
     this.angleMode(this.DEGREES);
     this.strokeCap(this.ROUND);
+
+    for (let i = 0; i < this.maxNumberOfLines + 1; i++) {
+      const c = [this.random(0, 255), this.random(0, 255), this.random(0, 255)]
+      console.log(c.join(','))
+      this.allColors.push(c)
+    }
   }
 
   drawCartesian() {
 
     this.background(this.bgColor);
-    for (var i = 0; i < this.width; i += 100) {
-      this.strokeWeight(1)
-      this.line(i, 0, i, this.width)
-      this.line(0, i, this.width, i)
-    }
+    const center = this.width / 2
+
 
     this.rectMode(this.CORNER)
     this.strokeWeight(0)
     this.fill('rgba(255,255,0,0.5)')
+    // out of bounds top
     this.rect(0, 0, this.width, this.margin)
+    // out of bounds left
     this.rect(0, this.margin, this.margin, this.width)
+    // out of bounds right
     this.rect(this.width - this.margin, this.margin, this.margin, this.width)
-    this.rect(this.margin, this.width - this.margin, this.width - this.margin - this.margin, this.margin)
+    // out of bounds bottom
+    this.rect(this.margin, this.width - this.strokeW, this.width - this.margin - this.margin, this.strokeW)
 
-    this.rectMode(this.rotationMode)
+    this.rectMode(this.CENTER)
     this.strokeWeight(1)
 
-
-    // line(margin, margin, this.width - margin, margin)
-    // line(this.width - margin, margin, this.width - margin, this.width)
-    // line(this.width - margin, this.width, margin, this.width)
-    // line(margin, this.width, margin, margin)
-
+    for (var i = 0; i < this.width / 2; i += 100) {
+      this.strokeWeight(1)
+      this.stroke("black")
+      this.line(center + i, 0, center + i, this.width)
+      this.line(center - i, 0, center - i, this.width)
+      this.line(0, center + i, this.width, center + i)
+      this.line(0, center - i, this.width, center - i)
+    }
 
     this.stroke("green")
     for (var i = 0; i < 12; i++) {
@@ -271,7 +309,27 @@ export class Viper {
       this.strokeWeight(0)
       this.text(i * (360 / 8), cardinalX, cardinalY)
     }
+    this.strokeWeight(10)
+    this.point(center, center)
+    this.strokeWeight(0)
+
+
+
+    const flooredMargin = Math.floor(this.margin)
+    this.fill("black")
+    this.stroke("black")
+    this.strokeWeight(0)
+    this.text(`${flooredMargin},${flooredMargin}`, this.margin - 20, this.margin - 20)
+    this.text(`${this.width - flooredMargin},${flooredMargin}`, this.width - this.margin - 20, this.margin - 20)
+    this.text(`${flooredMargin},${Math.floor(this.width - this.strokeW)}`, this.margin - 20, this.width - this.strokeW - 20)
+    this.text(`${this.width - flooredMargin},${this.width - flooredMargin}`, this.width - this.margin - 20, this.width - this.strokeW - 20)
+    this.strokeWeight(10)
+    this.point(this.margin, this.margin)
+    this.point(this.width - this.margin, this.margin)
+    this.point(this.margin, this.width - this.strokeW)
+    this.point(this.width - this.margin, this.width - this.strokeW)
   }
+
 
   drawBackground(preloaded) {
     if (this.style == "debug") {
@@ -304,7 +362,8 @@ export class Viper {
   }
 
   fourColorGradient() {
-    const resolution = this.width / 5
+    // const resolution = this.width / 5
+    const resolution = 7//this.width / 100
     if (!this.savedBG) {
       const colors = [
         [this.random(0, 255), this.random(0, 255), this.random(0, 255)],
@@ -332,6 +391,7 @@ export class Viper {
   }
 
   draw(preloaded) {
+    // this.clear()
     this.logs == "verbose" && console.timeLog("viper", "draw")
     if (typeof preloaded === 'undefined') {
       preloaded = this.preloaded
@@ -347,37 +407,41 @@ export class Viper {
     this.totalLength++
     if (this.setting == "server") {
       this.addAllLines()
-    } else if (this.totalLength % this.tweens == 1) {
-      this.addLine()
-    }
+    } else
+      if (this.tweens == 0 || this.totalLength % this.tweens == 1) {
+        this.addLine()
+      }
     this.logs == "verbose" && console.timeLog("viper", "addLine")
-    this.drawBackground(preloaded)
+    this.redrawBackground && this.drawBackground(preloaded)
     this.logs == "verbose" && console.timeLog("viper", "drawBackground")
     this.drawSegments(preloaded)
     this.logs == "verbose" && console.timeLog("viper", "drawSegments")
   }
 
   drawSegments(preloaded) {
+    if (this.hideSnake) return
+    let skippedDraw = 0
     for (var i = 0; i < this.allLines.length; i++) {
-      // this is to prevent trying to draw one last segment that starts from startingX and startingY
-      if (this.setting == "browser" && i == 0 && this.allLines.length >= this.maxNumberOfLines + 1) {
-        continue
-      }
-      // start new relative translation and rotation
-      // var l = this.allLines[i]
-      var c = this.allColors[i]
-      const { x1, y1, x2, y2, len, ang } = this.getSegmentCoordinates(i)
+      var c = this.allColors[this.allLines.length - i]
+      var { x1, y1, x2, y2, len, ang } = this.getSegmentCoordinates(i)
 
       this.drawHole(i, preloaded)
+
+      const onTopOfEachOther = (Math.abs(x1 - x2) < this.maxLen / 10 && Math.abs(y1 - y2) < this.maxLen / 10)
+      if (onTopOfEachOther && this.reachedHome) {
+        skippedDraw++
+        continue
+      }
+
       if (this.style == "debug") {
-        this.drawDebug(x1, y1, x2, y2, len, ang, i)
+        this.drawDebug(x1, y1, x2, y2, len, ang, i, c)
       } else {
         switch (this.style) {
           case ("maskClipRandom"):
-            const index = this.allLines.length - i - 1
+            const index = this.allLines.length - i
             this.whichSegment = (index + this.bodyOffset) % preloaded.bodies.length
           case ("maskClipSame"):
-            this.drawMaskClip(x1, y1, x2, y2, len, ang, c, preloaded)
+            this.drawMaskClip(x1, y1, x2, y2, len, ang, c, preloaded, i)
             break;
           case ("randomColor"):
             this.drawRandomColor(x1, y1, x2, y2, c)
@@ -391,16 +455,29 @@ export class Viper {
         }
       }
 
+
+      // this.fill("black")
+      // if (this.totalLength % this.tweens == 0) {
+      //   this.noStroke()
+      //   this.text("real segment", this.width / 2, 50)
+      // } else {
+      //   this.noStroke()
+      //   this.text("tween segment", this.width / 2, 50)
+      // }
+
       // draw the tail
       this.drawTail(x1, y1, x2, y2, i, preloaded)
 
       // draw the head
       this.drawHead(x1, y1, x2, y2, i, preloaded)
-
+    }
+    if (skippedDraw == this.allLines.length) {
+      this.reset()
     }
   }
 
   drawHead(x1, y1, x2, y2, i, preloaded) {
+    if (this.hideHead) return
     if (i == this.allLines.length - 1) {
       const l = this.allLines[i]
       // stroke("rgba(255,0,0,0.1)")
@@ -410,7 +487,6 @@ export class Viper {
       //   xFactor: 2,
       //   yFactor: 2.5
       // }
-      // console.log({ rotationMode, headOffset, l, head })
       const headWidth = this.strokeW * 2
       var calcHeadOffset = {
         x: headWidth / this.headOffset.xFactor,
@@ -432,6 +508,7 @@ export class Viper {
   }
 
   drawTail(x1, y1, x2, y2, i, preloaded) {
+    if (this.hideTail) return
 
     var tailLength = this.strokeW * 1.4
     var tailWidth = tailLength / 2
@@ -440,9 +517,10 @@ export class Viper {
       y: tailWidth * this.tailOffset.yFactor
     }
 
-    var a = i == 0 && (this.totalLength >= this.maxNumberOfLines) && this.setting == "server"
-    var b = i == 1 && (this.totalLength > ((this.maxNumberOfLines + 1) * this.tweens)) && this.setting == "browser"
-    if ((a) || (b)) {
+    // var a = i == 0 && (this.totalLength >= this.maxNumberOfLines) && this.setting == "server"
+    // var b = i == 1 && (this.totalLength > ((this.maxNumberOfLines) * this.tweens)) && this.setting == "browser"
+    // if ((a) || (b)) {
+    if (i == 0 && this.allLines.length >= this.maxNumberOfLines && this.totalLength > this.maxNumberOfLines * this.tweens) {
       if ((x1 - x2) > (this.width / 80)) {
         this.push()
         this.scale(-1, 1)
@@ -463,10 +541,10 @@ export class Viper {
 
 
 
-  drawMaskClip(x1, y1, x2, y2, len, ang, c, preloaded) {
+  drawMaskClip(x1, y1, x2, y2, len, ang, c, preloaded, i) {
     const pic = preloaded.bodies[this.whichSegment]
     const flip = (x1 - x2) > (this.width / 80)
-    var renderedID = this.whichSegment
+    var renderedID = this.whichSegment.toString()
     let imagePattern
     if (!this.renderedBodies[renderedID]) {
       var strokeMask = this.createGraphics(len + (this.strokeW * 2), this.strokeW);
@@ -475,6 +553,8 @@ export class Viper {
 
       imagePattern = this.createGraphics(len + (this.strokeW * 2), this.strokeW);
       imagePattern.background(c)
+      // imagePatter n.textSize(50)
+      // imagePattern.text(i, (len + (this.strokeW * 2)) / 2, this.strokeW)
       imagePattern.image(pic, 0, -this.strokeW / 2, len + (this.strokeW * 2), this.strokeW * 2)
 
       imagePattern.loadPixels()
@@ -522,9 +602,10 @@ export class Viper {
     this.line(x1, y1, x2, y2)
   }
 
-  drawDebug(x1, y1, x2, y2, len, ang, i) {
+  drawDebug(x1, y1, x2, y2, len, ang, i, c) {
     const l = this.allLines[i]
-    this.stroke("black")
+    // this.stroke("black")
+    this.stroke(c)
     var debugLineWeight = this.width / 50
     this.strokeWeight(debugLineWeight)
     this.line(x1, y1, x2, y2)
@@ -556,38 +637,38 @@ export class Viper {
     this.fill("rgba(0,0,255,0.4)")
     this.arc(x2, y2, len, len, ang - this.angleDistanceMin, ang + this.angleDistanceMin);
 
+
   }
 
   drawHole(i, preloaded) {
-    var a = (i == 0 && this.style !== "debug" && this.setting !== "browser")
-    var b = (i == 0 && this.style !== "debug" && this.setting == "browser")
-      ||
-      (i == 1 && this.totalLength > ((this.maxNumberOfLines) * this.tweens) && this.style !== "debug" && this.setting == "browser")
-    if (a || b) {
+    if (this.hideHole) return
+    // var a = false//(i == 0 && this.setting !== "browser")
+    // var b = (i == 1 && this.totalLength > ((this.maxNumberOfLines) * this.tweens) && this.setting == "browser")
+    if (i == 0) {
       var holeWidth = this.strokeW * 2
-      this.image(preloaded.hole, this.startingX - (this.strokeW / 4), this.startingY - (this.strokeW / 2), holeWidth, holeWidth);
+      this.image(preloaded.hole, this.startingX - (this.strokeW / 4), this.startingY - (this.strokeW / 5), holeWidth, holeWidth);
     }
   }
 
   getSegmentCoordinates(i) {
-    const l = this.allLines[i]
+    let l = this.allLines[i]
     let x1, y1, x2, y2, len, ang
     if (this.setting == "browser") {
       let lastLine
-      let offsetTilNextSegment = this.totalLength % this.tweens
-      if (i == 0) {
+      let offsetTilNextSegment = this.tweens == 0 ? 0 : this.totalLength % this.tweens
+      if (i == 0 && this.allLines.length < this.maxNumberOfLines) {
         lastLine = {
           x1: this.startingX,
           y1: this.startingY,
           x2: this.startingX,
           y2: this.startingY
         }
+        this.lastLine = lastLine
+      } else if (i == 0) {
+        lastLine = this.lastLine
       } else {
         lastLine = this.allLines[i - 1]
       }
-
-      // console.log('lastLine')
-      // console.log(`ll.x1: ${lastLine.x1}, ll.y1: ${lastLine.y1}, ll.x2: ${lastLine.x2}, ll.y2: ${lastLine.y2}`)
 
       // normally we draw each line x1,y1 to x2,y2
       // x1,y1 is the end of the previous line
@@ -614,53 +695,259 @@ export class Viper {
 
 
   addLine() {
-    const angResults = this.wander()
+
+    // get the next segment
+    let angResults
+    switch (this.pattern) {
+      case "circle":
+        angResults = this.wanderInCircle()
+        break
+      case "square":
+        angResults = this.wanderInSquare()
+        break
+      case "random":
+        angResults = this.wander()
+        break
+      case "eight":
+        angResults = this.wanderInEight()
+        break
+      case "heart":
+        angResults = this.wanderInHeart()
+        break
+      case "randomLoop":
+        angResults = this.wanderLoop()
+        break
+      default:
+        throw new Error(`Unknown pattern: ${this.pattern}`)
+    }
+    if (!angResults) return
+    // if there should be no new segment, return empty
     const ang = angResults.angle
-
-    const x2 = this.x + Math.cos(ang * Math.PI / 180) * this.maxLen
-    const y2 = this.y + Math.sin(ang * Math.PI / 180) * this.maxLen
-    const c = [this.random(0, 255), this.random(0, 255), this.random(0, 255)]
-
+    let x2, y2, len
+    if (this.reachedHome) {
+      x2 = angResults.x
+      y2 = angResults.y
+      len = angResults.len
+    } else {
+      x2 = this.x + Math.cos(ang * Math.PI / 180) * this.maxLen
+      y2 = this.y + Math.sin(ang * Math.PI / 180) * this.maxLen
+      len = this.maxLen
+    }
+    // let c
+    // if (this.totalLength >= this.maxNumberOfLines * this.tweens) {
+    //   c = [0, 0, 0]
+    // } else {
+    //   const r = this.random(0, 255)
+    //   const g = this.random(0, 255)
+    //   const b = this.random(0, 255)
+    //   c = [r, g, b]
+    // }
+    // console.log(c.join(","))
     const newLine = {
       x1: this.x,
       y1: this.y,
       x2: x2,
       y2: y2,
       ang: ang,
-      len: this.maxLen,
+      len: len,
       failed: angResults.failed,
       maskedImage: null
     }
+
     this.allLines.push(newLine)
-    this.allColors.unshift(c)
-
-    if (this.allLines.length > this.maxNumberOfLines + 1) {
-      this.allLines.shift()
-      this.allColors.shift()
-    }
-
+    // this.allColors.unshift(c)
     this.previousAngle = ang
     this.x = x2
     this.y = y2
+    if (this.allLines.length > this.maxNumberOfLines) {
+      this.lastLine = this.allLines.shift()
+      // this.allColors.shift()
+    }
+
+
+
+
   }
 
   addAllLines() {
     for (let i = 0; i < this.maxNumberOfLines; i++) {
       this.addLine()
-      this.totalLength++
+      this.totalLength += this.setting == "browser" ? this.tweens : 1
     }
   }
 
-  random(min = 0, max = 1) {
-    return this.rng.nextInt(min, max)
+  reset() {
+    this.allLines = []
+    this.allColors = []
+    this.wanderHome = undefined
+    this.reachedHome = undefined
+    this.totalLength = 0
+    this.hideHead = false
+    this.previousAngle = 0
+    this.deletedSegment = undefined
+    this.deletedColor = undefined
   }
 
-  getStart() {
-    const min = this.margin
-    const max = this.width - this.margin
-    const x = this.random(min, max)
-    const y = this.random(min, max)
-    return { x, y }
+  wanderLoop() {
+    const turningPoint = this.maxNumberOfLines * this.wanderLoopDuration
+    const reachedHomeMargin = this.maxLen
+    const startingXOffset = this.startingX - (this.strokeW / 3)
+    const startingYOffset = this.startingY - (this.strokeW / 3)
+    const totalLength = this.totalLength / (this.tweens > 0 ? this.tweens : 1)
+    if (totalLength < turningPoint && !this.wanderHome) {
+      return this.wander()
+    }
+    this.wanderHome = true
+
+    if (Math.abs(this.x - startingXOffset) < reachedHomeMargin && Math.abs(this.y - startingYOffset) < reachedHomeMargin) {
+      this.reachedHome = true
+    }
+
+    if (this.reachedHome) {
+      this.hideHead = true
+    }
+
+    const x = this.startingX
+    const y = this.startingY
+    var angleDelta = this.random(-this.angleDistanceMin / 2, this.angleDistanceMin / 2)
+    const angle = Math.atan2(y - this.y, x - this.x) * 180 / Math.PI + angleDelta
+    return { angle: angle, failed: [], x, y, tries: 1 }
+  }
+
+  wanderInHeart() {
+
+    const index = Math.floor(this.totalLength / this.tweens) % heartCoordsOnGridOf1000.length
+    const coord = heartCoordsOnGridOf1000[index]
+    const x = coord.x * this.width / 1000
+    const y = coord.y * this.width / 1000
+
+    const previousX = this.x
+    const previousY = this.y
+    const lineLength = this.maxLen
+
+    // this.angleMode(this.RADIANS);
+
+    // const a = (this.totalLength / (this.tweens * 4.25))// % (Math.PI * 2)
+    // const r = height / 40;
+    // const xOffset = this.width / 2
+    // const yOffset = this.width / 2
+    // const x = r * 16 * pow(sin(a), 3) + xOffset
+    // const y = -r * (13 * cos(a) - 5 * cos(2 * a) - 2 * cos(3 * a) - cos(4 * a)) + yOffset
+    const angle = Math.atan2(y - previousY, x - previousX) * 180 / Math.PI;
+    // this.strokeWeight(10)
+    // this.fill("black")
+    // this.stroke("black")
+    // this.point(x, y)
+    // this.angleMode(this.DEGREES);
+    return { x, y, tries: 0, failed: false, angle }
+  }
+
+  wanderInEight() {
+    const previousX = this.x
+    const previousY = this.y
+
+    this.angleMode(this.RADIANS);
+    // const si = sin(frameCount / 50) * 80;
+    // const co = cos(frameCount / 50);
+    const var1 = this.width / 3.7
+    const var2 = this.width / 2
+    const step = this.totalLength / (3 * this.tweens)
+    const x = Math.sin(step) * var1 + var2
+    const y = Math.cos(step) * Math.sin(step) * var1 + var2
+    const angle = Math.atan2(y - previousY, x - previousX) * 180 / Math.PI;
+    this.angleMode(this.DEGREES);
+    return { x, y, tries: 0, failed: false, angle }
+  }
+
+  wanderInSquare() {
+    let previousX = this.x
+    let previousY = this.y
+    const lineLength = this.maxLen
+    const width = this.width
+    const margin = this.margin - this.maxLen / 2
+
+    let angle = this.previousAngle
+    switch (angle) {
+      case 0:
+        if (previousX + lineLength > width - margin) {
+          angle = 90
+        }
+        break;
+      case 90:
+        if (previousY + lineLength > width - margin) {
+          angle = 180
+
+        }
+        break;
+      case 180:
+        if (previousX - lineLength < margin) {
+          angle = 270
+        }
+        break;
+      case 270:
+        if (previousY - lineLength < margin) {
+          angle = 0
+        }
+        break;
+      default:
+        angle = 0
+      // throw new Error(`invalid angle ${angle}`)
+    }
+    let x, y
+    switch (angle) {
+      case 0:
+        x = previousX + lineLength
+        y = margin
+        break;
+      case 90:
+        x = width - margin
+        y = previousY + lineLength
+        break;
+      case 180:
+        x = previousX - lineLength
+        y = width - margin
+        break;
+      case 270:
+        x = margin
+        y = previousY - lineLength
+        break;
+    }
+    // const angle = Math.atan2(y - previousY, x - previousX) * 180 / Math.PI;
+
+    return { x, y, tries: 0, failed: false, angle: angle }
+  }
+
+  wanderInCircle() {
+    const previousX = this.x
+    const previousY = this.y
+
+    this.angleMode(this.RADIANS);
+    const chunks = 24
+    const angleJump = ((Math.PI * 2) / chunks) * ((this.totalLength / this.tweens) % chunks)
+    const r = this.width / 2 - this.margin
+    var x = this.width / 2 + r * cos(angleJump);
+    var y = this.width / 2 + r * sin(angleJump);
+    const angle = Math.atan2(y - previousY, x - previousX) * 180 / Math.PI;
+    this.angleMode(this.DEGREES);
+    // this.strokeWeight(10)
+    // this.stroke("black")
+    // this.point(x, y)
+    // this.strokeWeight(0)
+    return { x, y, tries: 0, failed: false, angle }
+
+
+    // var angleDelta = 15
+
+
+    // // actually applying the change to the angle should also be randomly additional or subtractive
+    // var angle = previousAngle + angleDelta
+    // angle = newAngle < 0 ? 360 + newAngle : (newAngle > 360 ? newAngle % 360 : newAngle)
+
+    // // check if the angle works with that distance
+    // var newX = Math.floor(previousX + Math.cos(newAngle * Math.PI / 180) * (lineLength))
+    // var newY = Math.floor(previousY + Math.sin(newAngle * Math.PI / 180) * (lineLength))
+    // // if it does, return the new point
+    // return { x: newX, y: newY, tries: 1, angle: newAngle, failed: [] }
   }
 
   // wander is the heart of the algorithm
@@ -733,10 +1020,14 @@ export class Viper {
       var newX = Math.floor(previousX + Math.cos(newAngle * Math.PI / 180) * (lineLength))
       var newY = Math.floor(previousY + Math.sin(newAngle * Math.PI / 180) * (lineLength))
       // if it does, return the new point
-      if (!outSideCanvas(newX, newY, this.width, this.margin)) {
+      if (!outSideCanvas(newX, newY, this.width, this.margin, this.strokeW)) {
         return { x: newX, y: newY, tries: i + 1, angle: newAngle, failed }
       }
-      var randomColor = `rgb(${Math.ceil(this.random(0, 255))}, ${Math.ceil(this.random(0, 255))}, ${Math.ceil(this.random(0, 255))})`
+      var a = Math.ceil(this.random(0, 255))
+      var b = Math.ceil(this.random(0, 255))
+      var c = Math.ceil(this.random(0, 255))
+      var randomColor = `rgb(${a}, ${b}, ${c})`
+      console.log({ randomColor })
       failed.push({ changeBy, newAngle, newX, newY, randomColor })
     }
     console.log({ previousX, previousY, previousAngle, maxDifferenceBetweenAngles, lineLength, width, margin })
@@ -744,11 +1035,51 @@ export class Viper {
     throw new Error(`Unable to find a new point from(${previousX}, ${previousY}, ${previousAngle})`)
   }
 
+  random(min = 0, max = 1) {
+    this.timesCalledRandom = typeof this.timesCalledRandom == 'undefined' ? 1 : this.timesCalledRandom + 1
+    console.log({ timesCalledRandom: this.timesCalledRandom })
+    var foo = this.rng.nextInt(min, max)
+    console.log({ randomNumber: foo })
+    return foo
+  }
+
+  getStart() {
+    let x, y
+    const min = this.margin
+    const max = this.width - this.margin
+    switch (this.pattern) {
+      case "circle":
+        x = (this.width / 2) + this.maxLen / 2
+        y = min + (this.maxLen / 6)
+        break;
+      case "square":
+        x = min
+        y = min
+        break;
+      case "randomLoop":
+      case "random":
+        x = this.random(min, max)
+        y = this.random(min, max)
+        break;
+      case "eight":
+        x = max / 2
+        y = max / 2
+        break;
+      case "heart":
+        x = max / 2
+        y = max / 2
+        break;
+      default:
+        throw new Error(`invalid pattern ${this.pattern}`)
+    }
+    return { x, y }
+  }
+
 }
 
-function outSideCanvas(x, y, width, margin) {
+function outSideCanvas(x, y, width, margin, bottomMargin) {
   // note, this doesn't account for the margin of the bottom
-  if (x < margin || x > width - margin || y < margin || y > width) {
+  if (x < margin || x > width - margin || y < margin || y > width - bottomMargin) {
     return true
   }
   return false
@@ -861,4 +1192,5 @@ const tailOffsets = {
     yFactor: 0.2
   }
 }
-
+// https://editor.p5js.org/okwme/sketches/p9ly6SKjB
+var heartCoordsOnGridOf1000 = [{ "x": 500, "y": 375 }, { "x": 523.6215940958725, "y": 305.13141528375945 }, { "x": 572.0079789306911, "y": 247.26569684075326 }, { "x": 647.6605092147418, "y": 208.09332400257904 }, { "x": 738.3292946363822, "y": 206.54268067284926 }, { "x": 823.863770119653, "y": 247.40906912170422 }, { "x": 882.792496237897, "y": 321.8589918695607 }, { "x": 899.4885417960356, "y": 413.907569914502 }, { "x": 869.4307380190571, "y": 508.68930539392323 }, { "x": 800.7307778675969, "y": 597.913282757173 }, { "x": 757.2814199462268, "y": 639.80309679362 }, { "x": 711.394784794539, "y": 680.0805586070702 }, { "x": 665.8675872141957, "y": 718.9358055202251 }, { "x": 585.7416455537127, "y": 792.184425900497 }, { "x": 531.2249829856402, "y": 856.1246003002016 }, { "x": 501.12415389378447, "y": 917.3086831005191 }, { "x": 465.337490018193, "y": 851.2784703970185 }, { "x": 408.37548528365113, "y": 786.3031054370841 }, { "x": 326.6165432076642, "y": 712.4978834831365 }, { "x": 280.8400458172563, "y": 673.4113568811111 }, { "x": 235.16496355380934, "y": 632.8784497609074 }, { "x": 192.40277506139398, "y": 590.6957720506871 }, { "x": 126.36252204530882, "y": 500.87130295101537 }, { "x": 100.09208385597799, "y": 405.8919135252606 }, { "x": 120.68953309840651, "y": 314.68562898625095 }, { "x": 182.5815379886182, "y": 242.48625917745932 }, { "x": 269.4056254702473, "y": 205.00446577834037 }, { "x": 359.5164365657932, "y": 210.11666206884473 }, { "x": 433.20083772887165, "y": 251.75600275956307 }, { "x": 479.0952455300467, "y": 310.01935469123 }]

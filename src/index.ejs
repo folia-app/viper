@@ -19,21 +19,45 @@
   <div id="sketch-holder">
   </div>
   <script>
-    console.log(window.location.hash)
+    var viper
     var startedDrawing = false
     var stop = false
+    let patternIndex = 4
+    let patterns = ['random', 'circle', 'square', 'eight', 'heart']
     document.getElementById('sketch-holder').addEventListener('click', () => {
       stop = !stop
+      // if (stop) {
+      // viper.pattern = patterns[patternIndex % patterns.length]
+      // patternIndex++
+      // }
     })
-
-    viper = new Viper(window.location.hash || Math.random().toString(), "browser")
+    console.log({ source: window.location.hash.replace("#", "") || Math.random().toString() })
+    viper = new Viper({
+      source: (window.location.hash && window.location.hash.replace("#", "")) || Math.random().toString(),
+      setting: "browser",
+      style: "randomColor",
+      pattern: "eight",//patterns[patternIndex % patterns.length],
+      // style: "debug",
+      // hideHead: true,
+      // hideTail: true,
+      // hideHole: true,
+      backgroundStyle: 'fourGradient',
+      redrawBackground: true,
+      maxNumberOfLines: 16,
+      hideHole: false,
+      hideSnake: false,
+      fps: 50
+    })
     function preload() {
-      viper.preload()
+      // viper.preload()
       console.log('preload')
     }
     function setup() {
       console.log('setup')
       viper.setup()
+      viper.preload()
+
+      // viper.addAllLines()
     }
     function draw() {
       if (!startedDrawing) {
