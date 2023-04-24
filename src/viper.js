@@ -198,7 +198,8 @@ export class Viper {
     return bodies
   }
 
-  setup(p) {
+  async setup(p) {
+    console.log()
     this.logs == "verbose" && console.timeLog("viper", "setup")
     this.point = p ? p.point.bind(p) : window.point
     this.line = p ? p.line.bind(p) : window.line
@@ -248,6 +249,12 @@ export class Viper {
     this.imageMode(this.CENTER);
     this.angleMode(this.DEGREES);
     this.strokeCap(this.ROUND);
+
+    for (let i = 0; i < this.maxNumberOfLines + 1; i++) {
+      const c = [this.random(0, 255), this.random(0, 255), this.random(0, 255)]
+      console.log(c.join(','))
+      this.allColors.push(c)
+    }
   }
 
   drawCartesian() {
@@ -356,7 +363,7 @@ export class Viper {
 
   fourColorGradient() {
     // const resolution = this.width / 5
-    const resolution = this.width / 20
+    const resolution = 7//this.width / 100
     if (!this.savedBG) {
       const colors = [
         [this.random(0, 255), this.random(0, 255), this.random(0, 255)],
@@ -415,7 +422,7 @@ export class Viper {
     if (this.hideSnake) return
     let skippedDraw = 0
     for (var i = 0; i < this.allLines.length; i++) {
-      var c = this.allColors[i]
+      var c = this.allColors[this.allLines.length - i]
       var { x1, y1, x2, y2, len, ang } = this.getSegmentCoordinates(i)
 
       this.drawHole(i, preloaded)
@@ -726,8 +733,16 @@ export class Viper {
       y2 = this.y + Math.sin(ang * Math.PI / 180) * this.maxLen
       len = this.maxLen
     }
-    const c = [this.random(0, 255), this.random(0, 255), this.random(0, 255)]
-
+    // let c
+    // if (this.totalLength >= this.maxNumberOfLines * this.tweens) {
+    //   c = [0, 0, 0]
+    // } else {
+    //   const r = this.random(0, 255)
+    //   const g = this.random(0, 255)
+    //   const b = this.random(0, 255)
+    //   c = [r, g, b]
+    // }
+    // console.log(c.join(","))
     const newLine = {
       x1: this.x,
       y1: this.y,
@@ -740,13 +755,13 @@ export class Viper {
     }
 
     this.allLines.push(newLine)
-    this.allColors.unshift(c)
+    // this.allColors.unshift(c)
     this.previousAngle = ang
     this.x = x2
     this.y = y2
     if (this.allLines.length > this.maxNumberOfLines) {
       this.lastLine = this.allLines.shift()
-      this.allColors.shift()
+      // this.allColors.shift()
     }
 
 
@@ -1008,7 +1023,11 @@ export class Viper {
       if (!outSideCanvas(newX, newY, this.width, this.margin, this.strokeW)) {
         return { x: newX, y: newY, tries: i + 1, angle: newAngle, failed }
       }
-      var randomColor = `rgb(${Math.ceil(this.random(0, 255))}, ${Math.ceil(this.random(0, 255))}, ${Math.ceil(this.random(0, 255))})`
+      var a = Math.ceil(this.random(0, 255))
+      var b = Math.ceil(this.random(0, 255))
+      var c = Math.ceil(this.random(0, 255))
+      var randomColor = `rgb(${a}, ${b}, ${c})`
+      console.log({ randomColor })
       failed.push({ changeBy, newAngle, newX, newY, randomColor })
     }
     console.log({ previousX, previousY, previousAngle, maxDifferenceBetweenAngles, lineLength, width, margin })
@@ -1017,7 +1036,11 @@ export class Viper {
   }
 
   random(min = 0, max = 1) {
-    return this.rng.nextInt(min, max)
+    this.timesCalledRandom = typeof this.timesCalledRandom == 'undefined' ? 1 : this.timesCalledRandom + 1
+    console.log({ timesCalledRandom: this.timesCalledRandom })
+    var foo = this.rng.nextInt(min, max)
+    console.log({ randomNumber: foo })
+    return foo
   }
 
   getStart() {

@@ -9,12 +9,11 @@ const handler = async (event) => {
     source: address,
     style: 'randomColor',
     backgroundStyle: 'fourGradient',
-    maxNumberOfLines: 18,
+    maxNumberOfLines: 16,
     pattern: 'eight'
   })
 
   async function loadImages(p) {
-
     // load bodies
     const bodyURLs = viper.getBodiesURLs()
     for (let i = 0; i < bodyURLs.length; i++) {
@@ -63,6 +62,10 @@ const handler = async (event) => {
     let randomHead = viper.random(0, headURLs.length - 1)
     preloads.head = preloads[`head_${randomHead}`]
   }
+  var datetime = new Date().toISOString().replace(/:/g, '-');
+  console.time(datetime)
+  let filename = 'animated-' + datetime
+  console.log({ filename })
 
   function sketch(p) {
     let seconds = 3
@@ -83,24 +86,25 @@ const handler = async (event) => {
         seconds = 6
         break
     }
-    let fps = 5
+    let fps = 35
     let totalFrames = seconds * fps
     let framesSoFar = 0
     let readyToDraw = false
+
+
     p.setup = async () => {
       try {
-        await loadImages(p)
+
         // p.createCanvas(viper.width, viper.width)
-        viper.setup(p, "server")
+        viper.setup(p)
+        await loadImages(p)
         viper.setting = "browser"
-        // viper.addAllLines()
+        viper.addAllLines()
         console.log(viper.setting)
         // p.noLoop()
         readyToDraw = true
-        var datetime = new Date().toISOString().replace(/:/g, '-');
-        console.time(datetime)
 
-        p.saveFrames(viper.canvas.drawingContext, 'animated-' + datetime, {
+        p.saveFrames(viper.canvas.drawingContext, filename, {
           repeat: 0, quality: 30 // image quality (1-30). 1 is best but slow. Above 20 doesn't make much difference in speed. 10 is default.
         }, seconds, fps).then(() => {
           console.log('gif is done')
@@ -118,7 +122,6 @@ const handler = async (event) => {
       if (framesSoFar >= totalFrames) {
         return
       }
-      console.log('draw - ' + framesSoFar)
       if (framesSoFar === totalFrames) {
         console.log('done')
         return
@@ -130,11 +133,13 @@ const handler = async (event) => {
   let foo
   try {
     let p5Instance = p5.createSketch(sketch)
+    console.log('start waiting')
     await new Promise((resolve) => {
       var counted = 0
       foo = setInterval(() => {
         counted++
         if (counted > 10) {
+          console.log('going to serve because i counted to 10')
           readyToServe = true
         }
         if (readyToServe) {
@@ -143,6 +148,8 @@ const handler = async (event) => {
         }
       }, 500)
     })
+    console.log('done waiting')
+    console.log({ filename })
 
     // const filename = './animated/frame-000.png'
     // const exists = fs.existsSync(filename)
@@ -151,18 +158,18 @@ const handler = async (event) => {
     // } else {
     //   console.log(`File ${filename} exists`)
     // }
-    // const gif = fs.readFileSync(filename, "base64")
+    const gif = fs.readFileSync(`${filename}/${filename}.gif`, "base64")
     // const base64Gif = gif//.toString('base64')
 
-    var dataURL = p5Instance.canvas.toDataURL("image/png", 1)//0.04)
+    // var dataURL = p5Instance.canvas.toDataURL("image/png", 1)//0.04)
     var datetime = new Date().toISOString().replace(/:/g, '-');
     return {
       statusCode: 200,
       headers: {
-        'content-type': "image/png",
-        'Content-Disposition': `inline; filename="viper-${datetime}.png"`
+        'content-type': "image/gif",
+        'Content-Disposition': `inline; filename="viper-${datetime}.gif"`
       },
-      body: dataURL.replace('data:image/png;base64,', ''),
+      body: gif.replace('data:image/gif;base64,', ''),
       isBase64Encoded: true
     }
   } catch (error) {

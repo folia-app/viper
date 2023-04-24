@@ -31,16 +31,17 @@
       // patternIndex++
       // }
     })
-
+    console.log({ source: window.location.hash.replace("#", "") || Math.random().toString() })
     viper = new Viper({
-      source: window.location.hash || Math.random().toString(),
+      source: (window.location.hash && window.location.hash.replace("#", "")) || Math.random().toString(),
       setting: "browser",
-      style: "maskClipRandom",
-      pattern: "randomLoop",//patterns[patternIndex % patterns.length],
+      style: "randomColor",
+      pattern: "eight",//patterns[patternIndex % patterns.length],
       // style: "debug",
       // hideHead: true,
       // hideTail: true,
       // hideHole: true,
+      backgroundStyle: 'fourGradient',
       redrawBackground: true,
       maxNumberOfLines: 16,
       hideHole: false,
@@ -48,12 +49,14 @@
       fps: 50
     })
     function preload() {
-      viper.preload()
+      // viper.preload()
       console.log('preload')
     }
     function setup() {
       console.log('setup')
       viper.setup()
+      viper.preload()
+
       // viper.addAllLines()
     }
     function draw() {

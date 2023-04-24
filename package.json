@@ -13,8 +13,9 @@
     "build": "webpack --mode development && cp dist/viper.js netlify/functions/render/viper.js"
   },
   "dependencies": {
+    "floyd-steinberg": "^1.0.6",
     "netlify-cli": "^12.13.1",
-    "node-p5": "https://github.com/okwme/p5-node#d413cf69dbe3e34ee1dc39050c5dde1a33d766ca",
+    "node-p5": "https://github.com/okwme/p5-node#96ac44f2b6c134f72e6898fbc829275b2c7b0fce",
     "prando": "^6.0.1"
   },
   "devDependencies": {
