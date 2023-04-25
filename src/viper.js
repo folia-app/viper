@@ -31,10 +31,10 @@ export class Viper {
       // 1. randomLoop */,
       width: 686,
       maxNumberOfLines: 20,
-      maxLen: 686 / 12,
-      strokeW: 686 / 12,
-      headWidth: 686 / 12 * 2,
-      margin: 686 / 12 * 2,
+      maxLen: 75,
+      strokeW: 60,
+      headWidth: 60 * 2.3,
+      margin: 60 * 2.3,
       angleDistanceMin: 60,
       fps: 35,
       tweens: 6,
@@ -89,12 +89,14 @@ export class Viper {
     this.allColors = []
     this.totalLength = 0
     this.renderedBodies = {}
-    this.totalBodies = 8
-    this.totalHeadsTails = 7
+    this.totalBodies = 22
+    this.totalHeads = 23
+    this.totalTails = 17
     this.totalBgs = 3
-    this.whichSegment = this.random(0, this.totalBodies)
-    this.bodyOffset = this.random(0, this.totalBodies)
-    this.headTailRandom = this.random(1, this.totalHeadsTails)
+    this.whichSegment = 1//this.random(1, this.totalBodies)
+    this.bodyOffset = 0//this.random(1, this.totalBodies)
+    this.headRandom = 1//this.random(1, this.totalHeads)
+    this.tailRandom = 1//this.random(1, this.totalTails)
 
     this.headOffset = headOffsets.hasOwnProperty("_" + this.headTailRandom) ? headOffsets["_" + this.headTailRandom] : defaultHeadOffsets
     this.tailOffset = tailOffsets.hasOwnProperty("_" + this.headTailRandom) ? tailOffsets["_" + this.headTailRandom] : defaultTailOffsets
@@ -107,11 +109,12 @@ export class Viper {
       this.logs && console.log('preload')
       this.preloaded = {}
       this.preloaded.bgImg = window.loadImage('/bg/bg3_' + this.random(1, this.totalBgs) + '.png')
-      this.preloaded.tail = window.loadImage('/tail/' + this.headTailRandom + '.png')
-      this.preloaded.head = window.loadImage('/head/' + this.headTailRandom + '.png')
+      this.preloaded.tail = window.loadImage('/tail/' + this.tailRandom + '.png')
+      this.preloaded.head = window.loadImage('/head/' + this.headRandom + '.png')
       this.preloaded.hole = window.loadImage('/holes/1.png')
       this.preloaded.bodies = []
       for (var i = 1; i <= this.totalBodies; i++) {
+        console.log('loading body', i)
         this.preloaded.bodies.push(window.loadImage(`/body/${i}.png`))
       }
     } catch (preloadError) {
@@ -120,14 +123,32 @@ export class Viper {
   }
 
   getTailURLs() {
-    return this.getHeadTailURLs(false)
+    const units = []
+    for (let i = 1; i <= this.totalTails; i++) {
+
+      let filename = process.cwd() + '/public/tail/' + i + '.png'
+      console.log({ filename })
+      if (!fs.existsSync(filename)) {
+        throw new Error('tail' + ' image not found: ' + filename)
+      }
+      units.push(filename)
+    }
+    return units
   }
   getHeadURLs() {
-    return this.getHeadTailURLs(true)
+    const units = []
+    for (let i = 1; i <= this.totalHeads; i++) {
+      let filename = process.cwd() + '/public/head/' + i + '.png'
+      if (!fs.existsSync(filename)) {
+        throw new Error('head' + ' image not found: ' + filename)
+      }
+      units.push(filename)
+    }
+    return units
   }
   getHeadTailURLs(isHead) {
     const units = []
-    for (let i = 1; i <= this.totalHeadsTails; i++) {
+    for (let i = 1; i <= this.totalHeads; i++) {
       let filename = process.cwd() + (isHead ? '/public/head/' : '/public/tail/') + i + '.png'
       if (!fs.existsSync(filename)) {
         throw new Error((isHead ? 'head' : 'tail') + ' image not found: ' + filename)
@@ -542,11 +563,12 @@ export class Viper {
 
 
   drawMaskClip(x1, y1, x2, y2, len, ang, c, preloaded, i) {
-    const pic = preloaded.bodies[this.whichSegment]
+    const pic = preloaded.bodies[this.whichSegment - 1]
     const flip = (x1 - x2) > (this.width / 80)
     var renderedID = this.whichSegment.toString()
     let imagePattern
     if (!this.renderedBodies[renderedID]) {
+      console.log("doesn't exist")
       var strokeMask = this.createGraphics(len + (this.strokeW * 2), this.strokeW);
       strokeMask.strokeWeight(this.strokeW)
       strokeMask.line(this.strokeW / 2, this.strokeW / 2, len + (this.strokeW * 1.5), this.strokeW / 2)
@@ -582,12 +604,14 @@ export class Viper {
     this.push()
     this.scale(flip ? -1 : 1, flip ? -1 : 1)
 
-    const segmentWeight = this.strokeW / 1.75 // strokeW - ((allLines.length - 1 - i) * diff)
+    const segmentWeight = this.strokeW / 1.2 // strokeW - ((allLines.length - 1 - i) * diff)
     this.stroke("black")
     this.strokeWeight(segmentWeight + (segmentWeight * 0.1))
     this.line(-len / 2, 0, len / 2, 0)
-
-    this.image(imagePattern, 0, 0, len + segmentWeight, segmentWeight);
+    console.log(`len is ${len}`)
+    console.log(`my strokeW is ${this.strokeW}`)
+    console.log(`segment is ${len + segmentWeight} widt and ${segmentWeight} high`)
+    this.image(imagePattern, 0, 0, len + segmentWeight / 2, segmentWeight);
     this.pop()
     this.pop()
   }
@@ -1027,7 +1051,7 @@ export class Viper {
       var b = Math.ceil(this.random(0, 255))
       var c = Math.ceil(this.random(0, 255))
       var randomColor = `rgb(${a}, ${b}, ${c})`
-      console.log({ randomColor })
+      // console.log({ randomColor })
       failed.push({ changeBy, newAngle, newX, newY, randomColor })
     }
     console.log({ previousX, previousY, previousAngle, maxDifferenceBetweenAngles, lineLength, width, margin })
@@ -1037,9 +1061,9 @@ export class Viper {
 
   random(min = 0, max = 1) {
     this.timesCalledRandom = typeof this.timesCalledRandom == 'undefined' ? 1 : this.timesCalledRandom + 1
-    console.log({ timesCalledRandom: this.timesCalledRandom })
+    // console.log({ timesCalledRandom: this.timesCalledRandom })
     var foo = this.rng.nextInt(min, max)
-    console.log({ randomNumber: foo })
+    // console.log({ randomNumber: foo })
     return foo
   }
 

@@ -35,27 +35,27 @@
     viper = new Viper({
       source: (window.location.hash && window.location.hash.replace("#", "")) || Math.random().toString(),
       setting: "browser",
-      style: "randomColor",
-      pattern: "eight",//patterns[patternIndex % patterns.length],
+      style: "maskClipSame",
+      pattern: "random",//patterns[patternIndex % patterns.length],
       // style: "debug",
       // hideHead: true,
       // hideTail: true,
       // hideHole: true,
       backgroundStyle: 'fourGradient',
       redrawBackground: true,
-      maxNumberOfLines: 16,
+      maxNumberOfLines: 10,
       hideHole: false,
       hideSnake: false,
-      fps: 50
+      // fps: 35
     })
     function preload() {
-      // viper.preload()
+      viper.preload()
       console.log('preload')
     }
     function setup() {
       console.log('setup')
       viper.setup()
-      viper.preload()
+      // viper.preload()
 
       // viper.addAllLines()
     }
