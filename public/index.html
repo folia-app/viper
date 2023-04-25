@@ -62,19 +62,19 @@
   }
 
   function setParams() {
-    width = 343
-    maxLen = width / 12
+    width = 686
+    maxLen = 75
     minLen = maxLen
-    strokeW = maxLen//width / 6 //minLen / 1
-    headWidth = strokeW * 2
+    strokeW = 60//maxLen//width / 6 //minLen / 1
+    headWidth = strokeW * 2.3
 
     margin = headWidth
-    maxNumberOfLines = 36
+    maxNumberOfLines = 10
     angleDistanceMin = 60
     startPos = "random" // "bottom", "center", "random"
     strokeStyle = "random" // "randomGreen", "random", "gettingDarker", "none"
     fps = 50
-    tweens = 6
+    tweens = 10
     bgColor = "rgb(226,226,226)"
     try {
       rotationMode = CENTER
@@ -96,22 +96,23 @@
     startingY = false // width - margin
     startingAng = false //135
     egg = false
-    bg = "fourGradient" // "solid", "gradient", "image", "fourGradient"
+    bg = "image" // "solid", "gradient", "image", "fourGradient"
     dropShadowLoop = bg == "solid" ? 20 : 50
     shouldSave = false
     taperEnd = false
     skipToEnd = false
     dontCross = false
     bodyOffset = Math.floor(Math.random() * totalBodies)
-    makeMask = true
+    makeMask = false
     dontClearBG = false
     preset = false
-    sameSegment = false
+    sameSegment = true
     headAsSegment = false
     // bodies = patterns
 
     // which Segment is random selection from allLines
-    whichSegment = Math.floor(random(0, bodies.length))
+    whichSegment = 0
+    //Math.floor(random(0, bodies.length))
     if (bg == "fourGradient") {
       bgGradientColors = [[randomNum(0, 255), randomNum(0, 255), randomNum(0, 255)], [randomNum(0, 255), randomNum(0, 255), randomNum(0, 255)], [randomNum(0, 255), randomNum(0, 255), randomNum(0, 255)], [randomNum(0, 255), randomNum(0, 255), randomNum(0, 255)]];
     }
@@ -136,8 +137,8 @@
 
   headOffsets = {
     _1: {
-      xFactor: 1.8,
-      yFactor: 2.3
+      xFactor: 2.5,
+      yFactor: 2.8
     },
     _2: {
       xFactor: 2.5,
@@ -213,9 +214,11 @@
 
   function preload() {
 
-    var tailRandom = Math.ceil(Math.random() * totalTails)
+    var tailRandom = 1//Math.ceil(Math.random() * totalTails)
     var headRandom;
+    console.log(imagePath + `/tail/${tailRandom}.png`)
     tail = loadImage(imagePath + `/tail/${tailRandom}.png`)
+
     if (tailRandom < 6 && matchTail) {
       headRandom = tailRandom
       head = loadImage(imagePath + `/head/${tailRandom}.png`)
@@ -227,7 +230,7 @@
     headOffset = headOffsets.hasOwnProperty("_" + headRandom) ? headOffsets["_" + headRandom] : defaultHeadOffsets
     tailOffset = tailOffsets.hasOwnProperty("_" + tailRandom) ? tailOffsets["_" + tailRandom] : defaultTailOffsets
     var bgFamily = 3//Math.ceil(Math.random() * totalBG)
-    var specificBG = Math.ceil(Math.random() * bgFamilies[bgFamily - 1])
+    var specificBG = 1//Math.ceil(Math.random() * bgFamilies[bgFamily - 1])
     bgImg = loadImage(imagePath + `/bg/bg${bgFamily}_${specificBG}.png`)
 
     for (var i = 1; i <= totalBodies; i++) {
@@ -236,9 +239,9 @@
     // for (var i = 1; i <= totalBG; i++) {
     //   bgs.push(loadImage(imagePath + `/bg/${i}.jpeg`)) // uses jpeg instead of png
     // }
-    for (var i = 1; i <= totalTails; i++) {
-      tails.push(loadImage(imagePath + `/tail/${i}.png`))
-    }
+    // for (var i = 1; i <= totalTails; i++) {
+    //   tails.push(loadImage(imagePath + `/tail/${i}.png`))
+    // }
     for (var i = 1; i <= totalPatterns; i++) {
       patterns.push(loadImage(imagePath + `/pattern/${i}.jpg`)) // uses jpg
     }
@@ -757,7 +760,7 @@
       var b = (i == 0 && !debug && animated) || (i == 1 && totalLength > ((maxNumberOfLines) * tweens) && !debug && animated)
       if (a || b) {
         // draw the hole
-        var holeWidth = currentWidth * 2
+        var holeWidth = currentWidth * 3
 
         // push()
         // tint(255, 127)
@@ -836,7 +839,7 @@
               segmentWeight = currentWidth / 1.2
               addToLength = segmentWeight / 2
             }
-            // console.log(`segment is ${len + addToLength} x ${segmentWeight} pixels`)
+            console.log(`len is ${ len} segment is ${len + addToLength} x ${segmentWeight} pixels`)
             image(imagePattern, 0, 0, len + addToLength, segmentWeight);
             pop()
 
@@ -891,7 +894,7 @@
         }
       }
 
-      var tailLength = currentWidth * 1.4
+      var tailLength = currentWidth * 2.3
       var tailWidth = tailLength / 2
       var calcTailOffset = {
         x: tailLength / tailOffset.xFactor,
@@ -1052,7 +1055,7 @@
   }
 
   function pickLength() {
-    return Math.ceil(random(minLen - 1, maxLen))
+    return Math.ceil(random(minLen , maxLen))
   }
 
 
