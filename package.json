@@ -1,8 +1,8 @@
 {
-  "name": "wander",
+  "name": "viper",
   "version": "1.0.0",
   "main": "index.js",
-  "repository": "https://github.com/folia-app/wander",
+  "repository": "https://github.com/folia-app/viper",
   "author": "okwme",
   "license": "MIT",
   "scripts": {
