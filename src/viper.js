@@ -1,7 +1,7 @@
 import Prando from 'prando'
 
 const { quantize } = require("gifenc")
-var DitherJS = require("ditherjs/server")
+const dither = require("dither-me-this")
 
 // import fs from 'fs'
 let fs
@@ -28,7 +28,7 @@ export class Viper {
       // 1. gradient-low
       // 1. bw-gradient-high
       // 1. bw-gradient-low*/,
-      pattern: "eight"/*
+      pattern: "circle"/*
       // pattern options
       // 1. random
       // 1. circle
@@ -40,12 +40,12 @@ export class Viper {
       // 1. randomLoop */,
       width: 686,
       maxNumberOfLines: 20,
-      maxLen: 100,
-      strokeW: 50,
-      headWidth: 120,
-      tailLength: 80,
-      holeWidth: 138,
-      margin: 60 * 2.3,
+      maxLen: null,
+      strokeW: null,
+      headWidth: null,
+      tailLength: null,
+      holeWidth: null,
+      margin: null,
       angleDistanceMin: 60,
       fps: 35,
       tweens: 6,
@@ -56,12 +56,13 @@ export class Viper {
       hideSnake: false,
       redrawBackground: true,
       wanderLoopDuration: 20,
+      dither: false,
       ...overwriteOptions
     }
     let {
       source, setting, logs, style, backgroundStyle, pattern, wanderLoopDuration,
       width, maxNumberOfLines, maxLen, strokeW, headWidth, tailLength, holeWidth, margin, angleDistanceMin,
-      fps, tweens, bgColor, hideHole, hideHead, hideTail, redrawBackground, hideSnake
+      fps, tweens, bgColor, hideHole, hideHead, hideTail, redrawBackground, hideSnake, dither
     } = options
     this.logs = logs
     this.logs && console.log('constructor')
@@ -71,12 +72,12 @@ export class Viper {
     this.rng = new Prando(this.source);
 
     const firstRandom = this.random(0, 1000)
-    console.log({ firstRandom })
 
     this.setting = setting
     if (this.setting == "server") {
       // so that webpack doesn't try to pack up fs for the browser
       fs = eval('require')('fs')
+      width *= 2
     }
 
     this.style = style
@@ -84,12 +85,12 @@ export class Viper {
     this.pattern = pattern
     this.width = width
     this.maxNumberOfLines = maxNumberOfLines
-    this.maxLen = maxLen
-    this.strokeW = strokeW
-    this.holeWidth = holeWidth
-    this.headWidth = headWidth
-    this.tailLength = tailLength
-    this.margin = margin
+    this.maxLen = maxLen || this.width * 0.14577259 // 100
+    this.strokeW = strokeW || this.width * 0.0728863 // 50
+    this.holeWidth = holeWidth || this.width * 0.20116618 // 138
+    this.headWidth = headWidth || this.width * 0.17492711 // 120
+    this.tailLength = tailLength || this.width * 0.11661808 // 80
+    this.margin = margin || this.width * 0.20116618 // 138
     this.angleDistanceMin = angleDistanceMin
     this.fps = fps
     this.tweens = tweens
@@ -112,12 +113,11 @@ export class Viper {
     this.whichSegment = this.random(0, this.totalBodies - 1)
     this.bodyOffset = this.random(1, this.totalBodies)
     this.headRandom = this.random(1, this.totalHeads)
-    console.log('head is ', this.headRandom)
     this.tailRandom = this.headRandom//this.random(1, this.totalTails)
     this.randomBG = this.random(1, this.totalBgs)
+    this.dither = dither
 
     this.setHeartPattern()
-
 
     this.headOffset = headOffsets.hasOwnProperty("_" + this.headTailRandom) ? headOffsets["_" + this.headTailRandom] : defaultHeadOffsets
     this.tailOffset = tailOffsets.hasOwnProperty("_" + this.headTailRandom) ? tailOffsets["_" + this.headTailRandom] : defaultTailOffsets
@@ -253,7 +253,6 @@ export class Viper {
   }
 
   async setup(p) {
-    console.log('setup')
     this.logs == "verbose" && console.timeLog("viper", "setup")
     this.point = p ? p.point.bind(p) : window.point
     this.line = p ? p.line.bind(p) : window.line
@@ -287,6 +286,9 @@ export class Viper {
     this.scale = p ? p.scale.bind(p) : window.scale
     this.noStroke = p ? p.noStroke.bind(p) : window.noStroke
     this.clear = p ? p.clear.bind(p) : window.clear
+
+
+
     this.canvas = this.createCanvas(this.width, this.width)
 
     if (typeof document !== "undefined") {
@@ -307,13 +309,13 @@ export class Viper {
     this.angleMode(this.DEGREES);
     this.strokeCap(this.ROUND);
 
+    // TODO: make sure this is how it should be done
     // This pre-calculates all possible future segment colors for this viper
     // it assumes there will never be vipers over 1000 segments long
     for (let i = 0; i < 1000 + 1; i++) {
       const c = [this.random(0, 255), this.random(0, 255), this.random(0, 255)]
       this.allColors.push(c)
     }
-    console.log('last color', this.allColors[this.allColors.length - 1][0])
     this.setupBgColors()
     this.drawBackground()
   }
@@ -489,65 +491,49 @@ export class Viper {
   }
 
   async fourColorGradient(resolution = 7, isBlackAndWhite = false) {
-
-
-    // resolution = 100//this.width / 20
-    // const resolution = 7//this.width / 100
-    if (!this.savedBG) {
-      let colors
-      if (isBlackAndWhite) {
-        colors = this.bgColors["bw"]
-      } else {
-        colors = this.bgColors["color"]
-      }
-      // this.rectMode(this.CENTER)
-      // this.imageMode(this.CENTER);
-      const bgCanvas = this.createGraphics(this.width, this.width)
-      bgCanvas.noStroke()
-      for (let i = 0; i < resolution; i++) {
-        for (let j = 0; j < resolution; j++) {
-          let s = this.width / resolution;
-          let wx = i * s / this.width
-          let wy = j * s / this.width
-          let c = weightedAvgColor(weightedAvgColor(colors[0], colors[1], wx), weightedAvgColor(colors[3], colors[2], wx), wy)
-          bgCanvas.fill(c)
-          bgCanvas.rect(i * s, j * s, s, s)
+    try {
+      if (!this.savedBG) {
+        let colors
+        if (isBlackAndWhite) {
+          colors = this.bgColors["bw"]
+        } else {
+          colors = this.bgColors["color"]
         }
+        const bgCanvas = this.createGraphics(this.width, this.width)
+        bgCanvas.noStroke()
+        for (let i = 0; i < resolution; i++) {
+          for (let j = 0; j < resolution; j++) {
+            let s = this.width / resolution;
+            let wx = i * s / this.width
+            let wy = j * s / this.width
+            let c = weightedAvgColor(weightedAvgColor(colors[0], colors[1], wx), weightedAvgColor(colors[3], colors[2], wx), wy)
+            bgCanvas.fill(c)
+            bgCanvas.rect(i * s, j * s, s, s)
+          }
+        }
+
+        if (this.dither) {
+          const ctx = bgCanvas.canvas.getContext("2d")
+          const imageData = ctx.getImageData(0, 0, bgCanvas.canvas.width, bgCanvas.canvas.width);
+          const palette = quantize(imageData.data, 128);
+          const options = {
+            ditheringType: "ordered", // errorDiffusion, ordered, random, noDither
+            // errorDiffusionMatrix: "floydSteinberg", // floydSteinberg, falseFloydSteinberg, jarvis, stucki, burkes, sierra3, sierra2, Sierra2-4A
+            // orderedMatrix: [8, 8], // Minimum 1, maximum 8 ... for now
+            // randomDitheringType: "rgb",
+            palette
+          }
+          //: bgCanvas.canvas.toDataURL()
+          const ditheredImage = await dither(imageData, options)
+          ctx.putImageData(ditheredImage, 0, 0);
+        }
+        this.savedBG = bgCanvas
       }
-
-      const step = 6
-      const leftLine = this.createGraphics(step, this.width)
-      leftLine.image(bgCanvas, 0, 0, step, this.width, 0, 0, step, this.width)
-
-      var ditherjs = new DitherJS()
-      const ctx = bgCanvas.canvas.getContext("2d")
-      console.log({ ctx })
-      const imageData = ctx.getImageData(0, 0, bgCanvas.canvas.width, bgCanvas.canvas.width);
-      console.log({ imageData, imageDataString: imageData.data.toString().substr(-20) }, `length is ${imageData.data.length}`)
-
-      const palette = quantize(imageData.data, 128);
-      console.log({ palette }, `quantized length is ${palette.length}`)
-
-      const ditherOptions = {
-        "step": step, // The step for the pixel quantization n = 1,2,3...
-        "palette": palette, // an array of colors as rgb arrays
-        debug: true,
-        "algorithm": "ordered" // one of ["ordered", "diffusion", "atkinson"]
-      }
-      ditherjs.ditherImageData(imageData, ditherOptions)
-
-      // await new Promise(resolve => setTimeout(resolve, 1000));
-
-      console.log({ imageData: imageData.data.toString() }, `dithered length is ${imageData.data.length}`)
-      ctx.putImageData(imageData, 0, 0);
-      bgCanvas.image(leftLine, 0, 0)
-      this.savedBG = bgCanvas
-      // this.savedBG = this.createGraphics(this.width, this.width)
-      // const newctx = this.savedBG.canvas.getContext("2d")
-      // newctx.putImageData(imageData, 0, 0);
-      // this.savedBG.image(bgCanvas, 0, 0, this.width, this.width)
+      this.image(this.savedBG, this.width / 2, this.width / 2, this.width, this.width)
+    } catch (e) {
+      console.error(e)
+      this.savedBG = this.createGraphics(this.width, this.width)
     }
-    this.image(this.savedBG, this.width / 2, this.width / 2, this.width, this.width)
   }
 
   draw(preloaded) {
@@ -566,12 +552,9 @@ export class Viper {
       preloaded.bodies = this.bodies
     }
     this.totalLength++
-    if (this.setting == "server") {
-      this.addAllLines()
-    } else
-      if (this.tweens == 0 || this.totalLength % this.tweens == 1) {
-        this.addLine()
-      }
+    if (this.tweens == 0 || this.totalLength % this.tweens == 1) {
+      this.addLine()
+    }
     this.logs == "verbose" && console.timeLog("viper", "addLine")
     this.redrawBackground && this.drawBackground(preloaded)
     this.logs == "verbose" && console.timeLog("viper", "drawBackground")
@@ -682,9 +665,6 @@ export class Viper {
       y: tailWidth * this.tailOffset.yFactor
     }
 
-    // var a = i == 0 && (this.totalLength >= this.maxNumberOfLines) && this.setting == "server"
-    // var b = i == 1 && (this.totalLength > ((this.maxNumberOfLines) * this.tweens)) && this.setting == "browser"
-    // if ((a) || (b)) {
     if (i == 0 && this.allLines.length >= this.maxNumberOfLines && this.totalLength > this.maxNumberOfLines * this.tweens) {
       if ((x1 - x2) > (this.width / 80)) {
         this.push()
@@ -854,44 +834,35 @@ export class Viper {
 
   getSegmentCoordinates(i) {
     let l = this.allLines[i]
-    let x1, y1, x2, y2, len, ang
-    if (this.setting == "browser") {
-      let lastLine
-      let offsetTilNextSegment = this.tweens == 0 ? 0 : this.totalLength % this.tweens
-      if (!this.lastLine) {
-        lastLine = {
-          x1: this.startingX,
-          y1: this.startingY,
-          x2: this.startingX,
-          y2: this.startingY
-        }
-        this.lastLine = lastLine
-
-      } else if (i == 0) {
-        lastLine = this.lastLine
-      } else {
-        lastLine = this.allLines[i - 1]
+    let lastLine
+    let offsetTilNextSegment = this.tweens == 0 ? 0 : this.totalLength % this.tweens
+    if (!this.lastLine) {
+      lastLine = {
+        x1: this.startingX,
+        y1: this.startingY,
+        x2: this.startingX,
+        y2: this.startingY
       }
+      this.lastLine = lastLine
 
-      // normally we draw each line x1,y1 to x2,y2
-      // x1,y1 is the end of the previous line
-      // x2,y2 is the end of the current line
-      x1 = offsetTilNextSegment == 0 ? l.x1 : ((l.x1 - lastLine.x1) * (offsetTilNextSegment / this.tweens)) + lastLine.x1
-      y1 = offsetTilNextSegment == 0 ? l.y1 : ((l.y1 - lastLine.y1) * (offsetTilNextSegment / this.tweens)) + lastLine.y1
-      x2 = offsetTilNextSegment == 0 ? l.x2 : ((l.x2 - lastLine.x2) * (offsetTilNextSegment / this.tweens)) + lastLine.x2
-      y2 = offsetTilNextSegment == 0 ? l.y2 : ((l.y2 - lastLine.y2) * (offsetTilNextSegment / this.tweens)) + lastLine.y2
-
-      // len is the distance between x1,y1 and x2,y2
-      len = this.dist(x1, y1, x2, y2)
-      ang = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+    } else if (i == 0) {
+      lastLine = this.lastLine
     } else {
-      x1 = l.x1
-      x2 = l.x2
-      y1 = l.y1
-      y2 = l.y2
-      len = l.len
-      ang = l.ang
+      lastLine = this.allLines[i - 1]
     }
+
+    // normally we draw each line x1,y1 to x2,y2
+    // x1,y1 is the end of the previous line
+    // x2,y2 is the end of the current line
+    const x1 = offsetTilNextSegment == 0 ? l.x1 : ((l.x1 - lastLine.x1) * (offsetTilNextSegment / this.tweens)) + lastLine.x1
+    const y1 = offsetTilNextSegment == 0 ? l.y1 : ((l.y1 - lastLine.y1) * (offsetTilNextSegment / this.tweens)) + lastLine.y1
+    const x2 = offsetTilNextSegment == 0 ? l.x2 : ((l.x2 - lastLine.x2) * (offsetTilNextSegment / this.tweens)) + lastLine.x2
+    const y2 = offsetTilNextSegment == 0 ? l.y2 : ((l.y2 - lastLine.y2) * (offsetTilNextSegment / this.tweens)) + lastLine.y2
+
+    // len is the distance between x1,y1 and x2,y2
+    const len = this.dist(x1, y1, x2, y2)
+    const ang = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+
     return { x1, y1, x2, y2, len, ang }
   }
 
@@ -985,7 +956,7 @@ export class Viper {
   addAllLines() {
     for (let i = 0; i < this.maxNumberOfLines; i++) {
       this.addLine()
-      this.totalLength += this.setting == "browser" ? this.tweens : 1
+      this.totalLength += this.tweens
     }
   }
 
@@ -1380,7 +1351,6 @@ export class Viper {
     const firstRandom = this.random(min, max)
     const secondRandom = this.random(min, max)
     const randomAngle = this.random(0, 360)
-    console.log({ randomAngle })
     switch (this.pattern) {
       case "circle":
         x = center + this.maxLen / 2

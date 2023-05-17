@@ -21,6 +21,7 @@
           background: black;
         }
       </style>
+
 </head>
 
 <body>
@@ -67,6 +68,7 @@
     const source = (window.location.hash && window.location.hash.replace("#", "")) || Math.random().toString()
     const bgIndex = Math.floor(Math.random() * bgStyle.length)
     viper = new Viper({
+      dither: true,
       source,
       setting: "browser",
       // logs: false, // false, true, "verbose"

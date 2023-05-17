@@ -7,12 +7,16 @@ const handler = async (event) => {
   const address = event.queryStringParameters.address || Math.random().toString()
   var viper = new Viper({
     source: address,
+    setting: "server",
+    dither: true,
     // style: 'randomColor',
     // backgroundStyle: 'gradient-low',
     maxNumberOfLines: 10,
-    tweens: 1
+
+    // tweens: 1
     // pattern: 'circle'
   })
+
 
   async function loadImages(p) {
     console.log('loadImages')
@@ -63,16 +67,16 @@ const handler = async (event) => {
   }
   var datetime = new Date().toISOString().replace(/:/g, '-');
 
-  let filename = 'animated-' + datetime
+  let filename = datetime + "--" + address
 
   function sketch(p) {
-    let seconds = 1
+    let seconds = 3
     switch (viper.pattern) {
       case 'bigEight':
         seconds = 3.8
         break
       case 'eight':
-        seconds = 4.15
+        seconds = 3.7
         break
       case 'circle':
         seconds = 4.1
@@ -90,7 +94,7 @@ const handler = async (event) => {
         seconds = 38
         break
     }
-    let fps = 1 // 35
+    let fps = 35
     let totalFrames = seconds * fps
     let framesSoFar = 0
     let readyToDraw = false
@@ -102,7 +106,6 @@ const handler = async (event) => {
         // p.createCanvas(viper.width, viper.width)
         viper.setup(p)
         await loadImages(p)
-        viper.setting = "browser"
         viper.addAllLines()
         viper.addAllLines()
         console.log(viper.setting)
@@ -110,7 +113,7 @@ const handler = async (event) => {
         readyToDraw = true
 
         p.saveFrames(viper.canvas.drawingContext, filename, {
-          repeat: 0, quality: 30 // image quality (1-30). 1 is best but slow. Above 20 doesn't make much difference in speed. 10 is default.
+          repeat: 0, quality: 1 // image quality (1-30). 1 is best but slow. Above 20 doesn't make much difference in speed. 10 is default.
         }, seconds, fps).then(() => {
           console.log('gif is done')
           // console.timeEnd(datetime)
@@ -162,7 +165,7 @@ const handler = async (event) => {
     // } else {
     //   console.log(`File ${filename} exists`)
     // }
-    const gif = fs.readFileSync(`${filename}/${filename}.gif`, "base64")
+    const gif = fs.readFileSync(`gifs/${filename}/complete.gif`, "base64")
     // const base64Gif = gif//.toString('base64')
 
     // var dataURL = p5Instance.canvas.toDataURL("image/png", 1)//0.04)
