@@ -1,4 +1,8 @@
 import Prando from 'prando'
+
+const { quantize } = require("gifenc")
+var DitherJS = require("ditherjs/server")
+
 // import fs from 'fs'
 let fs
 export class Viper {
@@ -401,13 +405,13 @@ export class Viper {
         this.fourColorGradient(7)
         break
       case "gradient-high":
-        this.fourColorGradient(this.width / 3)
+        this.fourColorGradient(this.width / 2)
         break;
       case "bw-gradient-low":
         this.fourColorGradient(7, true)
         break
       case "bw-gradient-high":
-        this.fourColorGradient(this.width / 3, true)
+        this.fourColorGradient(this.width / 2, true)
         break;
       case "text":
         this.backgroundText()
@@ -484,8 +488,10 @@ export class Viper {
     this.bgColors = bgColors
   }
 
-  fourColorGradient(resolution = 7, isBlackAndWhite = false) {
-    // const resolution = this.width / 5
+  async fourColorGradient(resolution = 7, isBlackAndWhite = false) {
+
+
+    // resolution = 100//this.width / 20
     // const resolution = 7//this.width / 100
     if (!this.savedBG) {
       let colors
@@ -494,21 +500,52 @@ export class Viper {
       } else {
         colors = this.bgColors["color"]
       }
-      this.savedBG = this.createGraphics(this.width, this.width)
+      // this.rectMode(this.CENTER)
+      // this.imageMode(this.CENTER);
+      const bgCanvas = this.createGraphics(this.width, this.width)
+      bgCanvas.noStroke()
       for (let i = 0; i < resolution; i++) {
         for (let j = 0; j < resolution; j++) {
           let s = this.width / resolution;
           let wx = i * s / this.width
           let wy = j * s / this.width
-          this.savedBG.noStroke()
           let c = weightedAvgColor(weightedAvgColor(colors[0], colors[1], wx), weightedAvgColor(colors[3], colors[2], wx), wy)
-          this.savedBG.fill(c)
-          this.savedBG.rect(i * s, j * s, s, s)
-          // this.savedBG.stroke(c)
-          // this.savedBG.strokeWeight(s * 2.9)
-          // this.savedBG.point(i * s, j * s)
+          bgCanvas.fill(c)
+          bgCanvas.rect(i * s, j * s, s, s)
         }
       }
+
+      const step = 6
+      const leftLine = this.createGraphics(step, this.width)
+      leftLine.image(bgCanvas, 0, 0, step, this.width, 0, 0, step, this.width)
+
+      var ditherjs = new DitherJS()
+      const ctx = bgCanvas.canvas.getContext("2d")
+      console.log({ ctx })
+      const imageData = ctx.getImageData(0, 0, bgCanvas.canvas.width, bgCanvas.canvas.width);
+      console.log({ imageData, imageDataString: imageData.data.toString().substr(-20) }, `length is ${imageData.data.length}`)
+
+      const palette = quantize(imageData.data, 128);
+      console.log({ palette }, `quantized length is ${palette.length}`)
+
+      const ditherOptions = {
+        "step": step, // The step for the pixel quantization n = 1,2,3...
+        "palette": palette, // an array of colors as rgb arrays
+        debug: true,
+        "algorithm": "ordered" // one of ["ordered", "diffusion", "atkinson"]
+      }
+      ditherjs.ditherImageData(imageData, ditherOptions)
+
+      // await new Promise(resolve => setTimeout(resolve, 1000));
+
+      console.log({ imageData: imageData.data.toString() }, `dithered length is ${imageData.data.length}`)
+      ctx.putImageData(imageData, 0, 0);
+      bgCanvas.image(leftLine, 0, 0)
+      this.savedBG = bgCanvas
+      // this.savedBG = this.createGraphics(this.width, this.width)
+      // const newctx = this.savedBG.canvas.getContext("2d")
+      // newctx.putImageData(imageData, 0, 0);
+      // this.savedBG.image(bgCanvas, 0, 0, this.width, this.width)
     }
     this.image(this.savedBG, this.width / 2, this.width / 2, this.width, this.width)
   }
@@ -738,7 +775,7 @@ export class Viper {
     try {
       this.image(imagePattern, 0, 0, len + this.strokeW, this.strokeW);
     } catch (e) {
-      console.log(`failed to load image ${this.whichSegment}`)
+      console.log(`failed to load image ${this.whichSegment} `)
     }
     this.pop()
     this.pop()
@@ -893,7 +930,7 @@ export class Viper {
         angResults = this.wanderLoop()
         break
       default:
-        throw new Error(`Unknown pattern: ${this.pattern}`)
+        throw new Error(`Unknown pattern: ${this.pattern} `)
     }
     if (!angResults) return
     // if there should be no new segment, return empty
@@ -1168,7 +1205,7 @@ export class Viper {
         break;
       default:
         angle = 0
-      // throw new Error(`invalid angle ${angle}`)
+      // throw new Error(`invalid angle ${ angle } `)
     }
     let x, y
     switch (angle) {
@@ -1318,7 +1355,7 @@ export class Viper {
       // var a = Math.ceil(this.random(0, 255))
       // var b = Math.ceil(this.random(0, 255))
       // var c = Math.ceil(this.random(0, 255))
-      // var randomColor = `rgb(${a}, ${b}, ${c})`
+      // var randomColor = `rgb(${ a }, ${ b }, ${ c })`
       // console.log({ randomColor })
       failed.push({ changeBy, newAngle, newX, newY })
     }
@@ -1383,7 +1420,7 @@ export class Viper {
         previousAngle = 0
         break;
       default:
-        throw new Error(`invalid pattern ${this.pattern}`)
+        throw new Error(`invalid pattern ${this.pattern} `)
     }
     return { x, y, previousAngle }
   }

@@ -10,6 +10,7 @@ const handler = async (event) => {
     // style: 'randomColor',
     // backgroundStyle: 'gradient-low',
     maxNumberOfLines: 10,
+    tweens: 1
     // pattern: 'circle'
   })
 
@@ -65,7 +66,7 @@ const handler = async (event) => {
   let filename = 'animated-' + datetime
 
   function sketch(p) {
-    let seconds = 3
+    let seconds = 1
     switch (viper.pattern) {
       case 'bigEight':
         seconds = 3.8
@@ -89,7 +90,7 @@ const handler = async (event) => {
         seconds = 38
         break
     }
-    let fps = 35
+    let fps = 1 // 35
     let totalFrames = seconds * fps
     let framesSoFar = 0
     let readyToDraw = false
