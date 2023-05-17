@@ -94,6 +94,7 @@ const handler = async (event) => {
         seconds = 38
         break
     }
+    // seconds = (1 / 35) * 2
     let fps = 35
     let totalFrames = seconds * fps
     let framesSoFar = 0

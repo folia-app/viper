@@ -17,11 +17,10 @@
   "dependencies": {
     "canvas": "2.11.2",
     "commander": "^10.0.1",
-    "dither-me-this": "https://github.com/okwme/dither-me-this",
-    "gifenc": "^1.0.3",
     "netlify-cli": "^12.13.1",
-    "node-p5": "https://github.com/okwme/p5-node#96ac44f2b6c134f72e6898fbc829275b2c7b0fce",
+    "node-p5": "https://github.com/okwme/p5-node#4b8eeabeb46d7b57e40d0faa3adc257791aca164",
     "prando": "^6.0.1",
+    "rgbquant": "^1.1.2",
     "sharp": "^0.32.1"
   },
   "devDependencies": {
