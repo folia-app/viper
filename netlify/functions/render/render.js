@@ -7,13 +7,14 @@ const handler = async (event) => {
   const address = event.queryStringParameters.address || Math.random().toString()
   var viper = new Viper({
     source: address,
-    style: 'randomColor',
-    backgroundStyle: 'fourGradient',
-    maxNumberOfLines: 16,
-    pattern: 'eight'
+    // style: 'randomColor',
+    // backgroundStyle: 'gradient-low',
+    maxNumberOfLines: 10,
+    // pattern: 'circle'
   })
 
   async function loadImages(p) {
+    console.log('loadImages')
     // load bodies
     const bodyURLs = viper.getBodiesURLs()
     for (let i = 0; i < bodyURLs.length; i++) {
@@ -31,8 +32,7 @@ const handler = async (event) => {
         preloads[`bg_${i}`] = await p.loadImage(url)
       }
     }
-    let randomBG = viper.random(0, bgURLS.length - 1)
-    preloads.bgImg = preloads[`bg_${randomBG}`]
+    preloads.bgImg = preloads[`bg_${viper.randomBG - 1}`]
 
     // load hole
     if (!preloads.hole) {
@@ -47,8 +47,7 @@ const handler = async (event) => {
         preloads[`tail_${i}`] = await p.loadImage(url)
       }
     }
-    let randomTail = viper.random(0, tailURLS.length - 1)
-    preloads.tail = preloads[`tail_${randomTail}`]
+    preloads.tail = preloads[`tail_${viper.tailRandom - 1}`]
 
     // load heads, pick one
     const headURLs = viper.getHeadURLs()
@@ -59,19 +58,20 @@ const handler = async (event) => {
       }
     }
 
-    let randomHead = viper.random(0, headURLs.length - 1)
-    preloads.head = preloads[`head_${randomHead}`]
+    preloads.head = preloads[`head_${viper.headRandom - 1}`]
   }
   var datetime = new Date().toISOString().replace(/:/g, '-');
-  console.time(datetime)
+
   let filename = 'animated-' + datetime
-  console.log({ filename })
 
   function sketch(p) {
     let seconds = 3
     switch (viper.pattern) {
+      case 'bigEight':
+        seconds = 3.8
+        break
       case 'eight':
-        seconds = 3.2
+        seconds = 4.15
         break
       case 'circle':
         seconds = 4.1
@@ -84,6 +84,9 @@ const handler = async (event) => {
         break
       case 'randomLoop':
         seconds = 6
+        break
+      case 'rotatingEight':
+        seconds = 38
         break
     }
     let fps = 35
@@ -100,6 +103,7 @@ const handler = async (event) => {
         await loadImages(p)
         viper.setting = "browser"
         viper.addAllLines()
+        viper.addAllLines()
         console.log(viper.setting)
         // p.noLoop()
         readyToDraw = true
@@ -108,7 +112,7 @@ const handler = async (event) => {
           repeat: 0, quality: 30 // image quality (1-30). 1 is best but slow. Above 20 doesn't make much difference in speed. 10 is default.
         }, seconds, fps).then(() => {
           console.log('gif is done')
-          console.timeEnd(datetime)
+          // console.timeEnd(datetime)
           readyToServe = true
 
         })
@@ -149,7 +153,6 @@ const handler = async (event) => {
       }, 500)
     })
     console.log('done waiting')
-    console.log({ filename })
 
     // const filename = './animated/frame-000.png'
     // const exists = fs.existsSync(filename)
