@@ -12,7 +12,8 @@
     "server": "npx netlify dev --offline",
     "watch": "npx watch 'yarn build' src",
     "dev-browser": "webpack serve --mode development",
-    "build": "webpack --mode development && cp dist/viper.js netlify/functions/render/viper.js"
+    "build": "webpack --mode development && cp dist/viper.js netlify/functions/render/viper.js",
+    "postinstall": "npm run build"
   },
   "dependencies": {
     "canvas": "2.11.2",
