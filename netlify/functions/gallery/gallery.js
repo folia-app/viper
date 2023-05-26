@@ -6,13 +6,6 @@ const handler = async (event) => {
 
     let allGifFolders = fs.readdirSync('./public/gifs')
     allGifFolders = allGifFolders.filter(folder => folder.indexOf("--") > 0)
-    console.log({ allGifFolders })
-    allGifFolders = allGifFolders.sort((a, b) => {
-      const splitA = a.split("--")
-      const splitB = b.split("--")
-      return (parseInt(splitA[splitA.length - 1]) > parseInt(splitB[splitB.length - 1]))
-    })
-    console.log({ allGifFolders })
     let allGifs = []
     allGifFolders.forEach(folder => {
       if (folder === '.DS_Store') return
@@ -24,9 +17,13 @@ const handler = async (event) => {
       })
     })
 
+    allGifs = allGifs.sort((a, b) => {
+      const splitA = parseInt(a.split("--")[1].replace('/complete.gif', ''))
+      const splitB = parseInt(b.split("--")[1].replace('/complete.gif', ''))
+      return splitA > splitB ? 1 : splitA < splitB ? -1 : 0;
+    })
+
     allGifs = allGifs.map(gif => `<img title=${gif} src="http://localhost:8888/${gif.replace("public/", "").replace("./", "")}" />`)
-    console.log({ allGifs })
-    // allGifs = shuffle(allGifs)
     const website = `
     <html>
     <style>
@@ -41,7 +38,6 @@ const handler = async (event) => {
     </body>
     </html>
     `
-    console.log({ website })
     return {
       statusCode: 200,
       headers: {

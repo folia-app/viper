@@ -1,7 +1,7 @@
 {
   "name": "viper",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/viper.js",
   "repository": "https://github.com/folia-app/viper",
   "author": "okwme",
   "license": "MIT",
