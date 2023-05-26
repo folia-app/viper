@@ -13,7 +13,7 @@
     "watch": "npx watch 'yarn build' src",
     "dev-browser": "npx webpack serve --mode development",
     "build": "npx webpack --mode development && cp dist/viper.js netlify/functions/render/viper.js",
-    "postinstall": "npm run build"
+    "postinstall": "npx webpack"
   },
   "dependencies": {
     "canvas": "2.11.2",
@@ -25,12 +25,11 @@
     "prando": "^6.0.1",
     "rgbquant": "^1.1.2",
     "sharp": "^0.32.1",
-    "webpack-cli": "^5.0.1"
-  },
-  "devDependencies": {
+    "webpack": "^5.79.0",
     "copy-webpack-plugin": "^11.0.0",
     "html-webpack-plugin": "^5.5.0",
-    "webpack": "^5.79.0",
+    "webpack-cli": "^5.0.1",
     "webpack-dev-server": "^4.13.1"
-  }
+  },
+  "devDependencies": {}
 }
