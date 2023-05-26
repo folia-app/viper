@@ -12,54 +12,143 @@
     <script src="<%= htmlWebpackPlugin.files.js[key] %>"></script>
     <% } %>
 
-      <script defer src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.js"></script>
+      <!-- <script defer src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.js"></script> -->
+      <script defer src="./p5.js"></script>
+      <style>
+        body {
+          margin: 0;
+          padding: 0;
+        }
+      </style>
+
 </head>
 
 <body>
   <div id="sketch-holder">
   </div>
+  <span id="prev">prev</span>
+  <span id="next">next</span>
+  <input type="text" id="query">
+  <input type="number" id="page" value="1">
   <script>
     var viper
     var startedDrawing = false
     var stop = false
-    let patternIndex = 4
-    let patterns = ['random', 'circle', 'square', 'eight', 'heart']
+    let patterns = [
+      'random', //0
+      'circle', //1
+      'random', //2
+      'square',//3
+      'random', //4
+      'eight', //5
+      'random', //6
+      'bigEight', //7
+      'random',  //8
+      'rotatingEight', //9
+      'random', //10
+      'randomLoop', //11
+      'random', // 12
+      'heart', // 13
+      'random', // 14
+      'star' // 15
+    ]
+    let patternIndex = 1//Math.floor(Math.random() * (patterns.length))
+    document.getElementById('prev').addEventListener('click', () => {
+      document.getElementById('page').value = parseInt(document.getElementById('page').value) - 1
+      // set page
+      viper.loadBGImg(document.getElementById('page').value, document.getElementById('query').value)
+    })
+    document.getElementById('next').addEventListener('click', () => {
+      document.getElementById('page').value = parseInt(document.getElementById('page').value) + 1
+      viper.loadBGImg(document.getElementById('page').value, document.getElementById('query').value)
+    })
     document.getElementById('sketch-holder').addEventListener('click', () => {
       stop = !stop
-      // if (stop) {
-      // viper.pattern = patterns[patternIndex % patterns.length]
-      // patternIndex++
-      // }
+      if (stop) {
+        patternIndex++
+        viper.pattern = patterns[patternIndex % patterns.length]
+      }
     })
-    console.log({ source: window.location.hash.replace("#", "") || Math.random().toString() })
+    const styles = [
+      'imgRandom',
+      'imgSame',
+      'imgRandomRounded',
+      'imgSameRounded',
+      'randomColor',
+      'debug']
+    const bgStyle = ['text', 'gradient-low', 'gradient-high', 'bw-gradient-high', 'bw-gradient-low']
+    const tokenId = (window.location.hash && window.location.hash.replace("#", "")) || null
+    const bgIndex = Math.floor(Math.random() * bgStyle.length)
     viper = new Viper({
-      source: (window.location.hash && window.location.hash.replace("#", "")) || Math.random().toString(),
+      // dither: true,
+      tokenId,
       setting: "browser",
-      style: "randomColor",
-      pattern: "eight",//patterns[patternIndex % patterns.length],
-      // style: "debug",
+      // logs: false, // false, true, "verbose"
+      // style: 'debug',//styles[Math.floor(Math.random() * (styles.length))],
+      // style options
+      // 1. maskClipRandom
+      // 1. maskClipSame
+      // 1. randomColor
+      // 1. debug
+      // 1. skeleton
+      // 1. randomGreen*/,
+      // backgroundStyle: 'image',//bgStyle[bgIndex],
+      // backgroundStyle options
+      // 1. solid
+      // 1. gradient
+      // 1. fourGradient
+      // 1. image,
+      pattern: patterns[patternIndex % patterns.length],
+      // pattern options
+      // 1. random
+      // 1. circle
+      // 1. square
+      // 1. eight 
+      // 1. bigEight
+      // 1. rotatingEight
+      // 1. heart
+      // 1. randomLoop */,
+      // width: 686,
+      maxNumberOfLines: 1,// Math.ceil(Math.random() * 20),
+      // maxLen: 75,
+      // strokeW: 60,
+      // headWidth: 60 * 2.3,
+      // margin: 60 * 2.3,
+      // angleDistanceMin: 60,
+      // fps: 25,
+      // tweens: 2,
+      // bgColor: "rgb(226,226,226)",
+      // hideHole: true,
       // hideHead: true,
       // hideTail: true,
-      // hideHole: true,
-      backgroundStyle: 'fourGradient',
-      redrawBackground: true,
-      maxNumberOfLines: 16,
-      hideHole: false,
-      hideSnake: false,
-      fps: 50
+      // hideSnake: true,
+      // redrawBackground: false,
+      // wanderLoopDuration: 2,
     })
-    function preload() {
-      // viper.preload()
-      console.log('preload')
+    let preloadDone = false
+    let setupDone = false
+    async function preload() {
+      await viper.preload()
+      preloadDone = true
+      console.log('preload done')
     }
-    function setup() {
-      console.log('setup')
-      viper.setup()
-      viper.preload()
-
-      // viper.addAllLines()
+    async function setup() {
+      if (!preloadDone) {
+        setTimeout(() => {
+          console.log('run setup in 1 sec')
+          setup()
+        }, 1000)
+      } else {
+        console.log('setup')
+        viper.setup()
+        viper.addAllLines()
+        setupDone = true
+      }
+      // await viper.preload()
+      // preloadDone = true
     }
     function draw() {
+      if (!preloadDone || !setupDone) return
       if (!startedDrawing) {
         startedDrawing = true
         console.log('draw')

@@ -2,24 +2,57 @@ const p5 = require('node-p5')
 const { Viper } = require('../../../dist/viper.js')
 const fs = require('fs')
 const preloads = {}
+let patterns = [
+  // 'random', //0
+  'circle', //1
+  // 'random', //2
+  'square',//3
+  // 'random', //4
+  'eight', //5
+  // 'random', //6
+  'bigEight', //7
+  // 'random',  //8
+  // 'rotatingEight', //9
+  // 'random', //10
+  'randomLoop', //11
+  // 'random', // 12
+  'heart', // 13
+  // 'random', // 14
+  'star' // 15
+]
+let patternIndex = Math.floor(Math.random() * (patterns.length))
+
 const handler = async (event) => {
   let readyToServe = false
-  const address = event.queryStringParameters.address || Math.random().toString()
+  const tokenId = event.queryStringParameters.tokenId || null
   var viper = new Viper({
-    source: address,
-    style: 'randomColor',
-    backgroundStyle: 'fourGradient',
-    maxNumberOfLines: 16,
-    pattern: 'eight'
+    logs: "verbose",
+    tokenId,
+    setting: "server",
+    dither: true,
+    // style: 'randomColor',
+    // backgroundStyle: 'gradient-low',
+    maxNumberOfLines: 1,//Math.ceil(Math.random() * 20),
+    // backgroundStyle: "image",
+    // tweens: 1
+    pattern: patterns[patternIndex]
   })
 
+
   async function loadImages(p) {
+    console.log('loadImages')
     // load bodies
     const bodyURLs = viper.getBodiesURLs()
-    for (let i = 0; i < bodyURLs.length; i++) {
-      const url = bodyURLs[i]
-      if (!preloads[`body_${i}`]) {
-        preloads[`body_${i}`] = await p.loadImage(url)
+    console.log({ bodyURLs })
+    for (let i = 0; i < bodyURLs.rounded.length; i++) {
+      const url = bodyURLs.rounded[i]
+      if (!preloads[`body_rounded_${i}`]) {
+        preloads[`body_rounded_${i}`] = await p.loadImage(url)
+      }
+
+      const url2 = bodyURLs.raw[i]
+      if (!preloads[`body_raw_${i}`]) {
+        preloads[`body_raw_${i}`] = await p.loadImage(url2)
       }
     }
 
@@ -31,8 +64,7 @@ const handler = async (event) => {
         preloads[`bg_${i}`] = await p.loadImage(url)
       }
     }
-    let randomBG = viper.random(0, bgURLS.length - 1)
-    preloads.bgImg = preloads[`bg_${randomBG}`]
+    preloads.bgImg = preloads[`bg_${bgURLS.length - 1}`]
 
     // load hole
     if (!preloads.hole) {
@@ -47,8 +79,7 @@ const handler = async (event) => {
         preloads[`tail_${i}`] = await p.loadImage(url)
       }
     }
-    let randomTail = viper.random(0, tailURLS.length - 1)
-    preloads.tail = preloads[`tail_${randomTail}`]
+    preloads.tail = preloads[`tail_${viper.tailRandom - 1}`]
 
     // load heads, pick one
     const headURLs = viper.getHeadURLs()
@@ -59,33 +90,41 @@ const handler = async (event) => {
       }
     }
 
-    let randomHead = viper.random(0, headURLs.length - 1)
-    preloads.head = preloads[`head_${randomHead}`]
+    preloads.head = preloads[`head_${viper.headRandom - 1}`]
   }
   var datetime = new Date().toISOString().replace(/:/g, '-');
-  console.time(datetime)
-  let filename = 'animated-' + datetime
-  console.log({ filename })
+
+  let filename = datetime + "--" + viper.tokenId
 
   function sketch(p) {
     let seconds = 3
     switch (viper.pattern) {
+      case 'bigEight':
+        seconds = 5.65714285
+        break
       case 'eight':
-        seconds = 3.2
+        seconds = 3.7
         break
       case 'circle':
         seconds = 4.1
         break
       case 'square':
-        seconds = 5.48
+        seconds = 4.82285714
         break
       case 'heart':
-        seconds = 5.1
+        seconds = 4.75714286
         break
       case 'randomLoop':
         seconds = 6
         break
+      case 'rotatingEight':
+        seconds = 38
+        break
+      case 'star':
+        seconds = 7.71428571
+        break
     }
+    // seconds = (1 / 35) * 3
     let fps = 35
     let totalFrames = seconds * fps
     let framesSoFar = 0
@@ -96,21 +135,22 @@ const handler = async (event) => {
       try {
 
         // p.createCanvas(viper.width, viper.width)
-        viper.setup(p)
         await loadImages(p)
-        viper.setting = "browser"
-        viper.addAllLines()
+        viper.setup(p, preloads)
+        if (viper.pattern !== "randomLoop") {
+          viper.addAllLines()
+        }
         console.log(viper.setting)
         // p.noLoop()
         readyToDraw = true
 
         p.saveFrames(viper.canvas.drawingContext, filename, {
-          repeat: 0, quality: 30 // image quality (1-30). 1 is best but slow. Above 20 doesn't make much difference in speed. 10 is default.
+          repeat: 0, quality: 1 // image quality (1-30). 1 is best but slow. Above 20 doesn't make much difference in speed. 10 is default.
         }, seconds, fps).then(() => {
           console.log('gif is done')
-          console.timeEnd(datetime)
+          // console.timeEnd(datetime)
           readyToServe = true
-
+          viper.endLog()
         })
       } catch (setupError) {
         console.log({ setupError })
@@ -149,7 +189,6 @@ const handler = async (event) => {
       }, 500)
     })
     console.log('done waiting')
-    console.log({ filename })
 
     // const filename = './animated/frame-000.png'
     // const exists = fs.existsSync(filename)
@@ -158,7 +197,7 @@ const handler = async (event) => {
     // } else {
     //   console.log(`File ${filename} exists`)
     // }
-    const gif = fs.readFileSync(`${filename}/${filename}.gif`, "base64")
+    const gif = fs.readFileSync(`public/gifs/${filename}/complete.gif`, "base64")
     // const base64Gif = gif//.toString('base64')
 
     // var dataURL = p5Instance.canvas.toDataURL("image/png", 1)//0.04)

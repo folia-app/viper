@@ -5,18 +5,25 @@
   "repository": "https://github.com/folia-app/viper",
   "author": "okwme",
   "license": "MIT",
+  "bin": {
+    "viper": "bin/viper-cli.js"
+  },
   "scripts": {
-    "server": "npx netlify dev",
+    "server": "npx netlify dev --offline",
     "watch": "npx watch 'yarn build' src",
     "dev-browser": "webpack serve --mode development",
-    "dev-server": "yarn watch & yarn server",
     "build": "webpack --mode development && cp dist/viper.js netlify/functions/render/viper.js"
   },
   "dependencies": {
-    "floyd-steinberg": "^1.0.6",
+    "canvas": "2.11.2",
+    "commander": "^10.0.1",
     "netlify-cli": "^12.13.1",
-    "node-p5": "https://github.com/okwme/p5-node#96ac44f2b6c134f72e6898fbc829275b2c7b0fce",
-    "prando": "^6.0.1"
+    "node-fetch": "2",
+    "node-p5": "https://github.com/okwme/p5-node#4b8eeabeb46d7b57e40d0faa3adc257791aca164",
+    "pexels": "^1.4.0",
+    "prando": "^6.0.1",
+    "rgbquant": "^1.1.2",
+    "sharp": "^0.32.1"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^11.0.0",
