@@ -16,9 +16,8 @@
       <script defer src="./p5.js"></script>
       <style>
         body {
-          /* margin: 0; */
-          /* padding: 0; */
-          background: black;
+          margin: 0;
+          padding: 0;
         }
       </style>
 
@@ -27,6 +26,10 @@
 <body>
   <div id="sketch-holder">
   </div>
+  <span id="prev">prev</span>
+  <span id="next">next</span>
+  <input type="text" id="query">
+  <input type="number" id="page" value="1">
   <script>
     var viper
     var startedDrawing = false
@@ -49,7 +52,16 @@
       'random', // 14
       'star' // 15
     ]
-    let patternIndex = Math.floor(Math.random() * (patterns.length))
+    let patternIndex = 1//Math.floor(Math.random() * (patterns.length))
+    document.getElementById('prev').addEventListener('click', () => {
+      document.getElementById('page').value = parseInt(document.getElementById('page').value) - 1
+      // set page
+      viper.loadBGImg(document.getElementById('page').value, document.getElementById('query').value)
+    })
+    document.getElementById('next').addEventListener('click', () => {
+      document.getElementById('page').value = parseInt(document.getElementById('page').value) + 1
+      viper.loadBGImg(document.getElementById('page').value, document.getElementById('query').value)
+    })
     document.getElementById('sketch-holder').addEventListener('click', () => {
       stop = !stop
       if (stop) {
@@ -65,14 +77,14 @@
       'randomColor',
       'debug']
     const bgStyle = ['text', 'gradient-low', 'gradient-high', 'bw-gradient-high', 'bw-gradient-low']
-    const source = (window.location.hash && window.location.hash.replace("#", "")) || Math.random().toString()
+    const tokenId = (window.location.hash && window.location.hash.replace("#", "")) || null
     const bgIndex = Math.floor(Math.random() * bgStyle.length)
     viper = new Viper({
-      dither: true,
-      source,
+      // dither: true,
+      tokenId,
       setting: "browser",
       // logs: false, // false, true, "verbose"
-      // style: 'randomColor',//styles[Math.floor(Math.random() * (styles.length))],
+      // style: 'debug',//styles[Math.floor(Math.random() * (styles.length))],
       // style options
       // 1. maskClipRandom
       // 1. maskClipSame
@@ -80,13 +92,13 @@
       // 1. debug
       // 1. skeleton
       // 1. randomGreen*/,
-      // backgroundStyle: 'gradient-low',//bgStyle[bgIndex],
+      // backgroundStyle: 'image',//bgStyle[bgIndex],
       // backgroundStyle options
       // 1. solid
       // 1. gradient
       // 1. fourGradient
       // 1. image,
-      // pattern: 'circle',//patterns[patternIndex % patterns.length],
+      pattern: patterns[patternIndex % patterns.length],
       // pattern options
       // 1. random
       // 1. circle
@@ -97,7 +109,7 @@
       // 1. heart
       // 1. randomLoop */,
       // width: 686,
-      maxNumberOfLines: 10,//Math.ceil(Math.random() * 20),
+      maxNumberOfLines: 1,// Math.ceil(Math.random() * 20),
       // maxLen: 75,
       // strokeW: 60,
       // headWidth: 60 * 2.3,
@@ -114,21 +126,29 @@
       // wanderLoopDuration: 2,
     })
     let preloadDone = false
+    let setupDone = false
     async function preload() {
-      // await viper.preload()
-      // preloadDone = true
-      // console.log('preload done')
-    }
-    async function setup() {
-      console.log('setup')
-      viper.setup()
       await viper.preload()
       preloadDone = true
-
-      viper.addAllLines()
+      console.log('preload done')
+    }
+    async function setup() {
+      if (!preloadDone) {
+        setTimeout(() => {
+          console.log('run setup in 1 sec')
+          setup()
+        }, 1000)
+      } else {
+        console.log('setup')
+        viper.setup()
+        viper.addAllLines()
+        setupDone = true
+      }
+      // await viper.preload()
+      // preloadDone = true
     }
     function draw() {
-      if (!preloadDone) return
+      if (!preloadDone || !setupDone) return
       if (!startedDrawing) {
         startedDrawing = true
         console.log('draw')

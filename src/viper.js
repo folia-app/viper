@@ -3,6 +3,10 @@ import Prando from 'prando'
 // const { quantize } = require("gifenc")
 // const dither = require("dither-me-this")
 const RgbQuant = require('rgbquant');
+// import { createClient } from 'pexels';
+
+// const client = createClient('QktuTsIIkMA6zX85eEIU0SiSkZclyUYPJU1z4PpMS95SALVO1P5KiePb');
+
 
 
 // import fs from 'fs'
@@ -10,20 +14,20 @@ let fs
 export class Viper {
   constructor(overwriteOptions = {}) {
     const options = {
-      source: "random-seed",
+      tokenId: null,
       setting: "server",
       logs: false, // false, true, "verbose"
-      style: "randomColor"/*
+      style: null/*
       // style options
-      // 'imgRandom',
-      // 'imgSame',
-      // 'imgRandomRounded',
-      // 'imgSameRounded',
+      // 'randomImage',
+      // 'everythingMatches',
+      // 'randomImageRounded',
+      // 'everythingMatchesRounded',
       // 1. randomColor
       // 1. debug
       // 1. skeleton
       // 1. randomGreen*/,
-      backgroundStyle: "gradient-high"/*
+      backgroundStyle: null/*
       // backgroundStyle options
       // 1. solid
       // 1. gradient-high
@@ -62,7 +66,7 @@ export class Viper {
       ...overwriteOptions
     }
     let {
-      source, setting, logs, style, backgroundStyle, pattern, wanderLoopDuration,
+      tokenId, setting, logs, style, backgroundStyle, pattern, wanderLoopDuration,
       width, maxNumberOfLines, maxLen, strokeW, headWidth, tailLength, holeWidth, margin, angleDistanceMin,
       fps, tweens, bgColor, hideHole, hideHead, hideTail, redrawBackground, hideSnake, dither
     } = options
@@ -70,10 +74,15 @@ export class Viper {
     this.logs && console.log('constructor')
     this.logs == "verbose" && console.time("viper")
 
-    this.source = source
-    this.rng = new Prando(this.source);
+    this.rng = new Prando("viper bite invites embrace")
+    this.allVipers = this.populate()
+    this.tokenId = tokenId || Math.floor(Math.random() * this.allVipers.length)
+    console.log({ tokenId })
+    this.me = this.allVipers[this.tokenId]
 
-    const firstRandom = this.random(0, 1000)
+    console.log(`Viper population: ${this.allVipers.length} vipers`)
+    console.log(`Hello viper #${this.tokenId}!`, this.me)
+
 
     this.setting = setting
     if (this.setting == "server") {
@@ -82,8 +91,8 @@ export class Viper {
       // width *= 2
     }
 
-    this.style = style
-    this.backgroundStyle = backgroundStyle
+    this.style = style || this.me.style
+    this.backgroundStyle = backgroundStyle || backgroundsIndex[this.me.background]
     this.pattern = pattern
     this.width = width
     this.maxNumberOfLines = maxNumberOfLines
@@ -111,19 +120,45 @@ export class Viper {
     this.totalBodies = 4
     this.totalHeads = 4
     this.totalTails = this.totalHeads
-    this.totalBgs = 3
-    this.whichSegment = this.random(0, this.totalBodies - 1)
-    this.bodyOffset = this.random(1, this.totalBodies)
-    this.headRandom = this.random(1, this.totalHeads)
+    this.totalBgs = 8
+    this.whichSegment = this.me.style.indexOf("Matches") > -1 ? this.me.head : this.random(0, this.totalBodies - 1)
+    console.log({ whichSegment: this.whichSegment })
+    this.bodyOffset = this.me.style.indexOf("Matches") > -1 ? 0 : this.random(1, this.totalBodies)
+    this.headRandom = this.me.head + 1// this.random(1, this.totalHeads)
     this.tailRandom = this.headRandom//this.random(1, this.totalTails)
-    this.randomBG = this.random(1, this.totalBgs)
+    // this.randomBG = this.random(0, this.totalBgs)
     this.dither = dither
 
     this.setHeartPattern()
 
     this.headOffset = headOffsets.hasOwnProperty("_" + this.headTailRandom) ? headOffsets["_" + this.headTailRandom] : defaultHeadOffsets
     this.tailOffset = tailOffsets.hasOwnProperty("_" + this.headTailRandom) ? tailOffsets["_" + this.headTailRandom] : defaultTailOffsets
+    this.logs == "verbose" && console.timeLog("viper", "end constructor")
   }
+
+  endLog() {
+    this.logs == "verbose" && console.timeEnd("viper")
+  }
+
+  async loadBGImg(changeIndex = 1, query = "geometry") {
+    if (this.me.bgImage == undefined) {
+      console.log({ me: this.me })
+      console.log('no bg img')
+      return
+    }
+    // this.bgIndex = this.bgIndex == undefined ? 0 : this.bgIndex + changeIndex
+    // console.log(`index is ${this.bgIndex}`)
+    // if (!this.bgResults) {
+    // this.bgResults = await client.photos.search({ query, per_page: 1000 })
+    // console.log({ results: this.bgResults })
+    // }
+    // const bgImg = this.bgResults.photos[changeIndex].src.medium
+    console.log(this.me.bgImage)
+    const bgImg = `/bg/rock-${this.me.bgImage}.jpeg`
+    console.log({ bgImg })
+    this.preloaded.bgImg = window.loadImage(bgImg)
+  }
+
 
   async preload() {
     console.log('running preload')
@@ -131,19 +166,24 @@ export class Viper {
       this.logs == "verbose" && console.timeLog("viper", "preload")
       this.logs && console.log('preload')
       this.preloaded = {}
-      this.preloaded.bgImg = window.loadImage('/bg/bg3_' + this.randomBG + '.png')
+
+      await this.loadBGImg()
+
       this.preloaded.tail = window.loadImage('/tail/' + this.tailRandom + '.png')
       this.preloaded.head = window.loadImage('/head/' + this.headRandom + '.png')
       this.preloaded.hole = window.loadImage('/holes/1.png')
-      this.preloaded.bodies = []
+      this.preloaded.bodies = { rounded: [], raw: [] }
       for (var i = 1; i <= this.totalBodies; i++) {
-        const path = this.style.indexOf("Rounded") > -1 ? `/body/masked/${i}.png` : `/body/resized/${i}.png`
-        const loadedImage = await new Promise((resolve, reject) => {
-          window.loadImage(path, (a) => {
-            resolve(a)
-          }, reject)
-        })
-        this.preloaded.bodies.push(loadedImage)
+        const roundedOrRaw = ["rounded", "raw"]
+        for (var j = 0; j < 2; j++) {
+          const path = roundedOrRaw[j].indexOf("rounded") > -1 ? `/body/masked/${i}.png` : `/body/resized/${i}.png`
+          const loadedImage = await new Promise((resolve, reject) => {
+            window.loadImage(path, (a) => {
+              resolve(a)
+            }, reject)
+          })
+          this.preloaded.bodies[roundedOrRaw[j]].push(loadedImage)
+        }
       }
     } catch (preloadError) {
       console.log({ preloadError })
@@ -198,7 +238,6 @@ export class Viper {
     }
     return imgURL
   }
-
   getHoleURL() {
     if (!this.holeImg) {
       this.holeImg = '1.png'
@@ -210,51 +249,63 @@ export class Viper {
     return holeImgURL
   }
 
+  // TODO: remove these probably
   getBgURLs() {
     const bgs = []
     for (let i = 0; i < this.totalBgs; i++) {
-      let filename = process.cwd() + '/public/bg/bg3_' + (i + 1) + '.png'
+      let filename = process.cwd() + '/public/bg/rock-' + (i) + '.jpeg'
       if (!fs.existsSync(filename)) {
         throw new Error('background image not found: ' + filename)
       }
       bgs.push(filename)
     }
+    if (this.me.bgImage != undefined) {
+      bgs.push(process.cwd() + `/public/bg/rock-${this.me.bgImage}.jpeg`)
+    }
     return bgs
   }
 
-  getBgImgURL() {
-    if (!this.backgroundImg) {
-      this.backgroundImg = 'bg3_' + this.randomBG + '.png'
-    }
-    const backgroundImageURL = process.cwd() + "/public/bg/" + this.backgroundImg
-    if (!fs.existsSync(backgroundImageURL)) {
-      throw new Error('background image not found: ' + backgroundImageURL)
-    }
-    return backgroundImageURL
-  }
+  // getBgImgURL() {
+  //   if (!this.backgroundImg) {
+  //     this.backgroundImg = 'bg3_' + this.randomBG + '.png'
+  //   }
+  //   const backgroundImageURL = process.cwd() + "/public/bg/" + this.backgroundImg
+  //   if (!fs.existsSync(backgroundImageURL)) {
+  //     throw new Error('background image not found: ' + backgroundImageURL)
+  //   }
+  //   return backgroundImageURL
+  // }
+
   getBodiesURLs() {
     switch (this.style) {
-      // case "imgRandom":
-      // case "imgSame":
-      // case "imgRandomRounded":
-      // case "imgSameRounded":
+      // case "randomImage":
+      // case "everythingMatches":
+      // case "randomImageRounded":
+      // case "everythingMatchesRounded":
       // case "skeleton":
-      case "randomColor":
-      case "debug":
-        return false
+      // case "randomColor":
+      // case "debug":
+      // return false
     }
-    const bodies = []
+    const bodies = { rounded: [], raw: [] }
     for (var i = 1; i <= this.totalBodies; i++) {
       const bodyURL = process.cwd() + `/public/body/masked/${i}.png`
       if (!fs.existsSync(bodyURL)) {
         throw new Error('bodyURL image not found: ' + bodyURL)
       }
-      bodies.push(bodyURL)
+      bodies.rounded.push(bodyURL)
+      const resizedBodyURL = process.cwd() + `/public/body/resized/${i}.png`
+      if (!fs.existsSync(resizedBodyURL)) {
+        throw new Error('resizedBodyURL image not found: ' + resizedBodyURL)
+      }
+      bodies.raw.push(resizedBodyURL)
     }
     return bodies
   }
-
-  async setup(p) {
+  async setup(p, preloaded) {
+    if (typeof preloaded === 'undefined') {
+      preloaded = this.preloaded
+    }
     this.logs == "verbose" && console.timeLog("viper", "setup")
     this.point = p ? p.point.bind(p) : window.point
     this.line = p ? p.line.bind(p) : window.line
@@ -278,6 +329,7 @@ export class Viper {
     this.RADIANS = p ? p.RADIANS : window.RADIANS
     this.ROUND = p ? p.ROUND : window.ROUND
     this.CENTER = p ? p.CENTER : window.CENTER
+    this.TWO_PI = p ? p.TWO_PI : window.TWO_PI
     this.createCanvas = p ? p.createCanvas.bind(p) : window.createCanvas
     this.createGraphics = p ? p.createGraphics.bind(p) : window.createGraphics
     this.dist = p ? p.dist.bind(p) : window.dist
@@ -314,12 +366,12 @@ export class Viper {
     // TODO: make sure this is how it should be done
     // This pre-calculates all possible future segment colors for this viper
     // it assumes there will never be vipers over 1000 segments long
+    // this.setupBgColors()
     for (let i = 0; i < 1000 + 1; i++) {
       const c = [this.random(0, 255), this.random(0, 255), this.random(0, 255)]
       this.allColors.push(c)
     }
-    this.setupBgColors()
-    this.drawBackground()
+    this.drawBackground(preloaded)
   }
 
   drawCartesian() {
@@ -421,6 +473,7 @@ export class Viper {
         this.backgroundText()
         break;
       case "image":
+        // if (!preloaded) return
         this.image(
           preloaded.bgImg,
           this.width / 2,
@@ -440,15 +493,15 @@ export class Viper {
   backgroundText() {
     this.redrawBackground = false
     // if (!this.savedBG) {
-    const bgOptions = [
-      "bw-gradient-low",
-      "bw-gradient-high",
-      "gradient-low",
-      "gradient-high"
-    ]
-    const bgIndex = 0//this.random(0, 3)
+    // const bgOptions = [
+    //   "bw-gradient-low",
+    //   "bw-gradient-high",
+    //   "gradient-low",
+    //   "gradient-high"
+    // ]
+    // const bgIndex = 0//this.random(0, 3)
     // this.fourColorGradient(this.width / 4, true)
-    this.backgroundStyle = bgOptions[bgIndex]
+    this.backgroundStyle = bgOptions[this.me.background]
     this.drawBackground()
 
     const textWidth = 1160
@@ -476,31 +529,37 @@ export class Viper {
     // this.image(this.savedBG, this.width / 2, this.width / 2, this.width, this.width)
   }
 
-  setupBgColors() {
-    const bgColors = {}
+  setupBgColors(style) {
+    let bgColors
     const a = this.random(0, 255)
     const b = this.random(0, 255)
     const c = this.random(0, 255)
     const d = this.random(0, 255)
-    bgColors["bw"] = [[a, a, a], [b, b, b], [c, c, c], [d, d, d]]
-    bgColors["color"] = [
-      [this.random(0, 255), this.random(0, 255), this.random(0, 255)],
-      [this.random(0, 255), this.random(0, 255), this.random(0, 255)],
-      [this.random(0, 255), this.random(0, 255), this.random(0, 255)],
-      [this.random(0, 255), this.random(0, 255), this.random(0, 255)]
-    ]
-    this.bgColors = bgColors
+    if (style.indexOf("bw") > -1) {
+      bgColors = [[a, a, a], [b, b, b], [c, c, c], [d, d, d]]
+    } else {
+      bgColors = [
+        [a, this.random(0, 255), this.random(0, 255)],
+        [b, this.random(0, 255), this.random(0, 255)],
+        [c, this.random(0, 255), this.random(0, 255)],
+        [d, this.random(0, 255), this.random(0, 255)]
+      ]
+    }
+    // this.bgColors = bgColors
+    return bgColors
   }
 
   async fourColorGradient(resolution = 7, isBlackAndWhite = false) {
     try {
       if (!this.savedBG) {
         let colors
-        if (isBlackAndWhite) {
-          colors = this.bgColors["bw"]
-        } else {
-          colors = this.bgColors["color"]
-        }
+        colors = this.me.bgColors
+        console.log({ colors })
+        // if (isBlackAndWhite) {
+        //   colors = this.bgColors["bw"]
+        // } else {
+        //   colors = this.bgColors["color"]
+        // }
         const bgCanvas = this.createGraphics(this.width, this.width)
         bgCanvas.noStroke()
         for (let i = 0; i < resolution; i++) {
@@ -560,9 +619,10 @@ export class Viper {
       preloaded = this.preloaded
     } else if (typeof this.bodies == "undefined") {
       console.log('reload bodies')
-      this.bodies = []
+      this.bodies = { rounded: [], raw: [] }
       for (var i = 0; i < this.totalBodies; i++) {
-        this.bodies.push(preloaded[`body_${i}`])
+        this.bodies.rounded.push(preloaded[`body_rounded_${i}`])
+        this.bodies.raw.push(preloaded[`body_raw_${i}`])
       }
       preloaded.bodies = this.bodies
     } else {
@@ -598,12 +658,13 @@ export class Viper {
           this.drawDebug(x1, y1, x2, y2, len, ang, i, c)
         } else {
           switch (this.style) {
-            case ("imgRandom"):
-            case ("imgRandomRounded"):
+            case ("randomImage"):
+            case ("randomImageRounded"):
               const index = this.allLines.length - i
-              this.whichSegment = (index + this.bodyOffset) % preloaded.bodies.length
-            case ("imgSame"):
-            case ("imgSameRounded"):
+              const roundedOrRaw = this.me.style.indexOf("Rounded") ? "rounded" : "raw"
+              this.whichSegment = (index + this.bodyOffset) % preloaded.bodies[roundedOrRaw].length
+            case ("everythingMatches"):
+            case ("everythingMatchesRounded"):
               this.drawImageSegment(x1, y1, x2, y2, len, ang, c, preloaded, i)
               break;
             case ("randomColor"):
@@ -735,7 +796,8 @@ export class Viper {
   }
 
   drawImageSegment(x1, y1, x2, y2, len, ang, c, preloaded, i, mask = false) {
-    const pic = preloaded.bodies[this.whichSegment]
+    const roundedOrRaw = this.me.style.indexOf("Rounded") > -1 ? "rounded" : "raw"
+    const pic = preloaded.bodies[roundedOrRaw][this.whichSegment]
     if (!pic) {
       console.log({ preloaded })
       throw new Error(`No image for segment ${this.whichSegment}`)
@@ -955,6 +1017,7 @@ export class Viper {
       maskedImage: null
     }
 
+
     this.allLines.push(newLine)
     // this.allColors.unshift(c)
     this.previousAngle = ang
@@ -966,12 +1029,10 @@ export class Viper {
     }
 
 
-
-
   }
 
-  addAllLines() {
-    for (let i = 0; i < this.maxNumberOfLines; i++) {
+  addAllLines(numOfLines = 50) {
+    for (let i = 0; i < numOfLines; i++) {
       this.addLine()
       this.totalLength += this.tweens
     }
@@ -1026,7 +1087,7 @@ export class Viper {
     const npoints = 5
     const fivePoints = []
     this.angleMode(this.RADIANS);
-    for (let a = 0; a < TWO_PI; a += TWO_PI / npoints) {
+    for (let a = 0; a < this.TWO_PI; a += this.TWO_PI / npoints) {
       let sx = origin + Math.cos(a) * radius2;
       let sy = origin + Math.sin(a) * radius2;
       fivePoints.push({ x: sx, y: sy })
@@ -1226,10 +1287,10 @@ export class Viper {
     this.angleMode(this.RADIANS);
     let chunkDivider
     // switch (this.style) {
-    //   case "imgSame":
-    //   case "imgSameRounded":
-    //   case "imgRandom":
-    //   case "imgRandomRounded":
+    //   case "everythingMatches":
+    //   case "everythingMatchesRounded":
+    //   case "randomImage":
+    //   case "randomImageRounded":
     //   case "skeleton":
     //     chunkDivider = this.maxLen / 7
     //     break;
@@ -1340,12 +1401,14 @@ export class Viper {
       if (!outSideCanvas(newX, newY, this.width, this.margin, this.strokeW)) {
         return { x: newX, y: newY, tries: i + 1, angle: newAngle, failed }
       }
-      // var a = Math.ceil(this.random(0, 255))
-      // var b = Math.ceil(this.random(0, 255))
-      // var c = Math.ceil(this.random(0, 255))
-      // var randomColor = `rgb(${ a }, ${ b }, ${ c })`
+
+      // NOTE: only important for debug mode
+      var a = Math.ceil(this.random(0, 255))
+      var b = Math.ceil(this.random(0, 255))
+      var c = Math.ceil(this.random(0, 255))
+      var randomColor = `rgb(${a}, ${b}, ${c})`
       // console.log({ randomColor })
-      failed.push({ changeBy, newAngle, newX, newY })
+      failed.push({ changeBy, newAngle, newX, newY, randomColor })
     }
     console.log({ previousX, previousY, previousAngle, maxDifferenceBetweenAngles, lineLength, width, margin })
     console.log({ failed })
@@ -1437,7 +1500,125 @@ export class Viper {
     this.heartPattern = heart
   }
 
+  populate() {
+
+    const numHeads = 4//14
+    const headColorVariations = 1//4
+    const numSkeltonHeads = numHeads
+    const numTails = numHeads
+    const tailColorVariation = headColorVariations
+    const numBodySegments = numHeads
+    const bodySegmentColorVariation = 5
+    const numSkeletonSegments = 4
+    const skeletonColorVariations = 0//2
+
+    const gifPatterns = 7
+    const background_options = 4
+
+    const randomColorFactor = 1 // randomColor segments will always be random, so we can decide how many
+    const randomImageFactor = 1
+    const debugFactor = 4 // debug segments will always be random
+
+    const style_everythingMatches = numHeads * headColorVariations * background_options
+
+    const style_everythingMatchesRounded = numHeads * headColorVariations * background_options
+
+    const style_randomColor = numHeads * headColorVariations * randomColorFactor * background_options
+
+    const style_debug = numHeads * headColorVariations * debugFactor * background_options
+
+    const style_randomImage = numHeads * headColorVariations * randomImageFactor * background_options
+
+    const style_randomImageRounded = numHeads * headColorVariations * randomImageFactor * background_options
+
+    const style_skeleton = numHeads * skeletonColorVariations * background_options // * numSkeletonSegments
+
+    const bodyVariations = (style_everythingMatches + style_skeleton + style_randomColor + style_debug + style_randomImage + style_randomImageRounded)
+
+    // 'randomImage',
+    // 'everythingMatches',
+    // 'randomImageRounded',
+    // 'everythingMatchesRounded',
+    //  randomColor
+    //  debug
+    //  skeleton
+
+    let arrayOfAll = []
+    let style
+    for (let head = 0; head < numHeads; head++) {
+      for (let headColor = 0; headColor < headColorVariations; headColor++) {
+        for (let background = 0; background < background_options; background++) {
+          style = "everythingMatches"
+          arrayOfAll.push({ style, head, headColor, background })
+
+          style = "everythingMatchesRounded"
+          arrayOfAll.push({ style, head, headColor, background })
+        }
+
+        style = "randomColor"
+        for (let randomColor = 0; randomColor < randomColorFactor; randomColor++) {
+          for (let background = 0; background < background_options; background++) {
+            arrayOfAll.push({ style, head, headColor, background })
+          }
+        }
+
+        style = "debug"
+        for (let debug = 0; debug < debugFactor; debug++) {
+          arrayOfAll.push({ style, head, headColor })
+        }
+
+        for (let randomImage = 0; randomImage < randomImageFactor; randomImage++) {
+          for (let background = 0; background < background_options; background++) {
+            style = "randomImage"
+            arrayOfAll.push({ style, head, headColor, background })
+
+            style = "randomImageRounded"
+            arrayOfAll.push({ style, head, headColor, background })
+          }
+        }
+      }
+
+      style = "skeleton"
+      for (let skeletonColor = 0; skeletonColor < skeletonColorVariations; skeletonColor++) {
+        for (let background = 0; background < background_options; background++) {
+          arrayOfAll.push({ style, head, skeletonColor, background })
+        }
+      }
+
+    }
+    arrayOfAll = this.shuffle(arrayOfAll)
+    arrayOfAll.map((item, index) => {
+      if (item.style == "debug") return
+      if (backgroundsIndex[item.background].indexOf('gradient') > -1) {
+        item.bgColors = this.setupBgColors(backgroundsIndex[item.background])
+      } else {
+        item.bgImage = this.random(0, this.totalBgs)
+      }
+    })
+    return arrayOfAll
+  }
+
+  shuffle(array) {
+    let currentIndex = array.length, randomIndex;
+
+    // While there remain elements to shuffle.
+    while (currentIndex != 0) {
+
+      // Pick a remaining element.
+      randomIndex = this.random(0, currentIndex - 1)
+      currentIndex--;
+
+      // And swap it with the current element.
+      [array[currentIndex], array[randomIndex]] = [
+        array[randomIndex], array[currentIndex]];
+    }
+
+    return array;
+  }
+
 }
+
+
 
 function outSideCanvas(x, y, width, margin, bottomMargin) {
   // note, this doesn't account for the margin of the bottom
@@ -1558,3 +1739,11 @@ const tailOffsets = {
 function typeOf(val) {
   return Object.prototype.toString.call(val).slice(8, -1);
 }
+
+const backgroundsIndex = [
+  "gradient-high",
+  "gradient-low",
+  // "bw-gradient-high",
+  "bw-gradient-low",
+  "image"
+]

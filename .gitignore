@@ -7,7 +7,8 @@
 /coverage
 
 /animated-*
-/gifs/*
+/dist/gifs/*
+/public/gifs/*
 
 # production
 /dist/*

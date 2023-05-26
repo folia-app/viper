@@ -6,6 +6,8 @@ const { Viper } = require('../dist/viper.js')
 // const { convert } = require('convert-svg-to-png');
 const sharp = require('sharp');
 
+const fetch = require('node-fetch')
+
 commander
   .version('0.0.1')
 
@@ -26,6 +28,41 @@ async function wait(time = 1000) {
     }, time)
   })
 }
+
+commander
+  .command('generate-gifs')
+  .option('-from <from>', 'From index', 1)
+  .option('-to <to>', 'To index', 96)
+  .description('Generate viper gifs')
+  .action(async ({ From, To }) => {
+
+    let from = parseInt(From)
+    let to = parseInt(To)
+    if (from < 1 || to < 1) {
+      console.log('from and to must be greater than 0')
+      process.exit(1)
+    }
+    if (to < from) {
+      console.log('to must be greater than from')
+      process.exit(1)
+    }
+    for (let i = from; i <= to; i++) {
+      console.log(`Generating ${i} of ${to}`)
+      const url = `http://localhost:8888/.netlify/functions/render?tokenId=${i}`
+      // fetch the url
+      console.log(`Fetching ${url}`)
+      await fetch(url)
+    }
+    console.log('done')
+
+  })
+
+commander
+  .command('population')
+  .description('Generate viper population')
+  .action(async () => {
+    viper.populate()
+  })
 
 commander
   .command('heads <width>')
@@ -63,7 +100,7 @@ async function convertSVG(path, width) {
 
 
 commander
-  .command('bodies <width> <height>')
+  .command('bodies')
   .description('Generate viper segments from svg images')
   .action(async (width, height) => {
     width = parseInt(width)
@@ -93,7 +130,6 @@ commander
         console.log(e)
       }
       const viper = new Viper({
-        source: i.toString() + "-",
         // width: 300
       })
       console.log(file)
