@@ -93,7 +93,6 @@ const handler = async (event) => {
     preloads.head = preloads[`head_${viper.headRandom - 1}`]
   }
   var datetime = new Date().toISOString().replace(/:/g, '-');
-
   let filename = datetime + "--" + viper.tokenId
 
   function sketch(p) {
@@ -124,7 +123,7 @@ const handler = async (event) => {
         seconds = 7.71428571
         break
     }
-    // seconds = (1 / 35) * 3
+    seconds = (1 / 35) * 3
     let fps = 35
     let totalFrames = seconds * fps
     let framesSoFar = 0

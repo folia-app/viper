@@ -10,7 +10,7 @@ const RgbQuant = require('rgbquant');
 
 
 // import fs from 'fs'
-let fs
+let fs, path
 export class Viper {
   constructor(overwriteOptions = {}) {
     const options = {
@@ -88,6 +88,7 @@ export class Viper {
     if (this.setting == "server") {
       // so that webpack doesn't try to pack up fs for the browser
       fs = eval('require')('fs')
+      path = eval('require')('path')
       // width *= 2
     }
 
@@ -193,8 +194,7 @@ export class Viper {
   getTailURLs() {
     const units = []
     for (let i = 1; i <= this.totalTails; i++) {
-
-      let filename = process.cwd() + '/public/tail/' + i + '.png'
+      const filename = path.join(__dirname, `tail/${i}.png`)
       console.log({ filename })
       if (!fs.existsSync(filename)) {
         throw new Error('tail' + ' image not found: ' + filename)
@@ -206,7 +206,8 @@ export class Viper {
   getHeadURLs() {
     const units = []
     for (let i = 1; i <= this.totalHeads; i++) {
-      let filename = process.cwd() + '/public/head/' + i + '.png'
+      const filename = path.join(__dirname, `head/${i}.png`)
+
       if (!fs.existsSync(filename)) {
         throw new Error('head' + ' image not found: ' + filename)
       }
@@ -217,7 +218,8 @@ export class Viper {
   getHeadTailURLs(isHead) {
     const units = []
     for (let i = 1; i <= this.totalHeads; i++) {
-      let filename = process.cwd() + (isHead ? '/public/head/' : '/public/tail/') + i + '.png'
+      const filename = path.join(__dirname, (isHead ? 'head' : 'tail'), `${i}.png`)
+
       if (!fs.existsSync(filename)) {
         throw new Error((isHead ? 'head' : 'tail') + ' image not found: ' + filename)
       }
@@ -232,35 +234,37 @@ export class Viper {
       this.tailImg = this.headImg
     }
     const img = isHead ? '/head/' + this.headImg : '/tail/' + this.tailImg
-    const imgURL = process.cwd() + "/public" + img
-    if (!fs.existsSync(imgURL)) {
-      throw new Error('head/tail image not found: ' + imgURL)
+    const filename = path.join(__dirname, img)
+    if (!fs.existsSync(filename)) {
+      throw new Error('head/tail image not found: ' + filename)
     }
-    return imgURL
+    return filename
   }
   getHoleURL() {
     if (!this.holeImg) {
       this.holeImg = '1.png'
     }
-    const holeImgURL = process.cwd() + "/public/holes/" + this.holeImg
-    if (!fs.existsSync(holeImgURL)) {
-      throw new Error('hole image not found: ' + holeImgURL)
+    const filename = path.join(__dirname, "holes", this.holeImg)
+
+    if (!fs.existsSync(filename)) {
+      throw new Error('hole image not found: ' + filename)
     }
-    return holeImgURL
+    return filename
   }
 
   // TODO: remove these probably
   getBgURLs() {
     const bgs = []
     for (let i = 0; i < this.totalBgs; i++) {
-      let filename = process.cwd() + '/public/bg/rock-' + (i) + '.jpeg'
+      const filename = path.join(__dirname, "bg", 'rock-' + (i) + '.jpeg')
       if (!fs.existsSync(filename)) {
         throw new Error('background image not found: ' + filename)
       }
       bgs.push(filename)
     }
     if (this.me.bgImage != undefined) {
-      bgs.push(process.cwd() + `/public/bg/rock-${this.me.bgImage}.jpeg`)
+      const filename = path.join(__dirname, "bg", `rock-${this.me.bgImage}.jpeg`)
+      bgs.push(filename)
     }
     return bgs
   }
@@ -277,6 +281,9 @@ export class Viper {
   // }
 
   getBodiesURLs() {
+    if (this.setting !== "server") {
+      throw new Error('getBodiesURLs should only be called on server')
+    }
     switch (this.style) {
       // case "randomImage":
       // case "everythingMatches":
@@ -289,12 +296,15 @@ export class Viper {
     }
     const bodies = { rounded: [], raw: [] }
     for (var i = 1; i <= this.totalBodies; i++) {
-      const bodyURL = process.cwd() + `/public/body/masked/${i}.png`
+
+      // get the path of the current file
+      const bodyURL = path.join(__dirname, "body", "masked", `${i}.png`)
+
       if (!fs.existsSync(bodyURL)) {
         throw new Error('bodyURL image not found: ' + bodyURL)
       }
       bodies.rounded.push(bodyURL)
-      const resizedBodyURL = process.cwd() + `/public/body/resized/${i}.png`
+      const resizedBodyURL = path.join(__dirname, `body/resized/${i}.png`)
       if (!fs.existsSync(resizedBodyURL)) {
         throw new Error('resizedBodyURL image not found: ' + resizedBodyURL)
       }

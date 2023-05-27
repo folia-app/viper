@@ -22,6 +22,10 @@ module.exports = {
     // static: path.resolve(__dirname, "dist"),
     open: true
   },
+  node: {
+    __dirname: false,   // this configuration ensures you get the actual directory path
+    __filename: false,  // this configuration ensures you get the actual file path
+  },
   plugins: [
     new HtmlWebpackPlugin({
       hash: true,
