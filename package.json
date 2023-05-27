@@ -12,16 +12,13 @@
     "server": "npx netlify dev --offline",
     "watch": "npx watch 'yarn build' src",
     "dev-browser": "npx webpack serve --mode development",
-    "build": "npx webpack --mode development && cp dist/viper.js netlify/functions/render/viper.js",
+    "build": "npx webpack --mode development",
     "postinstall": "npx webpack"
   },
   "dependencies": {
-    "canvas": "2.11.2",
     "commander": "^10.0.1",
-    "netlify-cli": "^12.13.1",
     "node-fetch": "2",
-    "node-p5": "https://github.com/okwme/p5-node#855e603141cdc2c1d7cac9a135c2f0f5199f690d",
-    "pexels": "^1.4.0",
+    "node-p5": "https://github.com/okwme/p5-node#ce10a57eb98f464dd056ec14d7c3e519971b6bd3",
     "prando": "^6.0.1",
     "rgbquant": "^1.1.2",
     "sharp": "^0.32.1",

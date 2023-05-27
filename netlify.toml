@@ -19,10 +19,6 @@
 
   ## more info on configuring this file: https://docs.netlify.com/configure-builds/file-based-configuration/
 
-[functions]
-	included_files = ["public/**"]
- # external_node_modules = ["fs", "jsdom", "path"]
-
 [[headers]]
   for = "/*"
     [headers.values]

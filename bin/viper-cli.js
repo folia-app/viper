@@ -8,6 +8,12 @@ const sharp = require('sharp');
 
 const fetch = require('node-fetch')
 
+const formatName = function (tokenId, length) {
+  const paddedTokenId = String(tokenId).padStart(4, '0')
+  const paddedLength = String(length).padStart(3, '0')
+  return `${paddedTokenId}-${paddedLength}`
+}
+
 commander
   .version('0.0.1')
 
@@ -19,34 +25,6 @@ async function wait(time = 1000) {
     }, time)
   })
 }
-
-commander
-  .command('generate-gifs')
-  .option('-from <from>', 'From index', 1)
-  .option('-to <to>', 'To index', 96)
-  .description('Generate viper gifs')
-  .action(async ({ From, To }) => {
-
-    let from = parseInt(From)
-    let to = parseInt(To)
-    if (from < 1 || to < 1) {
-      console.log('from and to must be greater than 0')
-      process.exit(1)
-    }
-    if (to < from) {
-      console.log('to must be greater than from')
-      process.exit(1)
-    }
-    for (let i = from; i <= to; i++) {
-      console.log(`Generating ${i} of ${to}`)
-      const url = `http://localhost:8888/.netlify/functions/render?tokenId=${i}`
-      // fetch the url
-      console.log(`Fetching ${url}`)
-      await fetch(url)
-    }
-    console.log('done')
-
-  })
 
 commander
   .command('population')
@@ -168,18 +146,22 @@ commander
     const preloads = {}
     tokenId = parseInt(tokenId)
     viperLength = parseInt(viperLength)
+    const filename = formatName(tokenId, viperLength)
+    console.time(filename)
+
     const viper = new Viper({
-      logs: "verbose",
+      logs: true,
       tokenId,
       setting: "server",
       dither: true,
       maxNumberOfLines: viperLength
     })
-    const filename = `${tokenId}-${viperLength}`
+    console.timeLog(filename, "viper initialized")
+
+
 
     async function loadImages(p) {
-      console.log('loadImages')
-
+      console.time(filename + "-load-images")
       // load bodies
       const bodyURLs = viper.getBodiesURLs()
       for (let i = 0; i < bodyURLs.rounded.length; i++) {
@@ -227,9 +209,12 @@ commander
         }
       }
       preloads.head = preloads[`head_${viper.headRandom - 1}`]
+      console.timeEnd(filename + "-load-images")
+
     }
 
     function sketch(p) {
+      console.timeLog(filename, "sketch initialized")
       let seconds = 3
       switch (viper.pattern) {
         case 'bigEight':
@@ -270,15 +255,13 @@ commander
           if (viper.pattern !== "randomLoop") {
             viper.addAllLines()
           }
-          console.log(viper.setting)
           // p.noLoop()
           readyToDraw = true
 
           p.saveFrames(viper.canvas.drawingContext, filename, {
             repeat: 0, quality: 1 // image quality (1-30). 1 is best but slow. Above 20 doesn't make much difference in speed. 10 is default.
           }, seconds, fps).then(() => {
-            console.log('gif is done')
-            // console.timeEnd(datetime)
+            console.timeEnd(filename, "gif is done")
             readyToServe = true
             viper.endLog()
           })
@@ -287,6 +270,7 @@ commander
         }
       }
       p.draw = () => {
+        console.time(filename + "-draw", "draw initialized")
         p.noLoop()
         if (!readyToDraw) return
         if (framesSoFar >= totalFrames) {
@@ -298,7 +282,9 @@ commander
         }
         viper.draw(preloads)
         framesSoFar++
+        console.timeEnd(filename + "-draw", "draw completed")
       }
+      console.timeLog(filename, "sketch completed")
     }
 
     p5.createSketch(sketch)
@@ -314,3 +300,4 @@ if (process.argv === 0) {
 }
 
 commander.parse(process.argv)
+

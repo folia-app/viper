@@ -72,16 +72,15 @@ export class Viper {
     } = options
     this.logs = logs
     this.logs && console.log('constructor')
-    this.logs == "verbose" && console.time("viper")
+    this.logs && console.time("viper")
 
     this.rng = new Prando("viper bite invites embrace")
     this.allVipers = this.populate()
     this.tokenId = tokenId || Math.floor(Math.random() * this.allVipers.length)
-    console.log({ tokenId })
     this.me = this.allVipers[this.tokenId]
 
-    console.log(`Viper population: ${this.allVipers.length} vipers`)
-    console.log(`Hello viper #${this.tokenId}!`, this.me)
+    this.logs && console.log(`Viper population: ${this.allVipers.length} vipers`)
+    this.logs && console.log(`Hello viper #${this.tokenId}!`, this.me)
 
 
     this.setting = setting
@@ -123,7 +122,6 @@ export class Viper {
     this.totalTails = this.totalHeads
     this.totalBgs = 8
     this.whichSegment = this.me.style.indexOf("Matches") > -1 ? this.me.head : this.random(0, this.totalBodies - 1)
-    console.log({ whichSegment: this.whichSegment })
     this.bodyOffset = this.me.style.indexOf("Matches") > -1 ? 0 : this.random(1, this.totalBodies)
     this.headRandom = this.me.head + 1// this.random(1, this.totalHeads)
     this.tailRandom = this.headRandom//this.random(1, this.totalTails)
@@ -138,31 +136,19 @@ export class Viper {
   }
 
   endLog() {
-    this.logs == "verbose" && console.timeEnd("viper")
+    this.logs && console.timeEnd("viper")
   }
 
   async loadBGImg(changeIndex = 1, query = "geometry") {
     if (this.me.bgImage == undefined) {
-      console.log({ me: this.me })
-      console.log('no bg img')
       return
     }
-    // this.bgIndex = this.bgIndex == undefined ? 0 : this.bgIndex + changeIndex
-    // console.log(`index is ${this.bgIndex}`)
-    // if (!this.bgResults) {
-    // this.bgResults = await client.photos.search({ query, per_page: 1000 })
-    // console.log({ results: this.bgResults })
-    // }
-    // const bgImg = this.bgResults.photos[changeIndex].src.medium
-    console.log(this.me.bgImage)
     const bgImg = `/bg/rock-${this.me.bgImage}.jpeg`
-    console.log({ bgImg })
     this.preloaded.bgImg = window.loadImage(bgImg)
   }
 
 
   async preload() {
-    console.log('running preload')
     try {
       this.logs == "verbose" && console.timeLog("viper", "preload")
       this.logs && console.log('preload')
@@ -187,7 +173,7 @@ export class Viper {
         }
       }
     } catch (preloadError) {
-      console.log({ preloadError })
+      console.error({ preloadError })
     }
   }
 
@@ -195,7 +181,6 @@ export class Viper {
     const units = []
     for (let i = 1; i <= this.totalTails; i++) {
       const filename = path.join(__dirname, `tail/${i}.png`)
-      console.log({ filename })
       if (!fs.existsSync(filename)) {
         throw new Error('tail' + ' image not found: ' + filename)
       }
@@ -518,13 +503,11 @@ export class Viper {
     const textHeight = 30
     const rows = 2//Math.ceil(this.width / textWidth)
     const columns = Math.ceil(this.width / textHeight) + 1
-    console.log({ rows, columns })
     this.fill("white")
     this.textFont("Arial")
     this.stroke("black")
     this.strokeWeight(0)
     // this.textSize(42)
-    console.log({ canvas: this.canvas })
     const ctx = this.canvas.drawingContext;
     this.canvas.elt.style.letterSpacing = "9px";
     ctx.font = `${textHeight}px Courier`;
@@ -564,12 +547,6 @@ export class Viper {
       if (!this.savedBG) {
         let colors
         colors = this.me.bgColors
-        console.log({ colors })
-        // if (isBlackAndWhite) {
-        //   colors = this.bgColors["bw"]
-        // } else {
-        //   colors = this.bgColors["color"]
-        // }
         const bgCanvas = this.createGraphics(this.width, this.width)
         bgCanvas.noStroke()
         for (let i = 0; i < resolution; i++) {
@@ -628,7 +605,7 @@ export class Viper {
     if (typeof preloaded === 'undefined') {
       preloaded = this.preloaded
     } else if (typeof this.bodies == "undefined") {
-      console.log('reload bodies')
+      this.logs && console.log('reload bodies')
       this.bodies = { rounded: [], raw: [] }
       for (var i = 0; i < this.totalBodies; i++) {
         this.bodies.rounded.push(preloaded[`body_rounded_${i}`])
@@ -809,7 +786,6 @@ export class Viper {
     const roundedOrRaw = this.me.style.indexOf("Rounded") > -1 ? "rounded" : "raw"
     const pic = preloaded.bodies[roundedOrRaw][this.whichSegment]
     if (!pic) {
-      console.log({ preloaded })
       throw new Error(`No image for segment ${this.whichSegment}`)
     }
     const flip = x1 - x2 > 0
@@ -844,7 +820,7 @@ export class Viper {
     try {
       this.image(imagePattern, 0, 0, len + this.strokeW, this.strokeW);
     } catch (e) {
-      console.log(`failed to load image ${this.whichSegment} `)
+      console.error(`failed to load image ${this.whichSegment} `)
     }
     this.pop()
     this.pop()
@@ -1006,16 +982,7 @@ export class Viper {
       y2 = this.y + Math.sin(ang * Math.PI / 180) * lenWithoutTips
       len = lenWithoutTips
     }
-    // let c
-    // if (this.totalLength >= this.maxNumberOfLines * this.tweens) {
-    //   c = [0, 0, 0]
-    // } else {
-    //   const r = this.random(0, 255)
-    //   const g = this.random(0, 255)
-    //   const b = this.random(0, 255)
-    //   c = [r, g, b]
-    // }
-    // console.log(c.join(","))
+
     const newLine = {
       x1: this.x,
       y1: this.y,
@@ -1029,7 +996,6 @@ export class Viper {
 
 
     this.allLines.push(newLine)
-    // this.allColors.unshift(c)
     this.previousAngle = ang
     this.x = x2
     this.y = y2
@@ -1050,7 +1016,6 @@ export class Viper {
 
   reset() {
     this.allLines = []
-    // this.allColors = []
     this.wanderHome = undefined
     this.reachedHome = undefined
     this.totalLength = 0
@@ -1417,19 +1382,16 @@ export class Viper {
       var b = Math.ceil(this.random(0, 255))
       var c = Math.ceil(this.random(0, 255))
       var randomColor = `rgb(${a}, ${b}, ${c})`
-      // console.log({ randomColor })
       failed.push({ changeBy, newAngle, newX, newY, randomColor })
     }
-    console.log({ previousX, previousY, previousAngle, maxDifferenceBetweenAngles, lineLength, width, margin })
-    console.log({ failed })
+    console.error({ previousX, previousY, previousAngle, maxDifferenceBetweenAngles, lineLength, width, margin })
+    console.error({ failed })
     throw new Error(`Unable to find a new point from(${previousX}, ${previousY}, ${previousAngle})`)
   }
 
   random(min = 0, max = 1) {
     this.timesCalledRandom = typeof this.timesCalledRandom == 'undefined' ? 1 : this.timesCalledRandom + 1
-    // console.log({ timesCalledRandom: this.timesCalledRandom })
     var foo = this.rng.nextInt(min, max)
-    // console.log({ randomNumber: foo })
     return foo
   }
 
