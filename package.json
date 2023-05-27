@@ -20,7 +20,7 @@
     "commander": "^10.0.1",
     "netlify-cli": "^12.13.1",
     "node-fetch": "2",
-    "node-p5": "https://github.com/okwme/p5-node#4b8eeabeb46d7b57e40d0faa3adc257791aca164",
+    "node-p5": "https://github.com/okwme/p5-node#855e603141cdc2c1d7cac9a135c2f0f5199f690d",
     "pexels": "^1.4.0",
     "prando": "^6.0.1",
     "rgbquant": "^1.1.2",
