@@ -148,7 +148,7 @@ commander
     viperLength = parseInt(viperLength)
     const filename = formatName(tokenId, viperLength)
     console.time(filename)
-
+    console.log(process.env.mode)
     const viper = new Viper({
       logs: true,
       tokenId,
@@ -270,7 +270,6 @@ commander
         }
       }
       p.draw = () => {
-        console.time(filename + "-draw", "draw initialized")
         p.noLoop()
         if (!readyToDraw) return
         if (framesSoFar >= totalFrames) {
@@ -280,6 +279,7 @@ commander
           console.log('done')
           return
         }
+        console.time(filename + "-draw", "draw initialized")
         viper.draw(preloads)
         framesSoFar++
         console.timeEnd(filename + "-draw", "draw completed")

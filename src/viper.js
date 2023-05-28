@@ -76,7 +76,8 @@ export class Viper {
 
     this.rng = new Prando("viper bite invites embrace")
     this.allVipers = this.populate()
-    this.tokenId = tokenId || Math.floor(Math.random() * this.allVipers.length)
+    // tokenId is 1-indexed
+    this.tokenId = tokenId ? tokenId - 1 : Math.floor(Math.random() * this.allVipers.length)
     this.me = this.allVipers[this.tokenId]
 
     this.logs && console.log(`Viper population: ${this.allVipers.length} vipers`)
