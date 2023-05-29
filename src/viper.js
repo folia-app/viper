@@ -34,7 +34,7 @@ export class Viper {
       // 1. gradient-low
       // 1. bw-gradient-high
       // 1. bw-gradient-low*/,
-      pattern: "circle"/*
+      pattern: null/*
       // pattern options
       // 1. random
       // 1. circle
@@ -93,8 +93,8 @@ export class Viper {
     }
 
     this.style = style || this.me.style
-    this.backgroundStyle = backgroundStyle || backgroundsIndex[this.me.background]
-    this.pattern = pattern
+    this.backgroundStyle = backgroundStyle || this.me.background
+    this.pattern = pattern || this.me.pattern
     this.width = width
     this.maxNumberOfLines = maxNumberOfLines
     this.maxLen = maxLen || this.width * 0.14577259 // 100
@@ -560,7 +560,6 @@ export class Viper {
             bgCanvas.rect(i * s, j * s, s, s)
           }
         }
-
         if (this.dither) {
           // options with defaults (not required)
           var opts = {
@@ -593,6 +592,7 @@ export class Viper {
         }
         this.savedBG = bgCanvas
       }
+
       this.image(this.savedBG, this.width / 2, this.width / 2, this.width, this.width)
     } catch (e) {
       console.error(e)
@@ -932,7 +932,36 @@ export class Viper {
     return { x1, y1, x2, y2, len, ang }
   }
 
-
+  seconds() {
+    let seconds = 3
+    switch (this.pattern) {
+      case 'bigEight':
+        seconds = 5.65714285
+        break
+      case 'eight':
+        seconds = 3.7
+        break
+      case 'circle':
+        seconds = 4.27142857
+        break
+      case 'square':
+        seconds = 4.82285714
+        break
+      case 'heart':
+        seconds = 4.75714286
+        break
+      case 'randomLoop':
+        seconds = 6
+        break
+      case 'rotatingEight':
+        seconds = 38
+        break
+      case 'star':
+        seconds = 7.71428571
+        break
+    }
+    return seconds
+  }
 
   addLine() {
 
@@ -1485,7 +1514,7 @@ export class Viper {
     const numSkeletonSegments = 4
     const skeletonColorVariations = 0//2
 
-    const gifPatterns = 7
+    // const gifPatterns = 7
     const background_options = 4
 
     const randomColorFactor = 1 // randomColor segments will always be random, so we can decide how many
@@ -1520,7 +1549,8 @@ export class Viper {
     let style
     for (let head = 0; head < numHeads; head++) {
       for (let headColor = 0; headColor < headColorVariations; headColor++) {
-        for (let background = 0; background < background_options; background++) {
+        for (let backgroundIndex = 0; backgroundIndex < background_options; backgroundIndex++) {
+          const background = backgroundsIndex[backgroundIndex]
           style = "everythingMatches"
           arrayOfAll.push({ style, head, headColor, background })
 
@@ -1530,7 +1560,8 @@ export class Viper {
 
         style = "randomColor"
         for (let randomColor = 0; randomColor < randomColorFactor; randomColor++) {
-          for (let background = 0; background < background_options; background++) {
+          for (let backgroundIndex = 0; backgroundIndex < background_options; backgroundIndex++) {
+            const background = backgroundsIndex[backgroundIndex]
             arrayOfAll.push({ style, head, headColor, background })
           }
         }
@@ -1541,7 +1572,8 @@ export class Viper {
         }
 
         for (let randomImage = 0; randomImage < randomImageFactor; randomImage++) {
-          for (let background = 0; background < background_options; background++) {
+          for (let backgroundIndex = 0; backgroundIndex < background_options; backgroundIndex++) {
+            const background = backgroundsIndex[backgroundIndex]
             style = "randomImage"
             arrayOfAll.push({ style, head, headColor, background })
 
@@ -1550,24 +1582,26 @@ export class Viper {
           }
         }
       }
-
       style = "skeleton"
       for (let skeletonColor = 0; skeletonColor < skeletonColorVariations; skeletonColor++) {
-        for (let background = 0; background < background_options; background++) {
+        for (let backgroundIndex = 0; backgroundIndex < background_options; backgroundIndex++) {
+          const background = backgroundsIndex[backgroundIndex]
           arrayOfAll.push({ style, head, skeletonColor, background })
         }
       }
-
     }
     arrayOfAll = this.shuffle(arrayOfAll)
     arrayOfAll.map((item, index) => {
+      item.pattern = item.style == "debug" ? "randomLoop" : gifPatterns[this.random(0, gifPatterns.length - 1)]
+
       if (item.style == "debug") return
-      if (backgroundsIndex[item.background].indexOf('gradient') > -1) {
-        item.bgColors = this.setupBgColors(backgroundsIndex[item.background])
+      if (item.background.indexOf('gradient') > -1) {
+        item.bgColors = this.setupBgColors(item.background)
       } else {
         item.bgImage = this.random(0, this.totalBgs)
       }
     })
+
     return arrayOfAll
   }
 
@@ -1712,6 +1746,8 @@ const tailOffsets = {
 function typeOf(val) {
   return Object.prototype.toString.call(val).slice(8, -1);
 }
+
+const gifPatterns = ['bigEight', 'eight', 'circle', 'square', 'heart', 'randomLoop', 'star']
 
 const backgroundsIndex = [
   "gradient-high",

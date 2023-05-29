@@ -15,8 +15,7 @@ module.exports = {
     clean: true,
     libraryTarget: 'umd',
     globalObject: 'this',
-
-    // path: path.resolve(__dirname, "dist")
+    path: path.resolve(__dirname, "dist")
   },
   devServer: {
     // static: path.resolve(__dirname, "dist"),

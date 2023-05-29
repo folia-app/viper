@@ -5,8 +5,9 @@ const p5 = require('node-p5')
 const { Viper } = require('../dist/viper.js')
 // const { convert } = require('convert-svg-to-png');
 const sharp = require('sharp');
-
-const fetch = require('node-fetch')
+const dotenv = require('dotenv')
+dotenv.config()
+dotenv.config({ path: `.env.local`, override: true });
 
 const formatName = function (tokenId, length) {
   const paddedTokenId = String(tokenId).padStart(4, '0')
@@ -143,22 +144,22 @@ commander
   .command('generate-gif <tokenId> <viperLength>')
   .description('Generate viper gif')
   .action(async (tokenId, viperLength) => {
+
+    const printLogs = process.env.NODE_ENV === 'development'
+
     const preloads = {}
     tokenId = parseInt(tokenId)
     viperLength = parseInt(viperLength)
     const filename = formatName(tokenId, viperLength)
     console.time(filename)
-    console.log(process.env.mode)
     const viper = new Viper({
-      logs: true,
+      logs: printLogs,
       tokenId,
       setting: "server",
       dither: true,
       maxNumberOfLines: viperLength
     })
     console.timeLog(filename, "viper initialized")
-
-
 
     async function loadImages(p) {
       console.time(filename + "-load-images")
@@ -214,84 +215,53 @@ commander
     }
 
     function sketch(p) {
-      console.timeLog(filename, "sketch initialized")
-      let seconds = 3
-      switch (viper.pattern) {
-        case 'bigEight':
-          seconds = 5.65714285
-          break
-        case 'eight':
-          seconds = 3.7
-          break
-        case 'circle':
-          seconds = 4.27142857
-          break
-        case 'square':
-          seconds = 4.82285714
-          break
-        case 'heart':
-          seconds = 4.75714286
-          break
-        case 'randomLoop':
-          seconds = 6
-          break
-        case 'rotatingEight':
-          seconds = 38
-          break
-        case 'star':
-          seconds = 7.71428571
-          break
-      }
-      // seconds = (1 / 35) * 3
+      let seconds = viper.seconds()
+      // seconds = (1 / 35) * 5
       let fps = 35
       let totalFrames = seconds * fps
       let framesSoFar = 0
       let readyToDraw = false
       p.setup = async () => {
         try {
-          // p.createCanvas(viper.width, viper.width)
           await loadImages(p)
           viper.setup(p, preloads)
           if (viper.pattern !== "randomLoop") {
             viper.addAllLines()
           }
-          // p.noLoop()
           readyToDraw = true
-
-          p.saveFrames(viper.canvas.drawingContext, filename, {
-            repeat: 0, quality: 1 // image quality (1-30). 1 is best but slow. Above 20 doesn't make much difference in speed. 10 is default.
-          }, seconds, fps).then(() => {
-            console.timeEnd(filename, "gif is done")
-            readyToServe = true
-            viper.endLog()
-          })
+          await p.saveFrames(viper.canvas.drawingContext, filename, {}, seconds, fps)
+          console.timeEnd(filename, "gif is done")
+          viper.endLog()
         } catch (setupError) {
           console.log({ setupError })
         }
       }
       p.draw = () => {
+        // so that the draw doesn't go on forever
         p.noLoop()
-        if (!readyToDraw) return
+        // will try to draw immediately after setup runs but images aren't loaded and we only want saveFrames
+        // to be the one to call draw
+        if (!readyToDraw) {
+          // console.log('not ready to draw')
+          return
+        }
         if (framesSoFar >= totalFrames) {
+          console.error('tried to draw more frames than totalFrames, this shouldnt happen')
           return
         }
         if (framesSoFar === totalFrames) {
-          console.log('done')
+          console.error('framesSoFar === totalFrames, but this shouldnt happen')
           return
         }
-        console.time(filename + "-draw", "draw initialized")
+        console.time(filename + "-draw")
         viper.draw(preloads)
         framesSoFar++
-        console.timeEnd(filename + "-draw", "draw completed")
+        console.timeEnd(filename + "-draw")
       }
-      console.timeLog(filename, "sketch completed")
     }
 
     p5.createSketch(sketch)
-
   })
-
-
 
 
 if (process.argv === 0) {
