@@ -1,11 +1,5 @@
 import Prando from 'prando'
-
-// const { quantize } = require("gifenc")
-// const dither = require("dither-me-this")
 const RgbQuant = require('rgbquant');
-// import { createClient } from 'pexels';
-
-// const client = createClient('QktuTsIIkMA6zX85eEIU0SiSkZclyUYPJU1z4PpMS95SALVO1P5KiePb');
 
 
 
@@ -74,6 +68,11 @@ export class Viper {
     this.logs && console.log('constructor')
     this.logs && console.time("viper")
 
+    this.totalBodies = 10
+    this.totalHeads = 10
+    this.totalTails = this.totalHeads
+    this.totalBgs = 8
+
     this.rng = new Prando("viper bite invites embrace")
     this.allVipers = this.populate()
     // tokenId is 1-indexed
@@ -101,7 +100,7 @@ export class Viper {
     this.strokeW = strokeW || this.width * 0.0728863 // 50
     this.holeWidth = holeWidth || this.width * 0.20116618 // 138
     this.headWidth = headWidth || this.width * 0.17492711 // 120
-    this.tailLength = tailLength || this.width * 0.11661808 // 80
+    this.tailLength = tailLength || this.width * 0.14577259 // 100
     this.margin = margin || this.width * 0.20116618 // 138
     this.angleDistanceMin = angleDistanceMin
     this.fps = fps
@@ -118,10 +117,7 @@ export class Viper {
     this.allColors = []
     this.totalLength = 0
     this.renderedBodies = {}
-    this.totalBodies = 4
-    this.totalHeads = 4
-    this.totalTails = this.totalHeads
-    this.totalBgs = 8
+
     this.whichSegment = this.me.style.indexOf("Matches") > -1 ? this.me.head : this.random(0, this.totalBodies - 1)
     this.bodyOffset = this.me.style.indexOf("Matches") > -1 ? 0 : this.random(1, this.totalBodies)
     this.headRandom = this.me.head + 1// this.random(1, this.totalHeads)
@@ -131,8 +127,8 @@ export class Viper {
 
     this.setHeartPattern()
 
-    this.headOffset = headOffsets.hasOwnProperty("_" + this.headTailRandom) ? headOffsets["_" + this.headTailRandom] : defaultHeadOffsets
-    this.tailOffset = tailOffsets.hasOwnProperty("_" + this.headTailRandom) ? tailOffsets["_" + this.headTailRandom] : defaultTailOffsets
+    this.headOffset = headOffsets.hasOwnProperty("_" + this.headRandom) ? headOffsets["_" + this.headRandom] : defaultHeadOffsets
+    this.tailOffset = tailOffsets.hasOwnProperty("_" + this.tailRandom) ? tailOffsets["_" + this.tailRandom] : defaultTailOffsets
     this.logs == "verbose" && console.timeLog("viper", "end constructor")
   }
 
@@ -358,6 +354,7 @@ export class Viper {
     this.imageMode(this.CENTER);
     this.angleMode(this.DEGREES);
     this.strokeCap(this.ROUND);
+    this.rng = new Prando(this.tokenId)
 
     // TODO: make sure this is how it should be done
     // This pre-calculates all possible future segment colors for this viper
@@ -469,7 +466,10 @@ export class Viper {
         this.backgroundText()
         break;
       case "image":
-        // if (!preloaded) return
+        if (!preloaded.bgImg) {
+          console.log("no bgImg preloaded")
+          return
+        }
         this.image(
           preloaded.bgImg,
           this.width / 2,
@@ -701,11 +701,12 @@ export class Viper {
       //   xFactor: 2,
       //   yFactor: 2.5
       // }
-
+      // console.log({headOffsets: this.headOffset})
       var calcHeadOffset = {
         x: this.headWidth / this.headOffset.xFactor,
         y: this.headWidth / this.headOffset.yFactor
       }
+
       if ((l.x1 - l.x2) > (this.width / 80)) {
         this.push()
         this.scale(-1, 1)
@@ -787,6 +788,7 @@ export class Viper {
     const roundedOrRaw = this.me.style.indexOf("Rounded") > -1 ? "rounded" : "raw"
     const pic = preloaded.bodies[roundedOrRaw][this.whichSegment]
     if (!pic) {
+      console.log({preloaded})
       throw new Error(`No image for segment ${this.whichSegment}`)
     }
     const flip = x1 - x2 > 0
@@ -1504,7 +1506,7 @@ export class Viper {
 
   populate() {
 
-    const numHeads = 4//14
+    const numHeads = this.totalBodies//14
     const headColorVariations = 1//4
     const numSkeltonHeads = numHeads
     const numTails = numHeads
@@ -1519,7 +1521,7 @@ export class Viper {
 
     const randomColorFactor = 1 // randomColor segments will always be random, so we can decide how many
     const randomImageFactor = 1
-    const debugFactor = 4 // debug segments will always be random
+    const debugFactor = 2 // debug segments will always be random
 
     const style_everythingMatches = numHeads * headColorVariations * background_options
 
@@ -1674,40 +1676,44 @@ const defaultHeadOffsets = {
 
 const headOffsets = {
   _1: {
-    xFactor: 1.8,
+    xFactor: 2.7,
     yFactor: 2.3
   },
   _2: {
-    xFactor: 2.5,
-    yFactor: 2.3
+    xFactor: 2.2,
+    yFactor: 3
   },
   _3: {
-    xFactor: 2.2,
-    yFactor: 2.2
+    xFactor: 2.9,
+    yFactor: 2.6
   },
-  _4: {
-    xFactor: 2.2,
-    yFactor: 2.2
+  _4: { // maybe need to make neck wider
+    xFactor: 1.9,
+    yFactor: 4
   },
   _5: {
-    xFactor: 2.3,
-    yFactor: 2.4
+    xFactor: 2,
+    yFactor: 2.2
   },
   _6: {
-    xFactor: 2.5,
-    yFactor: 1.9
+    xFactor: 2.3,
+    yFactor: 2.5
   },
   _7: {
-    xFactor: 1.9,
+    xFactor: 2.4,
     yFactor: 3
   },
   _8: {
-    xFactor: 2,
-    yFactor: 2
+    xFactor: 1.9,
+    yFactor: 3.1
   },
   _9: {
-    xFactor: 3.3,
-    yFactor: 2.6
+    xFactor: 2.5,
+    yFactor: 2.5
+  },
+  _10: {
+    xFactor: 2,
+    yFactor: 3
   }
 }
 
@@ -1715,31 +1721,47 @@ const defaultTailOffsets = {
   xFactor: 2,
   yFactor: 0
 }
-
+// larger x factor means closer into the body
 const tailOffsets = {
   _1: {
-    xFactor: 2.1,
-    yFactor: 0.05
+    xFactor: 1.5,
+    yFactor: 0.0
+  },
+  _2: {
+    xFactor: 1.4,
+    yFactor: 0.1
   },
   _3: {
-    xFactor: 1.9,
-    yFactor: 0.2
+    xFactor: 1.6,
+    yFactor: 0
   },
   _4: {
-    xFactor: 1.8,
-    yFactor: -0.2
+    xFactor: 1.5,
+    yFactor: 0
   },
   _5: {
-    xFactor: 1.8,
-    yFactor: 0
+    xFactor: 1.5,
+    yFactor: -0.2
   },
   _6: {
     xFactor: 1.7,
-    yFactor: 0.3
+    yFactor: 0.1
   },
   _7: {
-    xFactor: 1.8,
-    yFactor: 0.2
+    xFactor: 1.6,
+    yFactor: 0
+  },
+  _8: {
+    xFactor: 1.5,
+    yFactor: 0
+  },
+  _9: {
+    xFactor: 1.5,
+    yFactor: 0.1
+  },
+  _10: {
+    xFactor: 1.6,
+    yFactor: 0
   }
 }
 

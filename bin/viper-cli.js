@@ -72,11 +72,12 @@ async function convertSVG(path, width) {
 
 
 commander
-  .command('bodies')
+  .command('bodies <width> <height>')
   .description('Generate viper segments from svg images')
   .action(async (width, height) => {
     width = parseInt(width)
     height = parseInt(height)
+    console.log({width, height})
     if (width < 1 || height < 1) {
       console.log('width must be greater than 0')
       process.exit(1)
@@ -93,6 +94,7 @@ commander
     // readFileSync in raw
     const files = fs.readdirSync(rawFolder).filter(file => file.endsWith('.svg'))
     let numSaved = 0
+    const preloads = {}
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
       try {
@@ -102,13 +104,16 @@ commander
         console.log(e)
       }
       const viper = new Viper({
-        // width: 300
+        setting: "server",
       })
       console.log(file)
+      await new Promise((resolve, reject) => {
       let p5Instance = p5.createSketch((p) => {
         console.log('createSketch runs')
         p.setup = async () => {
           console.log('setup runs')
+          await loadImages(p, viper, preloads)
+          console.log('here')
           viper.setup(p)
           p.noLoop()
           img = await p.loadImage(`${distFolder}/../resized/${i + 1}.png`)
@@ -116,26 +121,32 @@ commander
           const maskedImg = viper.makeMaskedImage(img, color, imageWidth, imageHeight)
           // p.image(maskedImg, 0, 0)
           // viper.image(maskedImg, viper.width / 2, viper.width / 2)
-          p.saveCanvas(maskedImg, `${distFolder}/${i + 1}`, 'png').then(filename => {
+          console.log('save masked image')
+          const filename = `${distFolder}/${i + 1}`
+          await p.saveCanvas(maskedImg, filename, 'png')//.then(filename => {
             numSaved++
             console.log(`saved the canvas as ${filename}`);
-          });
+            resolve()
+          // });
         }
-        p.draw = async () => { }
+        p.draw = async () => {
+          p.noLoop()
+         }
       })
-      await wait(1000)
+    })
+      // await wait(1000)
       // console.log({ p5Instance })
     }
-    await new Promise((resolve) => {
-      foo = setInterval(() => {
-        if (numSaved === files.length) {
-          clearInterval(foo)
-          resolve()
-        } else {
-          console.log({ numSaved })
-        }
-      }, 1000)
-    })
+    // await new Promise((resolve) => {
+    //   foo = setInterval(() => {
+    //     if (numSaved === files.length) {
+    //       clearInterval(foo)
+    //       resolve()
+    //     } else {
+    //       console.log({ numSaved })
+    //     }
+    //   }, 1000)
+    // })
 
     process.exit(1)
   })
@@ -144,6 +155,7 @@ commander
   .command('generate-gif <tokenId> <viperLength>')
   .description('Generate viper gif')
   .action(async (tokenId, viperLength) => {
+    console.log(`node env is ${process.env.NODE_ENV}`)
 
     const printLogs = process.env.NODE_ENV === 'development'
 
@@ -161,58 +173,6 @@ commander
     })
     console.timeLog(filename, "viper initialized")
 
-    async function loadImages(p) {
-      console.time(filename + "-load-images")
-      // load bodies
-      const bodyURLs = viper.getBodiesURLs()
-      for (let i = 0; i < bodyURLs.rounded.length; i++) {
-        const url = bodyURLs.rounded[i]
-        if (!preloads[`body_rounded_${i}`]) {
-          preloads[`body_rounded_${i}`] = await p.loadImage(url)
-        }
-        const url2 = bodyURLs.raw[i]
-        if (!preloads[`body_raw_${i}`]) {
-          preloads[`body_raw_${i}`] = await p.loadImage(url2)
-        }
-      }
-
-      // load bg, pick one
-      const bgURLS = viper.getBgURLs()
-      for (let i = 0; i < bgURLS.length; i++) {
-        const url = bgURLS[i]
-        if (!preloads[`bg_${i}`]) {
-          preloads[`bg_${i}`] = await p.loadImage(url)
-        }
-      }
-      preloads.bgImg = preloads[`bg_${bgURLS.length - 1}`]
-
-      // load hole
-      if (!preloads.hole) {
-        preloads.hole = await p.loadImage(viper.getHoleURL())
-      }
-
-      // load tails, pick one
-      const tailURLS = viper.getTailURLs()
-      for (let i = 0; i < tailURLS.length; i++) {
-        const url = tailURLS[i]
-        if (!preloads[`tail_${i}`]) {
-          preloads[`tail_${i}`] = await p.loadImage(url)
-        }
-      }
-      preloads.tail = preloads[`tail_${viper.tailRandom - 1}`]
-
-      // load heads, pick one
-      const headURLs = viper.getHeadURLs()
-      for (let i = 0; i < headURLs.length; i++) {
-        const url = headURLs[i]
-        if (!preloads[`head_${i}`]) {
-          preloads[`head_${i}`] = await p.loadImage(url)
-        }
-      }
-      preloads.head = preloads[`head_${viper.headRandom - 1}`]
-      console.timeEnd(filename + "-load-images")
-
-    }
 
     function sketch(p) {
       let seconds = viper.seconds()
@@ -223,7 +183,9 @@ commander
       let readyToDraw = false
       p.setup = async () => {
         try {
-          await loadImages(p)
+          console.time(filename + "-load-images")
+          await loadImages(p, viper, preloads)
+          console.timeEnd(filename + "-load-images")
           viper.setup(p, preloads)
           if (viper.pattern !== "randomLoop") {
             viper.addAllLines()
@@ -253,16 +215,66 @@ commander
           console.error('framesSoFar === totalFrames, but this shouldnt happen')
           return
         }
-        console.time(filename + "-draw")
+        printLogs && console.time(filename + "-draw-" + framesSoFar)
         viper.draw(preloads)
+        printLogs && console.timeEnd(filename + "-draw-" + framesSoFar)
         framesSoFar++
-        console.timeEnd(filename + "-draw")
       }
     }
 
     p5.createSketch(sketch)
   })
 
+  async function loadImages(p, viper, preloads) {
+    // load bodies
+    const bodyURLs = viper.getBodiesURLs()
+    for (let i = 0; i < bodyURLs.rounded.length; i++) {
+      const url = bodyURLs.rounded[i]
+      if (!preloads[`body_rounded_${i}`]) {
+        preloads[`body_rounded_${i}`] = await p.loadImage(url)
+      }
+      const url2 = bodyURLs.raw[i]
+      if (!preloads[`body_raw_${i}`]) {
+        preloads[`body_raw_${i}`] = await p.loadImage(url2)
+      }
+    }
+
+    // load bg, pick one
+    const bgURLS = viper.getBgURLs()
+    for (let i = 0; i < bgURLS.length; i++) {
+      const url = bgURLS[i]
+      if (!preloads[`bg_${i}`]) {
+        preloads[`bg_${i}`] = await p.loadImage(url)
+      }
+    }
+    preloads.bgImg = preloads[`bg_${bgURLS.length - 1}`]
+
+    // load hole
+    if (!preloads.hole) {
+      preloads.hole = await p.loadImage(viper.getHoleURL())
+    }
+
+    // load tails, pick one
+    const tailURLS = viper.getTailURLs()
+    for (let i = 0; i < tailURLS.length; i++) {
+      const url = tailURLS[i]
+      if (!preloads[`tail_${i}`]) {
+        preloads[`tail_${i}`] = await p.loadImage(url)
+      }
+    }
+    preloads.tail = preloads[`tail_${viper.tailRandom - 1}`]
+
+    // load heads, pick one
+    const headURLs = viper.getHeadURLs()
+    for (let i = 0; i < headURLs.length; i++) {
+      const url = headURLs[i]
+      if (!preloads[`head_${i}`]) {
+        preloads[`head_${i}`] = await p.loadImage(url)
+      }
+    }
+    preloads.head = preloads[`head_${viper.headRandom - 1}`]
+
+  }
 
 if (process.argv === 0) {
   commander.help()
