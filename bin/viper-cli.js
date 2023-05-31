@@ -92,7 +92,10 @@ commander
     const rawFolder = './public/body/raw'
     const distFolder = './public/body/masked'
     // readFileSync in raw
-    const files = fs.readdirSync(rawFolder).filter(file => file.endsWith('.svg'))
+    const files = fs.readdirSync(rawFolder).filter(file => file.endsWith('.svg')).sort((a, b) => {
+      return parseInt(a.split('.')[0]) - parseInt(b.split('.')[0])
+    })
+
     let numSaved = 0
     const preloads = {}
     for (let i = 0; i < files.length; i++) {
@@ -103,21 +106,20 @@ commander
       } catch (e) {
         console.log(e)
       }
+
       const viper = new Viper({
         setting: "server",
+        tokenId: 2
       })
       console.log(file)
       await new Promise((resolve, reject) => {
       let p5Instance = p5.createSketch((p) => {
-        console.log('createSketch runs')
         p.setup = async () => {
-          console.log('setup runs')
           await loadImages(p, viper, preloads)
-          console.log('here')
           viper.setup(p)
           p.noLoop()
           img = await p.loadImage(`${distFolder}/../resized/${i + 1}.png`)
-          const color = [viper.random(0, 255), viper.random(0, 255), viper.random(0, 255)]
+          const color = [0,0,0]// [viper.random(0, 255), viper.random(0, 255), viper.random(0, 255)]
           const maskedImg = viper.makeMaskedImage(img, color, imageWidth, imageHeight)
           // p.image(maskedImg, 0, 0)
           // viper.image(maskedImg, viper.width / 2, viper.width / 2)

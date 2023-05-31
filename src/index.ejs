@@ -52,7 +52,7 @@
       'random', // 14
       'star' // 15
     ]
-    let patternIndex = 1//Math.floor(Math.random() * (patterns.length))
+    let patternIndex = 14//Math.floor(Math.random() * (patterns.length))
     document.getElementById('prev').addEventListener('click', () => {
       document.getElementById('page').value = parseInt(document.getElementById('page').value) - 1
       // set page
@@ -63,6 +63,7 @@
       viper.loadBGImg(document.getElementById('page').value, document.getElementById('query').value)
     })
     document.getElementById('sketch-holder').addEventListener('click', () => {
+      if (viper.hideHead) return
       stop = !stop
       if (stop) {
         patternIndex++
@@ -109,7 +110,7 @@
       // 1. heart
       // 1. randomLoop */,
       // width: 686,
-      maxNumberOfLines: 6,// Math.ceil(Math.random() * 20),
+      maxNumberOfLines: 100,// Math.ceil(Math.random() * 20),
       // maxLen: 75,
       // strokeW: 60,
       // headWidth: 60 * 2.3,
@@ -141,7 +142,7 @@
       } else {
         console.log('setup')
         viper.setup()
-        viper.addAllLines()
+        // viper.addAllLines()
         setupDone = true
       }
       // await viper.preload()
