@@ -20,10 +20,11 @@
     "copy-webpack-plugin": "^11.0.0",
     "dotenv": "^16.0.3",
     "html-webpack-plugin": "^5.5.0",
-    "node-p5": "https://github.com/okwme/p5-node#4ace764930dfb5f117f91555ea44e28d1c899dd8",
+    "node-p5": "https://github.com/okwme/p5-node#0b8372f29e9b075d0d8152d2ba521aeddf09b964",
     "prando": "^6.0.1",
     "rgbquant": "^1.1.2",
     "sharp": "^0.32.1",
+    "url-loader": "^4.1.1",
     "webpack": "^5.79.0",
     "webpack-cli": "^5.0.1",
     "webpack-dev-server": "^4.13.1"

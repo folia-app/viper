@@ -7,17 +7,26 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <meta name="description" content="<%= htmlWebpackPlugin.options.metaDesc %>" />
-  <!-- <script src="https://cdn.jsdelivr.net/npm/prando@6.0.1/dist/Prando.umd.min.js"></script> -->
+<!-- 
   <% for (key in htmlWebpackPlugin.files.js) { %>
     <script src="<%= htmlWebpackPlugin.files.js[key] %>"></script>
-    <% } %>
+    <% } %> -->
 
-      <!-- <script defer src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.js"></script> -->
-      <script defer src="./p5.js"></script>
+    
+    <script defer src="./p5.js"></script>
+    <%= "<script>" + compilation.assets['viper.js'].source() + "</script>" %>
       <style>
         body {
           margin: 0;
           padding: 0;
+        }
+        .pointer{
+          cursor: pointer;
+          margin: 10px;
+        }
+        div {
+          margin: 10px;
+          text-align: center;
         }
       </style>
 
@@ -26,50 +35,159 @@
 <body>
   <div id="sketch-holder">
   </div>
-  <span id="prev">prev</span>
-  <span id="next">next</span>
-  <input type="text" id="query">
-  <input type="number" id="page" value="1">
+  <button class="pointer" id="prev">prev snek</button>
+  <button class="pointer" id="next">next snek</button>
+  <br>
+  <button class="pointer" id="prev-pattern">prev pattern</button>
+  <button class="pointer" id="next-pattern">next pattern</button>
+  <br>
+  <button class="pointer" id="minus-length">length--</button>
+  <button class="pointer" id="plus-length">length++</button>
+  <br>
+  <button class="pointer" id="bite">bite</button>
+  <div id="pattern-name"></div>
+  
+  <!-- <input type="text" id="query">
+  <input type="number" id="page" value="1"> -->
   <script>
-    var viper
+    var viper, length
+    var bite = false
     var startedDrawing = false
     var stop = false
     let patterns = [
       'random', //0
       'circle', //1
-      'random', //2
+      // 'random', //2
       'square',//3
-      'random', //4
+      // 'random', //4
       'eight', //5
-      'random', //6
+      // 'random', //6
       'bigEight', //7
-      'random',  //8
+      // 'random',  //8
       'rotatingEight', //9
-      'random', //10
+      // 'random', //10
       'randomLoop', //11
-      'random', // 12
+      // 'random', // 12
       'heart', // 13
-      'random', // 14
+      // 'random', // 14
       'star' // 15
     ]
-    let patternIndex = 14//Math.floor(Math.random() * (patterns.length))
-    document.getElementById('prev').addEventListener('click', () => {
-      document.getElementById('page').value = parseInt(document.getElementById('page').value) - 1
-      // set page
-      viper.loadBGImg(document.getElementById('page').value, document.getElementById('query').value)
+    let patternIndex = 0//Math.floor(Math.random() * (patterns.length))
+    function writePatternName() {
+      const pattern = viper.pattern
+      console.log(`write patterh ${viper.pattern}`)
+      document.getElementById('pattern-name').innerHTML = pattern
+    }
+
+    function unbite() {
+      bite = false
+      document.getElementById('bite').innerHTML = 'bite'
+      viper.setTokenId(viper.me.tokenId, true)
+      viper.redrawBackground = true
+      viper.hideHole = false
+      viper.backgroundStyle = viper.me.background
+    }
+
+    // add button for bite
+    document.getElementById('bite').addEventListener('click', (e) => {
+      e.preventDefault()
+      bite = !bite
+      if (bite) {
+        document.getElementById('bite').innerHTML = 'un-bite'
+        viper.backgroundStyle = "text"
+      } else {
+        unbite()
+      }
     })
-    document.getElementById('next').addEventListener('click', () => {
-      document.getElementById('page').value = parseInt(document.getElementById('page').value) + 1
-      viper.loadBGImg(document.getElementById('page').value, document.getElementById('query').value)
+
+    document.getElementById('prev-pattern').addEventListener('click', (e) => {
+      e.preventDefault()
+      patternIndex--
+      if (patternIndex < 0) {
+        patternIndex = patterns.length - 1
+      }
+      viper.pattern = patterns[patternIndex % patterns.length]
+      writePatternName()
+    })
+    document.getElementById('next-pattern').addEventListener('click', (e) => {
+      e.preventDefault()
+      patternIndex++
+      viper.pattern = patterns[patternIndex % patterns.length]
+      writePatternName()
+    })
+    document.getElementById('prev').addEventListener('click', (e) => {
+      e.preventDefault()
+      prevViper()
+    })
+    document.getElementById('next').addEventListener('click', (e) => {
+      e.preventDefault()
+      nextViper()
+    })
+    document.getElementById('plus-length').addEventListener('click', (e) => {
+      e.preventDefault()
+      length = length ? length + 1 : viper.maxNumberOfLines + 1
+      setLength()
+    })
+    document.getElementById('minus-length').addEventListener('click', (e) => {
+      e.preventDefault()
+      length = length ? length - 1 : viper.maxNumberOfLines - 1
+      setLength()
     })
     document.getElementById('sketch-holder').addEventListener('click', () => {
-      if (viper.hideHead) return
+      // if (viper.hideHead) return
       stop = !stop
       if (stop) {
         patternIndex++
         viper.pattern = patterns[patternIndex % patterns.length]
       }
     })
+    function prevViper() {
+      let tokenId = viper.me.tokenId - 1
+      if (tokenId < 1) {
+        tokenId = viper.allVipers.length
+      }
+      startViper(tokenId)
+    }
+    function nextViper() {
+      let tokenId = viper.me.tokenId + 1
+      if (tokenId >= viper.allVipers.length) {
+        tokenId = 1
+      }
+      startViper(tokenId)
+    }
+    function change(head, style = 0) {
+      style = style == 0 ? 'everythingMatches' : 'randomColor'
+      startViper(viper.allVipers.filter(v => v.head == head && v.style == style)[0].tokenId)
+    }
+    function setLength() {
+      if (!length) {
+        length = viper.maxNumberOfLines
+      }
+      length = length > 100 ? 100 : length
+      length = length < 1 ? 1 : length
+      viper.maxNumberOfLines = length
+      if (viper.allLines.length > length) {
+        // remove one from end
+        // viper.allLines = viper.allLines.slice(0, length)
+        // remove one from start
+        viper.allLines.shift()
+      } else if (viper.allLines.length < length) {
+        viper.addLine()
+        viper.totalLength += viper.tweens
+      }
+    }
+    function startViper(tokenId) {
+      if (bite) {
+        unbite()
+      } else {
+        viper.setTokenId(tokenId, true)
+      }
+      setLength()
+      document.getElementById('pattern-name').innerHTML = viper.pattern
+      window.location.hash = tokenId
+      writePatternName()
+
+    }
     const styles = [
       'imgRandom',
       'imgSame',
@@ -80,83 +198,97 @@
     const bgStyle = ['text', 'gradient-low', 'gradient-high', 'bw-gradient-high', 'bw-gradient-low']
     const tokenId = (window.location.hash && window.location.hash.replace("#", "")) || null
     const bgIndex = Math.floor(Math.random() * bgStyle.length)
-    viper = new Viper({
-      // dither: true,
-      tokenId,
-      setting: "browser",
-      // logs: false, // false, true, "verbose"
-      // style: 'debug',//styles[Math.floor(Math.random() * (styles.length))],
-      // style options
-      // 1. maskClipRandom
-      // 1. maskClipSame
-      // 1. randomColor
-      // 1. debug
-      // 1. skeleton
-      // 1. randomGreen*/,
-      // backgroundStyle: 'image',//bgStyle[bgIndex],
-      // backgroundStyle options
-      // 1. solid
-      // 1. gradient
-      // 1. fourGradient
-      // 1. image,
-      pattern: patterns[patternIndex % patterns.length],
-      // pattern options
-      // 1. random
-      // 1. circle
-      // 1. square
-      // 1. eight 
-      // 1. bigEight
-      // 1. rotatingEight
-      // 1. heart
-      // 1. randomLoop */,
-      // width: 686,
-      maxNumberOfLines: 100,// Math.ceil(Math.random() * 20),
-      // maxLen: 75,
-      // strokeW: 60,
-      // headWidth: 60 * 2.3,
-      // margin: 60 * 2.3,
-      // angleDistanceMin: 60,
-      // fps: 25,
-      // tweens: 2,
-      // bgColor: "rgb(226,226,226)",
-      // hideHole: true,
-      // hideHead: true,
-      // hideTail: true,
-      // hideSnake: true,
-      // redrawBackground: false,
-      // wanderLoopDuration: 2,
-    })
-    let preloadDone = false
-    let setupDone = false
+
     async function preload() {
-      await viper.preload()
-      preloadDone = true
-      console.log('preload done')
+      viper = new Viper({
+        // dither: true,
+        tokenId,
+        setting: "browser",
+        // maxNumberOfLines: 3,
+        // logs: false, // false, true, "verbose"
+        // style: 'debug',//styles[Math.floor(Math.random() * (styles.length))],
+        // style options
+        // 1. maskClipRandom
+        // 1. maskClipSame
+        // 1. randomColor
+        // 1. debug
+        // 1. skeleton
+        // 1. randomGreen*/,
+        // backgroundStyle: 'text',//bgStyle[bgIndex],
+        // backgroundStyle options
+        // 1. solid
+        // 1. gradient
+        // 1. fourGradient
+        // 1. image,
+        // bittenBy: 1,
+        // pattern: "star",//patterns[patternIndex % patterns.length],
+        // pattern options
+        // 1. random
+        // 1. circle
+        // 1. square
+        // 1. eight 
+        // 1. bigEight
+        // 1. rotatingEight
+        // 1. heart
+        // 1. randomLoop */,
+        // width: 686,
+        // changeOnTarget: false,
+        // maxNumberOfLines: 1,// Math.ceil(Math.random() * 20),
+        // maxLen: 75,
+        // strokeW: 60,
+        // headWidth: 60 * 2.3,
+        // margin: 60 * 2.3,
+        // angleDistanceMin: 60,
+        // fps: 25,
+        // tweens: 2,
+        // bgColor: "rgb(226,226,226)",
+        // hideHole: true,
+        // hideHead: true,
+        // hideTail: true,
+        // hideSnake: true,
+        // redrawBackground: false,
+        // wanderLoopDuration: 2,
+        // fps: 35,
+        // tweens: 2
+      })
+      writePatternName()
     }
     async function setup() {
-      if (!preloadDone) {
-        setTimeout(() => {
-          console.log('run setup in 1 sec')
-          setup()
-        }, 1000)
-      } else {
-        console.log('setup')
-        viper.setup()
-        // viper.addAllLines()
-        setupDone = true
-      }
-      // await viper.preload()
-      // preloadDone = true
+      viper.setup()
+      await viper.preload()
     }
     function draw() {
-      if (!preloadDone || !setupDone) return
-      if (!startedDrawing) {
-        startedDrawing = true
-        console.log('draw')
-      }
+
       if (stop) return
       viper.draw()
     }
+    // setInterval(() => {
+    //   const startingX = viper.startingX
+    //   const startingY = viper.startingY
+    //   const x = viper.x
+    //   const y = viper.y
+    //   const allLines = viper.allLines
+    //   const totalLength = viper.totalLength
+    //   nextViper()
+    //   viper.allLines = allLines
+    //   viper.startingX = startingX
+    //   viper.startingY = startingY
+    //   viper.x = x
+    //   viper.y = y
+    //   viper.totalLength = totalLength
+    // }, 3000)
+
+    // let intervalAmount = 1650
+    //   setTimeout(() => {
+    //     setInterval(() => {
+    //       if (viper.length > 20) {
+    //         viper.pattern = 'circle'
+    //       }
+    //       nextViper()
+    //       // intervalAmount *= 0.9
+    //     }, intervalAmount)
+    //   }, 200)
+   
   </script>
 </body>
 

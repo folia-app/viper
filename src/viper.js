@@ -1,9 +1,141 @@
+
 import Prando from 'prando'
-const RgbQuant = require('rgbquant');
+// const RgbQuant = require('rgbquant');
+
+// import them so webpack bundles them as base64 
+// in the file and no external loads are necessary
+import hole from '../public/holes/1.png'
+
+import head1 from '../public/head/1.png'
+import head2 from '../public/head/2.png'
+import head3 from '../public/head/3.png'
+import head4 from '../public/head/4.png'
+import head5 from '../public/head/5.png'
+import head6 from '../public/head/6.png'
+import head7 from '../public/head/7.png'
+import head8 from '../public/head/8.png'
+import head9 from '../public/head/9.png'
+import head10 from '../public/head/10.png'
+import head11 from '../public/head/11.png'
+import head12 from '../public/head/12.png'
+import head13 from '../public/head/13.png'
+import head14 from '../public/head/14.png'
+import head15 from '../public/head/15.png'
+import head16 from '../public/head/16.png'
+import head17 from '../public/head/17.png'
+import head18 from '../public/head/18.png'
+import head19 from '../public/head/19.png'
+import head20 from '../public/head/20.png'
+import head21 from '../public/head/21.png'
+import head22 from '../public/head/22.png'
+import head23 from '../public/head/23.png'
+import head24 from '../public/head/24.png'
+import head25 from '../public/head/25.png'
+import head26 from '../public/head/26.png'
+const heads = [head1, head2, head3, head4, head5, head6, head7, head8, head9, head10, head11, head12, head13, head14, head15, head16, head17, head18, head19, head20, head21, head22, head23, head24, head25, head26]
+
+import tail1 from '../public/tail/1.png'
+import tail2 from '../public/tail/2.png'
+import tail3 from '../public/tail/3.png'
+import tail4 from '../public/tail/4.png'
+import tail5 from '../public/tail/5.png'
+import tail6 from '../public/tail/6.png'
+import tail7 from '../public/tail/7.png'
+import tail8 from '../public/tail/8.png'
+import tail9 from '../public/tail/9.png'
+import tail10 from '../public/tail/10.png'
+import tail11 from '../public/tail/11.png'
+import tail12 from '../public/tail/12.png'
+import tail13 from '../public/tail/13.png'
+import tail14 from '../public/tail/14.png'
+import tail15 from '../public/tail/15.png'
+import tail16 from '../public/tail/16.png'
+import tail17 from '../public/tail/17.png'
+import tail18 from '../public/tail/18.png'
+import tail19 from '../public/tail/19.png'
+import tail20 from '../public/tail/20.png'
+import tail21 from '../public/tail/21.png'
+import tail22 from '../public/tail/22.png'
+import tail23 from '../public/tail/23.png'
+import tail24 from '../public/tail/24.png'
+import tail25 from '../public/tail/25.png'
+import tail26 from '../public/tail/26.png'
+const tails = [tail1, tail2, tail3, tail4, tail5, tail6, tail7, tail8, tail9, tail10, tail11, tail12, tail13, tail14, tail15, tail16, tail17, tail18, tail19, tail20, tail21, tail22, tail23, tail24, tail25, tail26]
+
+import body1 from '../public/body/resized/1.png'
+import body2 from '../public/body/resized/2.png'
+import body3 from '../public/body/resized/3.png'
+import body4 from '../public/body/resized/4.png'
+import body5 from '../public/body/resized/5.png'
+import body6 from '../public/body/resized/6.png'
+import body7 from '../public/body/resized/7.png'
+import body8 from '../public/body/resized/8.png'
+import body9 from '../public/body/resized/9.png'
+import body10 from '../public/body/resized/10.png'
+import body11 from '../public/body/resized/11.png'
+import body12 from '../public/body/resized/12.png'
+import body13 from '../public/body/resized/13.png'
+import body14 from '../public/body/resized/14.png'
+import body15 from '../public/body/resized/15.png'
+import body16 from '../public/body/resized/16.png'
+import body17 from '../public/body/resized/17.png'
+import body18 from '../public/body/resized/18.png'
+import body19 from '../public/body/resized/19.png'
+import body20 from '../public/body/resized/20.png'
+import body21 from '../public/body/resized/21.png'
+import body22 from '../public/body/resized/22.png'
+import body23 from '../public/body/resized/23.png'
+import body24 from '../public/body/resized/24.png'
+import body25 from '../public/body/resized/25.png'
+import body26 from '../public/body/resized/26.png'
+const bodies = [body1, body2, body3, body4, body5, body6, body7, body8, body9, body10, body11, body12, body13, body14, body15, body16, body17, body18, body19, body20, body21, body22, body23, body24, body25, body26]
+
+import skeletonhead1 from '../public/skeleton-head/1.png'
+import skeletonhead2 from '../public/skeleton-head/2.png'
+import skeletonhead3 from '../public/skeleton-head/3.png'
+import skeletonhead4 from '../public/skeleton-head/4.png'
+import skeletonhead5 from '../public/skeleton-head/5.png'
+import skeletonhead6 from '../public/skeleton-head/6.png'
+import skeletonhead7 from '../public/skeleton-head/7.png'
+import skeletonhead8 from '../public/skeleton-head/8.png'
+import skeletonhead9 from '../public/skeleton-head/9.png'
+import skeletonhead10 from '../public/skeleton-head/10.png'
+import skeletonhead11 from '../public/skeleton-head/11.png'
+import skeletonhead12 from '../public/skeleton-head/12.png'
+import skeletonhead13 from '../public/skeleton-head/13.png'
+import skeletonhead14 from '../public/skeleton-head/14.png'
+import skeletonhead15 from '../public/skeleton-head/15.png'
+import skeletonhead16 from '../public/skeleton-head/16.png'
+import skeletonhead17 from '../public/skeleton-head/17.png'
+import skeletonhead18 from '../public/skeleton-head/18.png'
+import skeletonhead19 from '../public/skeleton-head/19.png'
+import skeletonhead20 from '../public/skeleton-head/20.png'
+import skeletonhead21 from '../public/skeleton-head/21.png'
+import skeletonhead22 from '../public/skeleton-head/22.png'
+import skeletonhead23 from '../public/skeleton-head/23.png'
+import skeletonhead24 from '../public/skeleton-head/24.png'
+import skeletonhead25 from '../public/skeleton-head/25.png'
+import skeletonhead26 from '../public/skeleton-head/26.png'
+const skeletonheads = [skeletonhead1, skeletonhead2, skeletonhead3, skeletonhead4, skeletonhead5, skeletonhead6, skeletonhead7, skeletonhead8, skeletonhead9, skeletonhead10, skeletonhead11, skeletonhead12, skeletonhead13, skeletonhead14, skeletonhead15, skeletonhead16, skeletonhead17, skeletonhead18, skeletonhead19, skeletonhead20, skeletonhead21, skeletonhead22, skeletonhead23, skeletonhead24, skeletonhead25, skeletonhead26]
+
+import skeletonbody from '../public/skeleton-body/1.png'
+import skeletonbodyGlow from '../public/skeleton-body/2.png'
+
+import skeletontail from '../public/skeleton-tail/1.png'
+import skeletontailGlow from '../public/skeleton-tail/2.png'
+
+// import bgImg1 from '../public/bg/1.jpeg'
+// import bgImg2 from '../public/bg/2.jpeg'
+// import bgImg3 from '../public/bg/3.jpeg'
+// import bgImg4 from '../public/bg/4.jpeg'
+// import bgImg5 from '../public/bg/5.jpeg'
+// import bgImg6 from '../public/bg/6.jpeg'
+// import bgImg7 from '../public/bg/7.jpeg'
+// import bgImg8 from '../public/bg/8.jpeg'
+// import bgImg9 from '../public/bg/9.jpeg'
+// const bgImgs = [bgImg1, bgImg2, bgImg3, bgImg4, bgImg5, bgImg6, bgImg7, bgImg8, bgImg9]
 
 
-
-// import fs from 'fs'
 let fs, path
 export class Viper {
   constructor(overwriteOptions = {}) {
@@ -11,23 +143,16 @@ export class Viper {
       tokenId: null,
       setting: "server",
       logs: false, // false, true, "verbose"
-      style: null/*
-      // style options
-      // 'randomImage',
-      // 'everythingMatches',
-      // 'randomImageRounded',
-      // 'everythingMatchesRounded',
-      // 1. randomColor
-      // 1. debug
-      // 1. skeleton
-      // 1. randomGreen*/,
+      style: null,
       backgroundStyle: null/*
       // backgroundStyle options
       // 1. solid
       // 1. gradient-high
       // 1. gradient-low
       // 1. bw-gradient-high
-      // 1. bw-gradient-low*/,
+      // 1. bw-gradient-low
+      // 1. text
+      */,
       pattern: null/*
       // pattern options
       // 1. random
@@ -38,8 +163,11 @@ export class Viper {
       // 1. rotatingEight
       // 1. heart
       // 1. randomLoop */,
+      changeOnTarget: false,
+      div: null,
+      bittenBy: null,
       width: 686,
-      maxNumberOfLines: 20,
+      maxNumberOfLines: null,
       maxLen: null,
       strokeW: null,
       headWidth: null,
@@ -48,7 +176,7 @@ export class Viper {
       margin: null,
       angleDistanceMin: 60,
       fps: 35,
-      tweens: 6,
+      tweens: 8,
       bgColor: "rgb(240,240,240)",
       hideHole: false,
       hideHead: false,
@@ -60,50 +188,60 @@ export class Viper {
       ...overwriteOptions
     }
     let {
-      tokenId, setting, logs, style, backgroundStyle, pattern, wanderLoopDuration,
+      changeOnTarget, div, tokenId, bittenBy, setting, logs, style, backgroundStyle, pattern, wanderLoopDuration,
       width, maxNumberOfLines, maxLen, strokeW, headWidth, tailLength, holeWidth, margin, angleDistanceMin,
       fps, tweens, bgColor, hideHole, hideHead, hideTail, redrawBackground, hideSnake, dither
     } = options
     this.logs = logs
-    this.logs && console.log('constructor')
+    this.log('constructor')
     this.logs && console.time("viper")
-
-    this.totalBodies = 12
-    this.totalHeads = 12
+    this.totalBodies = 26
+    this.totalHeads = 26
     this.totalTails = this.totalHeads
     this.totalBgs = 8
+    this.changeOnTarget = changeOnTarget
+    this.div = div || 'sketch-holder'
 
     this.rng = new Prando("viper bite invites embrace")
     this.allVipers = this.populate()
-    // tokenId is 1-indexed
-    this.tokenId = tokenId ? tokenId - 1 : Math.floor(Math.random() * this.allVipers.length)
-    this.me = this.allVipers[this.tokenId]
-    // this.me.head = 9
-    this.logs && console.log(`Viper population: ${this.allVipers.length} vipers`)
-    this.logs && console.log(`Hello viper #${this.tokenId}!`, this.me)
+    this.bittenBy = bittenBy
 
+    if (this.bittenBy !== null) {
+      tokenId = this.bittenBy
+      backgroundStyle = "text"
+      tweens = 2
+      fps = 10
+    }
 
     this.setting = setting
     if (this.setting == "server") {
       // so that webpack doesn't try to pack up fs for the browser
       fs = eval('require')('fs')
       path = eval('require')('path')
-      // width *= 2
     }
+
+    // tokenId is 1-indexed
+    this.tokenId = tokenId || Math.ceil(Math.random() * this.allVipers.length)
+    this.setTokenId(this.tokenId)
 
     this.style = style || this.me.style
     this.backgroundStyle = backgroundStyle || this.me.background
     this.pattern = pattern || this.me.pattern
+
+
     this.width = width
-    this.maxNumberOfLines = maxNumberOfLines + 1
-    if (this.maxNumberOfLines > 20 && this.pattern == 'randomLoop') {
-      this.pattern = 'circle'
+    this.maxNumberOfLines = maxNumberOfLines == null ? (this.tokenId % 100) + 2 : (maxNumberOfLines > 100 ? 100 : maxNumberOfLines) + 1
+    this.wanderLoopDuration = wanderLoopDuration
+
+    if (this.maxNumberOfLines > this.wanderLoopDuration && this.pattern == 'randomLoop' && this.setting == "server") {
+      this.pattern = 'star'
     }
     this.maxLen = maxLen || this.width * 0.14577259 // 100
-    this.strokeW = strokeW || this.width * 0.0728863 // 50
+    this.strokeLen =
+      this.strokeW = strokeW || this.width * 0.0728863 // 50
     this.holeWidth = holeWidth || this.width * 0.20116618 // 138
     this.headWidth = headWidth || this.width * 0.17492711 // 120
-    this.tailLength = tailLength || this.width * 0.14577259 // 100
+    this.tailLength = tailLength || this.width * 0.17492711 // 100
     this.margin = margin || this.width * 0.1//20116618 // 138
     this.angleDistanceMin = angleDistanceMin
     this.fps = fps
@@ -114,194 +252,187 @@ export class Viper {
     this.hideTail = hideTail
     this.redrawBackground = redrawBackground
     this.hideSnake = hideSnake
-    this.wanderLoopDuration = wanderLoopDuration
 
     this.allLines = []
-    this.allColors = []
     this.totalLength = 0
     this.renderedBodies = {}
 
-    this.whichSegment = this.me.style.indexOf("Matches") > -1 ? this.me.head : this.random(0, this.totalBodies - 1)
-    this.bodyOffset = this.me.style.indexOf("Matches") > -1 ? 0 : this.random(1, this.totalBodies)
-    this.headRandom = this.me.head + 1// this.random(1, this.totalHeads)
-    this.tailRandom = this.headRandom//this.random(1, this.totalTails)
-    // this.randomBG = this.random(0, this.totalBgs)
-    this.dither = dither
 
     this.setHeartPattern()
 
-    this.headOffset = headOffsets.hasOwnProperty("_" + this.headRandom) ? headOffsets["_" + this.headRandom] : defaultHeadOffsets
-    this.tailOffset = tailOffsets.hasOwnProperty("_" + this.tailRandom) ? tailOffsets["_" + this.tailRandom] : defaultTailOffsets
     this.logs == "verbose" && console.timeLog("viper", "end constructor")
+  }
+
+  log() {
+    this.logs && console.log(...arguments)
+  }
+
+  tailOffset() {
+    const totalUniqueBodies = 13
+    const tailIndex = (this.me.head % totalUniqueBodies) + 1
+    return tailOffsets.hasOwnProperty("_" + tailIndex) ? tailOffsets["_" + tailIndex] : defaultTailOffsets
+  }
+
+  headOffset() {
+    const totalUniqueBodies = 13
+    const headIndex = (this.me.head % totalUniqueBodies) + 1
+    return headOffsets.hasOwnProperty("_" + headIndex) ? headOffsets["_" + headIndex] : defaultHeadOffsets
+  }
+
+  setTokenId(tokenId, keepPattern = false) {
+    this.tokenId = parseInt(tokenId)
+    const tokenIdIndex = this.tokenId - 1
+    this.me = this.allVipers[tokenIdIndex]
+    this.setColors()
+
+    this.style = this.me.style
+    this.backgroundStyle = this.me.background
+    this.pattern = keepPattern ? this.pattern : this.me.pattern
+    this.whichSegment = this.me.style.indexOf("Matches") > -1 ? this.me.head : 0
+    this.bodyOffset = this.me.style.indexOf("random") > -1 ? this.me.bodyOffset : 0
+    this.headRandom = this.me.head + 1
+    this.tailRandom = this.headRandom
+
+    this.savedBG = null
+
+    this.log(`Viper population: ${this.allVipers.length} vipers`)
+    this.log(`Hello viper #${this.tokenId}!`, this.me)
+  }
+
+  iterateTokenId() {
+    const tokenId = this.tokenId + 1
+    if (this.maxNumberOfLines >= 50) {
+      this.pattern = 'circle'
+      if (!this.iterateInterval) {
+        this.iterateInterval = setInterval(() => {
+          this.iterateTokenId()
+        }, 666)
+      }
+    }
+    let length = this.maxNumberOfLines - 1
+    this.setTokenId(tokenId, true)
+    if (this.pattern == "star") {
+      length = this.maxNumberOfLines + 1
+      this.maxNumberOfLines = length
+      this.allLines = this.allLines.slice(0, length + 1)
+      this.addLine()
+      this.totalLines += this.tweens
+    }
+  }
+
+  setColors() {
+    this.localRNG = new Prando(this.me.tokenId)
+    this.allColors = []
+    for (let i = 0; i < 100 + 1; i++) {
+      const c = [this.random(0, 255, this.localRNG), this.random(0, 255, this.localRNG), this.random(0, 255, this.localRNG)]
+      this.allColors.push(c)
+    }
   }
 
   endLog() {
     this.logs && console.timeEnd("viper")
   }
 
-  async loadBGImg(changeIndex = 1, query = "geometry") {
-    if (this.me.bgImage == undefined) {
-      return
+
+  tail() {
+    let tailIndex = this.tailRandom - 1
+    let tails
+    if (this.me.style == "skeleton") {
+      tailIndex = this.me.skeletonColor
+      tails = this.preloaded.skeleton.tails
+    } else {
+      tails = this.preloaded.tails
     }
-    const bgImg = `/bg/rock-${this.me.bgImage}.jpeg`
-    this.preloaded.bgImg = window.loadImage(bgImg)
+    if (tails.length < tailIndex + 1) throw new Error(`tail at index ${tailIndex} not found, maybe not yet loaded`)
+    return tails[tailIndex]
   }
 
+  head() {
+    let headIndex = this.headRandom - 1
+    let heads
+    if (this.me.style == "skeleton") {
+      const total = this.preloaded.heads.length / 2
+      const mod = headIndex % total
+      headIndex = this.me.skeletonColor == 0 ? mod : mod + total
+      heads = this.preloaded.skeleton.heads
+    } else {
+      heads = this.preloaded.heads
+    }
+    if (heads.length < this.headRandom) throw new Error(`head at index ${headIndex} not found, maybe not yet loaded`)
+    return heads[headIndex]
+  }
+
+  // bgImg() {
+  //   const bgIndex = this.me.bgImage - 1
+  //   const bgImgs = this.preloaded.bgImgs
+  //   if (bgImgs.length < this.me.bgImage) throw new Error(`bgImg at index ${bgIndex} not found, maybe not yet loaded`)
+  //   return bgImgs[bgIndex]
+  // }
+
+  async die() {
+    this.remove()
+  }
 
   async preload() {
     try {
       this.logs == "verbose" && console.timeLog("viper", "preload")
-      this.logs && console.log('preload')
-      this.preloaded = {}
+      this.log('preload')
 
-      await this.loadBGImg()
-
-      this.preloaded.tail = window.loadImage('/tail/' + this.tailRandom + '.png')
-      this.preloaded.head = window.loadImage('/head/' + this.headRandom + '.png')
-      this.preloaded.hole = window.loadImage('/holes/1.png')
-      this.preloaded.bodies = { rounded: [], raw: [] }
-      for (var i = 1; i <= this.totalBodies; i++) {
-        const roundedOrRaw = ["rounded", "raw"]
-        for (var j = 0; j < 2; j++) {
-          const path = roundedOrRaw[j].indexOf("rounded") > -1 ? `/body/masked/${i}.png` : `/body/resized/${i}.png`
-          const loadedImage = await new Promise((resolve, reject) => {
-            window.loadImage(path, (a) => {
-              resolve(a)
-            }, reject)
-          })
-          this.preloaded.bodies[roundedOrRaw[j]].push(loadedImage)
+      this.preloaded = {
+        hole, //bgImgs: [],
+        bodies: [], heads: [], tails: [], skeleton: {
+          bodies: [], heads: [], tails: []
         }
       }
+      this.preloaded.hole = await this.loadImage(hole)
+
+      // for (let i = 1; i <= bgImgs.length; i++) {
+      //   const loadedImage = await this.loadImage(bgImgs[i - 1])
+      //   this.preloaded.bgImgs.push(loadedImage)
+      // }
+
+      for (let i = 1; i <= bodies.length; i++) {
+        const body = bodies[i - 1]
+        const loadedImage = await this.loadImage(body)
+        this.preloaded.bodies.push(loadedImage)
+      }
+
+      for (let i = 1; i <= heads.length; i++) {
+        const head = heads[i - 1]
+        const loadedImage = await this.loadImage(head)
+        this.preloaded.heads.push(loadedImage)
+      }
+
+      for (let i = 1; i <= tails.length; i++) {
+        const tail = tails[i - 1]
+        const loadedImage = await this.loadImage(tail)
+        this.preloaded.tails.push(loadedImage)
+      }
+
+
+      for (let i = 1; i <= skeletonheads.length; i++) {
+        const head = skeletonheads[i - 1]
+        const loadedImage = await this.loadImage(head)
+        this.preloaded.skeleton.heads.push(loadedImage)
+      }
+
+      this.preloaded.skeleton.tails.push(await this.loadImage(skeletontail))
+      this.preloaded.skeleton.tails.push(await this.loadImage(skeletontailGlow))
+
+      this.preloaded.skeleton.bodies.push(await this.loadImage(skeletonbody))
+      this.preloaded.skeleton.bodies.push(await this.loadImage(skeletonbodyGlow))
+
     } catch (preloadError) {
       console.error({ preloadError })
     }
+    this.drawBackground()
   }
 
-  getTailURLs() {
-    const units = []
-    for (let i = 1; i <= this.totalTails; i++) {
-      const filename = path.join(__dirname, `tail/${i}.png`)
-      if (!fs.existsSync(filename)) {
-        throw new Error('tail' + ' image not found: ' + filename)
-      }
-      units.push(filename)
-    }
-    return units
-  }
-  getHeadURLs() {
-    const units = []
-    for (let i = 1; i <= this.totalHeads; i++) {
-      const filename = path.join(__dirname, `head/${i}.png`)
-
-      if (!fs.existsSync(filename)) {
-        throw new Error('head' + ' image not found: ' + filename)
-      }
-      units.push(filename)
-    }
-    return units
-  }
-  getHeadTailURLs(isHead) {
-    const units = []
-    for (let i = 1; i <= this.totalHeads; i++) {
-      const filename = path.join(__dirname, (isHead ? 'head' : 'tail'), `${i}.png`)
-
-      if (!fs.existsSync(filename)) {
-        throw new Error((isHead ? 'head' : 'tail') + ' image not found: ' + filename)
-      }
-      units.push(filename)
-    }
-    return units
-  }
-
-  getHeadTailURL(isHead) {
-    if (!this.headImg || !this.tailImg) {
-      this.headImg = this.headTailRandom + '.png'
-      this.tailImg = this.headImg
-    }
-    const img = isHead ? '/head/' + this.headImg : '/tail/' + this.tailImg
-    const filename = path.join(__dirname, img)
-    if (!fs.existsSync(filename)) {
-      throw new Error('head/tail image not found: ' + filename)
-    }
-    return filename
-  }
-  getHoleURL() {
-    if (!this.holeImg) {
-      this.holeImg = '1.png'
-    }
-    const filename = path.join(__dirname, "holes", this.holeImg)
-
-    if (!fs.existsSync(filename)) {
-      throw new Error('hole image not found: ' + filename)
-    }
-    return filename
-  }
-
-  // TODO: remove these probably
-  getBgURLs() {
-    const bgs = []
-    for (let i = 0; i < this.totalBgs; i++) {
-      const filename = path.join(__dirname, "bg", 'rock-' + (i) + '.jpeg')
-      if (!fs.existsSync(filename)) {
-        throw new Error('background image not found: ' + filename)
-      }
-      bgs.push(filename)
-    }
-    if (this.me.bgImage != undefined) {
-      const filename = path.join(__dirname, "bg", `rock-${this.me.bgImage}.jpeg`)
-      bgs.push(filename)
-    }
-    return bgs
-  }
-
-  // getBgImgURL() {
-  //   if (!this.backgroundImg) {
-  //     this.backgroundImg = 'bg3_' + this.randomBG + '.png'
-  //   }
-  //   const backgroundImageURL = process.cwd() + "/public/bg/" + this.backgroundImg
-  //   if (!fs.existsSync(backgroundImageURL)) {
-  //     throw new Error('background image not found: ' + backgroundImageURL)
-  //   }
-  //   return backgroundImageURL
-  // }
-
-  getBodiesURLs() {
-    if (this.setting !== "server") {
-      throw new Error('getBodiesURLs should only be called on server')
-    }
-    switch (this.style) {
-      // case "randomImage":
-      // case "everythingMatches":
-      // case "randomImageRounded":
-      // case "everythingMatchesRounded":
-      // case "skeleton":
-      // case "randomColor":
-      // case "debug":
-      // return false
-    }
-    const bodies = { rounded: [], raw: [] }
-    for (var i = 1; i <= this.totalBodies; i++) {
-
-      // get the path of the current file
-      const bodyURL = path.join(__dirname, "body", "masked", `${i}.png`)
-
-      if (!fs.existsSync(bodyURL)) {
-        throw new Error('bodyURL image not found: ' + bodyURL)
-      }
-      bodies.rounded.push(bodyURL)
-      const resizedBodyURL = path.join(__dirname, `body/resized/${i}.png`)
-      if (!fs.existsSync(resizedBodyURL)) {
-        throw new Error('resizedBodyURL image not found: ' + resizedBodyURL)
-      }
-      bodies.raw.push(resizedBodyURL)
-    }
-    return bodies
-  }
-  async setup(p, preloaded) {
-    if (typeof preloaded === 'undefined') {
-      preloaded = this.preloaded
-    }
+  async setup(p) {
     this.logs == "verbose" && console.timeLog("viper", "setup")
+    this.textAlign = p ? p.textAlign.bind(p) : window.textAlign
+    this.loadImage = p ? p.loadImage.bind(p) : window.loadImage
+    this.remove = p ? p.remove.bind(p) : window.remove
     this.point = p ? p.point.bind(p) : window.point
     this.line = p ? p.line.bind(p) : window.line
     this.fill = p ? p.fill.bind(p) : window.fill
@@ -312,6 +443,7 @@ export class Viper {
     this.rect = p ? p.rect.bind(p) : window.rect
     this.stroke = p ? p.stroke.bind(p) : window.stroke
     this.frameRate = p ? p.frameRate.bind(p) : window.frameRate
+    this.noFill = p ? p.noFill.bind(p) : window.noFill
     this.strokeWeight = p ? p.strokeWeight.bind(p) : window.strokeWeight
     this.rectMode = p ? p.rectMode.bind(p) : window.rectMode
     this.imageMode = p ? p.imageMode.bind(p) : window.imageMode
@@ -336,12 +468,10 @@ export class Viper {
     this.noStroke = p ? p.noStroke.bind(p) : window.noStroke
     this.clear = p ? p.clear.bind(p) : window.clear
 
-
-
     this.canvas = this.createCanvas(this.width, this.width)
 
     if (typeof document !== "undefined") {
-      this.canvas.parent('sketch-holder')
+      this.canvas.parent(this.div)
     }
 
     const { x, y, previousAngle } = this.getStart()
@@ -357,17 +487,6 @@ export class Viper {
     this.imageMode(this.CENTER);
     this.angleMode(this.DEGREES);
     this.strokeCap(this.ROUND);
-    this.rng = new Prando(this.tokenId)
-
-    // TODO: make sure this is how it should be done
-    // This pre-calculates all possible future segment colors for this viper
-    // it assumes there will never be vipers over 1000 segments long
-    // this.setupBgColors()
-    for (let i = 0; i < 1000 + 1; i++) {
-      const c = [this.random(0, 255), this.random(0, 255), this.random(0, 255)]
-      this.allColors.push(c)
-    }
-    this.drawBackground(preloaded)
   }
 
   drawCartesian() {
@@ -375,6 +494,8 @@ export class Viper {
     this.background(this.bgColor);
     const center = this.width / 2
 
+    this.strokeWeight(32)
+    this.textSize(32)
 
     this.rectMode(this.CORNER)
     this.strokeWeight(0)
@@ -402,8 +523,8 @@ export class Viper {
 
     this.stroke("green")
     for (var i = 0; i < 12; i++) {
-      var cardinalX = (this.width / 2) + Math.cos(((i * 30)) * Math.PI / 180) * 225
-      var cardinalY = (this.width / 2) + Math.sin(((i * 30)) * Math.PI / 180) * 225
+      var cardinalX = (this.width / 2) + Math.cos(((i * 30)) * Math.PI / 180) * 355
+      var cardinalY = (this.width / 2) + Math.sin(((i * 30)) * Math.PI / 180) * 355
       this.strokeWeight(0)
       this.fill("green")
       this.text(i * 30, cardinalX, cardinalY)
@@ -415,8 +536,8 @@ export class Viper {
     this.stroke("red")
     this.fill("red")
     for (var i = 0; i < 8; i++) {
-      var cardinalX = (this.width / 2) + Math.cos(((i * 45)) * Math.PI / 180) * (this.width / 2.5)
-      var cardinalY = (this.width / 2) + Math.sin(((i * 45)) * Math.PI / 180) * (this.width / 2.5)
+      var cardinalX = (this.width / 2) + Math.cos(((i * 45)) * Math.PI / 180) * 280
+      var cardinalY = (this.width / 2) + Math.sin(((i * 45)) * Math.PI / 180) * 280
       this.strokeWeight(1)
       this.line(this.width / 2, this.width / 2, cardinalX, cardinalY)
       this.strokeWeight(0)
@@ -444,85 +565,79 @@ export class Viper {
   }
 
 
-  drawBackground(preloaded) {
-    if (this.style == "debug") {
+  drawBackground(overlayText = false) {
+    if (this.style == "debug" && this.backgroundStyle !== "text") {
       this.drawCartesian()
-      return
-    }
-    switch (this.backgroundStyle) {
-      case "solid":
-        this.background(this.bgColor)
-        break;
-      case "gradient-low":
-        this.fourColorGradient(7)
-        break
-      case "gradient-high":
-        this.fourColorGradient(this.width / 2)
-        break;
-      case "bw-gradient-low":
-        this.fourColorGradient(7, true)
-        break
-      case "bw-gradient-high":
-        this.fourColorGradient(this.width / 2, true)
-        break;
-      case "text":
-        this.backgroundText()
-        break;
-      case "image":
-        if (!preloaded || !preloaded.bgImg) {
-          return
-        }
-        this.image(
-          preloaded.bgImg,
-          this.width / 2,
-          this.width / 2,
-          this.width,
-          this.width
-        )
-        break;
-      case "gradient":
-        throw new Error("Simple gradient not transferred from old code")
-        break;
-      default:
-        throw new Error('Unknown backgroundStyle: ' + this.backgroundStyle);
-    }
-  }
 
-  backgroundText() {
-    this.redrawBackground = false
-    // if (!this.savedBG) {
-    // const bgOptions = [
-    //   "bw-gradient-low",
-    //   "bw-gradient-high",
-    //   "gradient-low",
-    //   "gradient-high"
-    // ]
-    // const bgIndex = 0//this.random(0, 3)
-    // this.fourColorGradient(this.width / 4, true)
-    this.backgroundStyle = bgOptions[this.me.background]
-    this.drawBackground()
-
-    const textWidth = 1160
-    const textHeight = 30
-    const rows = 2//Math.ceil(this.width / textWidth)
-    const columns = Math.ceil(this.width / textHeight) + 1
-    this.fill("white")
-    this.textFont("Arial")
-    this.stroke("black")
-    this.strokeWeight(0)
-    // this.textSize(42)
-    const ctx = this.canvas.drawingContext;
-    this.canvas.elt.style.letterSpacing = "9px";
-    ctx.font = `${textHeight}px Courier`;
-    this.text("Bitten by", 12, textHeight + 6)
-    for (let i = 0; i < rows; i++) {
-      for (let j = 2; j < columns; j++) {
-        let rowOffset = j % 2 == 0 ? 0 : (this.width / 2)
-        this.text("0xFa398d672936Dcf428116F687244034961545D91-", (i * textWidth) - rowOffset + 12, j * textHeight * 1.3)
+    } else {
+      switch (this.backgroundStyle) {
+        case "solid":
+          this.background(this.bgColor)
+          break;
+        case "gradient-low":
+          this.fourColorGradient(7)
+          break
+        case "gradient-high":
+          this.fourColorGradient(this.width / 2)
+          break;
+        case "bw-gradient-low":
+          this.fourColorGradient(7, true)
+          break
+        case "bw-gradient-high":
+          this.fourColorGradient(this.width / 2, true)
+          break;
+        case "text":
+          this.backgroundText(overlayText)
+          break;
+        // case "image":
+        //   this.image(
+        //     this.bgImg(),
+        //     this.width / 2,
+        //     this.width / 2,
+        //     this.width,
+        //     this.width
+        //   )
+        //   break;
+        case "gradient":
+          throw new Error("Simple gradient not transferred from old code")
+          break;
+        default:
+          throw new Error('Unknown backgroundStyle: ' + this.backgroundStyle);
       }
     }
-    // }
-    // this.image(this.savedBG, this.width / 2, this.width / 2, this.width, this.width)
+
+  }
+
+  backgroundText(overlayText = false) {
+    this.redrawBackground = false
+    if (!overlayText) {
+      this.backgroundStyle = this.me.background
+      this.drawBackground()
+      this.backgroundStyle = "text"
+    }
+
+    this.fill("white")
+    this.textFont("Arial Black")
+    this.stroke("black")
+    this.strokeWeight(32)
+    this.textSize(32)
+    // const ctx = this.canvas.drawingContext;
+    // this.canvas.elt.style.letterSpacing = "9px";
+    // ctx.font = `${textHeight}px Courier`;
+    const address = "0xFa398d672936Dcf428116F687244034961545D91"
+    const text = ("You    have   been   bitten by     ").toUpperCase() + address
+    const textArray = text.split("")
+
+    const rows = 7
+    const cols = 7
+    const chunk = this.width / rows
+    this.textAlign(this.CENTER)
+    const offset = this.style == "debug" ? chunk / 2 : 0
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
+        this.text(textArray[i * rows + j], (j + 1) * chunk - (chunk / 2) + offset, (i + 1) * chunk - (chunk / 3) + offset)
+      }
+    }
   }
 
   setupBgColors(style) {
@@ -541,7 +656,6 @@ export class Viper {
         [d, this.random(0, 255), this.random(0, 255)]
       ]
     }
-    // this.bgColors = bgColors
     return bgColors
   }
 
@@ -562,36 +676,37 @@ export class Viper {
             bgCanvas.rect(i * s, j * s, s, s)
           }
         }
-        if (this.dither) {
-          // options with defaults (not required)
-          var opts = {
-            colors: 128,             // desired palette size
-            // method: 2,               // histogram method, 2: min-population threshold within subregions; 1: global top-population
-            // boxSize: [64, 64],        // subregion dims (if method = 2)
-            // boxPxls: 2,              // min-population threshold (if method = 2)
-            // initColors: 4096,        // # of top-occurring colors  to start with (if method = 1)
-            // minHueCols: 0,           // # of colors per hue group to evaluate regardless of counts, to retain low-count hues
-            // dithKern: null,          // dithering kernel name, see available kernels in docs below
-            // dithDelta: 0,            // dithering threshhold (0-1) e.g: 0.05 will not dither colors with <= 5% difference
-            // dithSerp: false,         // enable serpentine pattern dithering
-            // palette: [],             // a predefined palette to start with in r,g,b tuple format: [[r,g,b],[r,g,b]...]
-            // reIndex: false,          // affects predefined palettes only. if true, allows compacting of sparsed palette once target palette size is reached. also enables palette sorting.
-            // useCache: true,          // enables caching for perf usually, but can reduce perf in some cases, like pre-def palettes
-            // cacheFreq: 10,           // min color occurance count needed to qualify for caching
-            // colorDist: "euclidean",  // method used to determine color distance, can also be "manhattan"
-          };
 
-          const q = new RgbQuant(opts);
-          q.sample(bgCanvas.canvas);
-          // const pal = q.palette(true);
-          const idxi8 = q.reduce(bgCanvas.canvas, 1, 'Burkes', true);
-          const ctx = bgCanvas.canvas.getContext("2d")
-          var imgd = ctx.createImageData(bgCanvas.canvas.width, bgCanvas.canvas.width);
-          var data = imgd.data;
-          for (var i = 0, len = data.length; i < len; ++i)
-            data[i] = idxi8[i];
-          ctx.putImageData(imgd, 0, 0);
-        }
+        // if (this.dither) {
+        //   // options with defaults (not required)
+        //   var opts = {
+        //     colors: 128,             // desired palette size
+        //     // method: 2,               // histogram method, 2: min-population threshold within subregions; 1: global top-population
+        //     // boxSize: [64, 64],        // subregion dims (if method = 2)
+        //     // boxPxls: 2,              // min-population threshold (if method = 2)
+        //     // initColors: 4096,        // # of top-occurring colors  to start with (if method = 1)
+        //     // minHueCols: 0,           // # of colors per hue group to evaluate regardless of counts, to retain low-count hues
+        //     // dithKern: null,          // dithering kernel name, see available kernels in docs below
+        //     // dithDelta: 0,            // dithering threshhold (0-1) e.g: 0.05 will not dither colors with <= 5% difference
+        //     // dithSerp: false,         // enable serpentine pattern dithering
+        //     // palette: [],             // a predefined palette to start with in r,g,b tuple format: [[r,g,b],[r,g,b]...]
+        //     // reIndex: false,          // affects predefined palettes only. if true, allows compacting of sparsed palette once target palette size is reached. also enables palette sorting.
+        //     // useCache: true,          // enables caching for perf usually, but can reduce perf in some cases, like pre-def palettes
+        //     // cacheFreq: 10,           // min color occurance count needed to qualify for caching
+        //     // colorDist: "euclidean",  // method used to determine color distance, can also be "manhattan"
+        //   };
+
+        //   const q = new RgbQuant(opts);
+        //   q.sample(bgCanvas.canvas);
+        //   // const pal = q.palette(true);
+        //   const idxi8 = q.reduce(bgCanvas.canvas, 1, 'Burkes', true);
+        //   const ctx = bgCanvas.canvas.getContext("2d")
+        //   var imgd = ctx.createImageData(bgCanvas.canvas.width, bgCanvas.canvas.width);
+        //   var data = imgd.data;
+        //   for (var i = 0, len = data.length; i < len; ++i)
+        //     data[i] = idxi8[i];
+        //   ctx.putImageData(imgd, 0, 0);
+        // }
         this.savedBG = bgCanvas
       }
 
@@ -602,40 +717,34 @@ export class Viper {
     }
   }
 
-  draw(preloaded) {
-    // this.clear()
+  draw() {
     this.logs == "verbose" && console.timeLog("viper", "draw")
-    if (typeof preloaded === 'undefined') {
-      preloaded = this.preloaded
-    } else if (typeof this.bodies == "undefined") {
-      this.logs && console.log('reload bodies')
-      this.bodies = { rounded: [], raw: [] }
-      for (var i = 0; i < this.totalBodies; i++) {
-        this.bodies.rounded.push(preloaded[`body_rounded_${i}`])
-        this.bodies.raw.push(preloaded[`body_raw_${i}`])
-      }
-      preloaded.bodies = this.bodies
-    } else {
-      preloaded.bodies = this.bodies
-    }
     this.totalLength++
     if (this.tweens == 0 || this.totalLength % this.tweens == 1) {
       this.addLine()
     }
     this.logs == "verbose" && console.timeLog("viper", "addLine")
-    this.redrawBackground && this.drawBackground(preloaded)
+
+    this.redrawBackground && this.drawBackground()
     this.logs == "verbose" && console.timeLog("viper", "drawBackground")
-    this.drawSegments(preloaded)
+    this.drawSegments()
     this.logs == "verbose" && console.timeLog("viper", "drawSegments")
+
+    if (this.backgroundStyle == "text") {
+      this.drawBackground(true)
+    }
   }
 
-  drawSegments(preloaded) {
+  drawSegments() {
     let skippedDraw = 0
     for (var i = 0; i < this.allLines.length; i++) {
-      var c = this.allColors[this.allLines.length - i]
-      var { x1, y1, x2, y2, len, ang } = this.getSegmentCoordinates(i)
+      var c = this.allColors[this.allLines.length - i - 1]
+      if (this.me.style == "randomSegment" || this.me.style == "randomColor") {
+        this.whichSegment = (i + this.bodyOffset) % (this.me.style == "randomSegment" ? this.totalBodies : this.allColors.length)
+      }
+      var { x1, y1, x2, y2, len, ang, originalLine } = this.getSegmentCoordinates(i)
 
-      this.drawHole(i, preloaded)
+      this.drawHole(i)
 
       const onTopOfEachOther = (Math.abs(x1 - x2) < this.maxLen / 10 && Math.abs(y1 - y2) < this.maxLen / 10)
       if (onTopOfEachOther && this.reachedHome) {
@@ -646,203 +755,95 @@ export class Viper {
       if (!this.hideSnake) {
         if (i == 0 && this.allLines.length >= this.maxNumberOfLines && this.totalLength > this.maxNumberOfLines * this.tweens) {
           // tail segment
-          var { x1, y1, x2, y2, len, ang } = this.getSegmentCoordinates(0)
-          this.drawImageSegment(x1, y1, x2, y2, len, ang, c, preloaded, 0)
+          var { x1, y1, x2, y2, len, ang, originalLine } = this.getSegmentCoordinates(0)
+          this.drawImageSegment(x1, y1, x2, y2, len, ang, c, 0)
           continue
         } else if (i == 0) continue
         if (this.style == "debug") {
-          this.drawDebug(x1, y1, x2, y2, len, ang, i, c)
+          this.drawDebug(x1, y1, x2, y2, len, ang, i, c, originalLine)
         } else {
           switch (this.style) {
             case ("randomImage"):
-            case ("randomImageRounded"):
               const index = this.allLines.length - i
-              const roundedOrRaw = this.me.style.indexOf("Rounded") ? "rounded" : "raw"
-              this.whichSegment = (index + this.bodyOffset) % preloaded.bodies[roundedOrRaw].length
+              this.whichSegment = (index + this.bodyOffset) % this.preloaded.bodies.length
+              this.drawImageSegment(x1, y1, x2, y2, len, ang, c, i)
+              break;
+            case ("mismatched"):
+              this.whichSegment = this.me.body
+              this.drawImageSegment(x1, y1, x2, y2, len, ang, c, i)
+              break;
             case ("everythingMatches"):
-            case ("everythingMatchesRounded"):
-              this.drawImageSegment(x1, y1, x2, y2, len, ang, c, preloaded, i)
+            case ("skeleton"):
+              this.drawImageSegment(x1, y1, x2, y2, len, ang, c, i)
               break;
             case ("randomColor"):
               this.drawRandomColor(x1, y1, x2, y2, c)
-              break;
-            case ("skeleton"):
-              break;
-            case ("randomGreen"):
               break;
             default:
               throw new Error('Unknown style: ' + this.style);
           }
         }
       }
-
-      // this.fill("black")
-      // if (this.totalLength % this.tweens == 0) {
-      //   this.noStroke()
-      //   this.text("real segment", this.width / 2, 50)
-      // } else {
-      //   this.noStroke()
-      //   this.text("tween segment", this.width / 2, 50)
-      // }
-
-      // // draw the tail
-      // this.drawTail(x1, y1, x2, y2, i, preloaded)
-      
-      // draw the head
     }
 
-    var { x1, y1, x2, y2, len, ang } = this.getSegmentCoordinates(this.allLines.length-1)
+    var { x1, y1, x2, y2, len, ang } = this.getSegmentCoordinates(this.allLines.length - 1)
     // head segment
-    this.drawHead(x1, y1, x2, y2, this.allLines.length-1, preloaded)
+    this.drawHead(x1, y1, x2, y2, this.allLines.length - 1)
 
     if (skippedDraw == this.allLines.length && !this.justReset) {
       this.justReset = true
       setTimeout(() => this.reset(), 3000)
-      // this.reset()
     }
   }
 
-  drawHead(x1, y1, x2, y2, i, preloaded) {
+  drawHead(x1, y1, x2, y2, i) {
     if (this.hideHead) return
     if (i == this.allLines.length - 1) {
       const l = this.allLines[i]
-      // stroke("rgba(255,0,0,0.1)")
       this.noStroke()
       this.fill("rgba(255,0,0,0.5)")
-      // var headOffset = {
-      //   xFactor: 2,
-      //   yFactor: 2.5
-      // }
-      // console.log({headOffsets: this.headOffset})
+
+      const headOffset = this.headOffset()
+      const xFactor = this.me.style == "randomColor" && headOffset.jellyX || headOffset.xFactor
+      const yFactor = this.me.style == "randomColor" && headOffset.jellyY || headOffset.yFactor
+
       var calcHeadOffset = {
-        x: this.headWidth / this.headOffset.xFactor,
-        y: this.headWidth / this.headOffset.yFactor
+        x: this.headWidth / xFactor,
+        y: this.headWidth / yFactor
       }
+
+      const head = this.head()
 
       if ((l.x1 - l.x2) > (this.width / 80)) {
         this.push()
         this.scale(-1, 1)
-        // this.rect((-l.x2) + calcHeadOffset.x, l.y2 - calcHeadOffset.y, this.headWidth)
-        this.image(preloaded.head, (-x2) + calcHeadOffset.x, y2 - calcHeadOffset.y, this.headWidth, this.headWidth);
+        this.image(head, (-x2) + calcHeadOffset.x, y2 - calcHeadOffset.y, this.headWidth, this.headWidth);
         this.pop()
       } else {
-        // rect(l.x2 + calcHeadOffset.x, l.y2 - calcHeadOffset.y, this.headWidth)
-        this.image(preloaded.head, x2 + calcHeadOffset.x, y2 - calcHeadOffset.y, this.headWidth, this.headWidth);
-      }
-
-    }
-
-  }
-
-  drawTail(x1, y1, x2, y2, i, preloaded) {
-    if (this.hideTail) return
-
-    var tailLength = this.tailLength
-    var tailWidth = tailLength / 2
-    var calcTailOffset = {
-      x: tailLength / this.tailOffset.xFactor,
-      y: tailWidth * this.tailOffset.yFactor
-    }
-    if (i == 0 && this.allLines.length >= this.maxNumberOfLines && this.totalLength > this.maxNumberOfLines * this.tweens) {
-
-    const angleInRadians = Math.atan2(y2 - y1, x2 - x1)
-    let angleInDegrees = angleInRadians * 180 / Math.PI
-    if (angleInDegrees < 0) angleInDegrees += 360
-
-    console.log({angleInDegrees})
-    this.push()
-    var xDist = Math.abs(x2 - x1)
-    var yDist = Math.abs(y2 - y1)
-    var fractionOfTotal = 1 / 2
-    var p = {
-      x: x1 + ((x2 < x1 ? -1 : 1) * xDist) * fractionOfTotal,
-      y: y1 + ((y2 < y1 ? -1 : 1) * yDist) * fractionOfTotal
-    }
-    // this.stroke("black")
-    // this.strokeWeight(50)
-    // this.point(x1, y1)
-    this.translate(x1, y1);
-    // this.point(x2, y2)
-    // this.strokeWeight(0)
-
-    this.rotate(angleInDegrees)
-    
-      if (false){//(x1 - x2) > (this.width / 80)) {
-        this.push()
-        this.scale(-1, 1)
-        var tailX = -x1 - calcTailOffset.x // TODO: fix this
-        var tailY = y1 - calcTailOffset.y // TODO: fix this
-        // this.rect(tailX, tailY, tailLength, tailWidth)
-        this.image(preloaded.tail, tailX, tailY, tailLength, tailWidth);
-        this.pop()
-      } else {
-
-        var tailX = 0 - calcTailOffset.x // TODO: fix this
-        var tailY = 0 - calcTailOffset.y // TODO: fix this
-        // this.rect(tailX, tailY, tailLength, tailWidth)
-        this.image(preloaded.tail, tailX, tailY, tailLength, tailWidth);
+        this.image(head, x2 + calcHeadOffset.x, y2 - calcHeadOffset.y, this.headWidth, this.headWidth);
       }
     }
-    this.pop()
   }
 
-  makeMaskedImage(pic, c, len, width) {
+  drawImageSegment(x1, y1, x2, y2, len, ang, c, i, mask = false) {
 
-    var strokeMask = this.createGraphics(len, width);
-    strokeMask.strokeWeight(width)
-    // strokeMask.line(width / 2, width / 2, len - (width * 2), width / 2)
-    strokeMask.line(width / 2, width / 2, len - (width / 2), width / 2)
-
-    var imagePattern = this.createGraphics(len, width);
-    imagePattern.background(c)
-    // imagePatter n.textSize(50)
-    // imagePattern.text(i, (len) / 2, width)
-    imagePattern.image(pic, 0, 0, len, width)
-
-    imagePattern.loadPixels()
-    strokeMask.loadPixels()
-    for (let j = 0; j < imagePattern.pixels.length; j += 4) {
-      imagePattern.pixels[j + 3] = strokeMask.pixels[j + 3]
+    let pic
+    if (this.me.style == "skeleton") {
+      pic = this.preloaded.skeleton.bodies[this.me.skeletonColor]
+    } else {
+      pic = this.preloaded.bodies[this.whichSegment]
     }
-    imagePattern.updatePixels()
-
-    let strokeWidth = Math.round(len / 30)
-    let withStrokeLen = len + strokeWidth * 2
-    let withStrokeWidth = width + strokeWidth * 2
-    var withStroke = this.createGraphics(withStrokeLen, withStrokeWidth)
-    // withStroke.tint(100)
-    withStroke.stroke("black")
-    withStroke.strokeWeight(width + strokeWidth)
-    withStroke.line(withStrokeWidth / 2, withStrokeWidth / 2, withStrokeLen - (withStrokeWidth / 2), withStrokeWidth / 2)
-    withStroke.image(imagePattern, strokeWidth, strokeWidth, len, width)
-
-    return withStroke//imagePattern
-  }
-
-  drawImageSegment(x1, y1, x2, y2, len, ang, c, preloaded, i, mask = false) {
-    const roundedOrRaw = this.me.style.indexOf("Rounded") > -1 ? "rounded" : "raw"
-    let pic = preloaded.bodies[roundedOrRaw][this.whichSegment]
-    if (i == 0) {
-      pic = preloaded.tail
+    // drawTail()
+    if (i == 0 && !this.hideTail) {
+      pic = this.tail()
+    } else if (this.hideTail) {
+      return
     }
     if (!pic) {
-      console.log({preloaded})
+      console.error({ bodies: this.preloaded.bodies })
       throw new Error(`No image for segment ${this.whichSegment}`)
     }
-    const flip = x1 - x2 > 0
-
-    let imagePattern
-    if (mask) {
-      var renderedID = this.whichSegment.toString()
-      if (!this.renderedBodies[renderedID]) {
-        imagePattern = this.makeMaskedImage(pic, c, len, this.strokeW)
-        this.renderedBodies[renderedID] = imagePattern
-      } else {
-        imagePattern = this.renderedBodies[renderedID]
-      }
-    } else {
-      imagePattern = pic
-    }
+    const flip = x1 - x2 > 10
 
     this.push()
     var xDist = Math.abs(x2 - x1)
@@ -852,42 +853,51 @@ export class Viper {
       x: x1 + ((x2 < x1 ? -1 : 1) * xDist) * fractionOfTotal,
       y: y1 + ((y2 < y1 ? -1 : 1) * yDist) * fractionOfTotal
     }
+
     this.translate(p.x, p.y);
     this.rotate(ang)
 
     this.push()
     this.scale(flip ? 1 : 1, flip ? -1 : 1)
-    // this.image(imagePattern, 0, 0, len + (this.strokeW / 2), this.strokeW);
-    
-    var startingX = 0, startingY = 0
-    // it's the tail
-    if (i == 0) {
 
-    var tailLength = this.tailLength
-    var tailWidth = tailLength / 2
+    var startingX = 0, startingY = 0
+
+    // offset drawTail
+    if (i == 0) {
+      var tailLength = this.tailLength
+      var tailWidth = tailLength / 2
+
+      const tailOffset = this.tailOffset()
+      const xFactor = this.me.style == "randomColor" && tailOffset.jellyX || tailOffset.xFactor
+      const yFactor = this.me.style == "randomColor" && tailOffset.jellyY || tailOffset.yFactor
 
       var calcTailOffset = {
-        x: tailLength / this.tailOffset.xFactor,
-        y: tailWidth * this.tailOffset.yFactor
+        x: tailLength * xFactor,
+        y: tailWidth * yFactor
       }
-      startingX = 0 - calcTailOffset.x // TODO: fix this
-      startingY = 0 - calcTailOffset.y // TODO: fix this
+      startingX = 0 - calcTailOffset.x
+      startingY = 0 - calcTailOffset.y
     }
+
     try {
-      this.image(imagePattern, startingX, startingY, len + this.strokeW, this.strokeW);
+      this.image(pic, startingX, startingY, len + this.strokeW / 2, this.strokeW);
     } catch (e) {
-      console.error(`failed to load image ${this.whichSegment} `)
+      console.error(this.preloads.bodies)
+      console.error(`failed to load image ${this.whichSegment} `, { e })
     }
     this.pop()
     this.pop()
   }
 
   drawRandomColor(x1, y1, x2, y2, c) {
-    this.stroke("black")
-    var segmentWeight = this.strokeW
+    this.stroke("rgba(0,0,0,1)")
+    var segmentWeight = this.strokeW / 1.14
     var segmentOffset = segmentWeight / 3
     this.strokeWeight(segmentWeight + 2)
     this.line(x1, y1, x2, y2)
+
+    // c = `rgba(${c.join(",")},0.1)`
+
     this.stroke(c)
     this.strokeWeight(segmentWeight)
     this.line(x1, y1, x2, y2)
@@ -905,11 +915,10 @@ export class Viper {
 
   }
 
-  drawDebug(x1, y1, x2, y2, len, ang, i, c) {
+  drawDebug(x1, y1, x2, y2, len, ang, i, c, originalLine) {
     const l = this.allLines[i]
-    this.stroke("grey")
-    // this.stroke(c)
-    var debugLineWeight = this.width / 50
+    this.stroke("blue")
+    var debugLineWeight = this.width / 100
     this.strokeWeight(debugLineWeight)
     this.line(x1, y1, x2, y2)
     this.stroke('rgb(0,255,0)')
@@ -920,13 +929,16 @@ export class Viper {
     this.fill("blue")
     this.text(`${Math.floor(x1)}, ${Math.floor(y1)} `, x1 + 5, y1 - 5)
 
+    this.strokeWeight(0)
+    this.fill("rgba(0,0,0,0.5)")
+    this.arc(originalLine.x2, originalLine.y2, this.maxLen, this.maxLen, originalLine.ang - this.angleDistanceMin, originalLine.ang + this.angleDistanceMin);
 
     for (var j = 0; j < l.failed.length; j++) {
       const previewX = l.failed[j].newX
       const previewY = l.failed[j].newY
       this.stroke(l.failed[j].randomColor)
-      this.strokeWeight(debugLineWeight)
-      this.line(x1, y1, previewX, previewY)
+      this.strokeWeight(debugLineWeight / 1.5)
+      this.line(originalLine.x1, originalLine.y1, previewX, previewY)
       this.strokeWeight(0)
       this.fill("blue")
       const halfX = x1 > previewX ? x1 - ((x1 - previewX) / 2) : previewX - ((previewX - x1) / 2)
@@ -936,17 +948,14 @@ export class Viper {
       this.stroke("red")
       this.point(previewX, previewY)
     }
-    this.strokeWeight(0)
-    this.fill("rgba(0,0,255,0.4)")
-    this.arc(x2, y2, len, len, ang - this.angleDistanceMin, ang + this.angleDistanceMin);
 
 
   }
 
-  drawHole(i, preloaded) {
+  drawHole(i) {
     if (this.hideHole) return
     if (i == 0) {
-      this.image(preloaded.hole, this.startingX - (this.strokeW / 4), this.startingY - (this.strokeW / 5), this.holeWidth, this.holeWidth);
+      this.image(this.preloaded.hole, this.startingX - (this.strokeW / 4), this.startingY - (this.strokeW / 5), this.holeWidth, this.holeWidth);
     }
     if (!this.redrawBackground) {
       this.hideHole = true
@@ -955,6 +964,7 @@ export class Viper {
 
   getSegmentCoordinates(i) {
     let l = this.allLines[i]
+    const originalLine = l
     let lastLine
     let offsetTilNextSegment = this.tweens == 0 ? 0 : this.totalLength % this.tweens
     if (!this.lastLine) {
@@ -984,42 +994,47 @@ export class Viper {
     const len = this.dist(x1, y1, x2, y2)
     const ang = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
 
-    return { x1, y1, x2, y2, len, ang }
+    return { x1, y1, x2, y2, len, ang, originalLine }
   }
 
   seconds() {
     let seconds = 3
     switch (this.pattern) {
       case 'bigEight':
-        seconds = 5.65714285
+        seconds = 5.11428571 // ok
         break
       case 'eight':
-        seconds = 3.7
+        seconds = 3.52857143 // ok
         break
       case 'circle':
-        seconds = 4.27142857
+        seconds = 3.9 // ok
         break
       case 'square':
-        seconds = 4.82285714
+        seconds = 5.48571428 // ok
         break
       case 'heart':
-        seconds = 4.75714286
+        seconds = 4.5 // ok
         break
-      case 'randomLoop':
-        seconds = 6
+      case 'randomLoop': // ok
+        seconds = 2 + (((this.wanderLoopDuration * this.tweens) / this.fps))
+        seconds += (this.maxNumberOfLines * this.tweens) / this.fps
+        // NOTE: len = 1 => 
+        // 7.02857143 seconds
+        // len = 20 => 
+        // 10.28571429 seconds
         break
-      case 'rotatingEight':
-        seconds = 38
+      case 'star': // ok
+        seconds = 6.85714285
         break
-      case 'star':
-        seconds = 7.71428571
-        break
+      default:
+        throw new Error(
+          `seconds() not implemented for pattern ${this.pattern}`
+        )
     }
     return seconds
   }
 
   addLine() {
-
     // get the next segment
     let angResults
     switch (this.pattern) {
@@ -1027,10 +1042,10 @@ export class Viper {
         angResults = this.wanderInCircle()
         break
       case "star":
-        angResults = this.wanderInStar()
+        angResults = this.wanderInShape(this.wanderInStar())
         break
       case "square":
-        angResults = this.wanderInSquare()
+        angResults = this.wanderInShape(this.wanderInSquare())
         break
       case "random":
         angResults = this.wander()
@@ -1062,7 +1077,7 @@ export class Viper {
       y2 = angResults.y
       len = angResults.len
     } else {
-      let lenWithoutTips = this.maxLen - this.strokeW
+      let lenWithoutTips = this.maxLen - this.strokeW / 2
       x2 = this.x + Math.cos(ang * Math.PI / 180) * lenWithoutTips
       y2 = this.y + Math.sin(ang * Math.PI / 180) * lenWithoutTips
       len = lenWithoutTips
@@ -1079,21 +1094,17 @@ export class Viper {
       maskedImage: null
     }
 
-
     this.allLines.push(newLine)
     this.previousAngle = ang
     this.x = x2
     this.y = y2
     if (this.allLines.length > this.maxNumberOfLines) {
       this.lastLine = this.allLines.shift()
-      // this.allColors.shift()
     }
-
-
   }
 
   addAllLines(numOfLines = 50) {
-    for (let i = 0; i < numOfLines; i++) {
+    for (let i = 0; i < numOfLines * 2; i++) {
       this.addLine()
       this.totalLength += this.tweens
     }
@@ -1132,49 +1143,70 @@ export class Viper {
 
     const x = this.startingX
     const y = this.startingY
-    var angleDelta = this.random(-this.angleDistanceMin / 2, this.angleDistanceMin / 2)
+    var angleDelta = this.random(-this.angleDistanceMin / 2, this.angleDistanceMin / 2, this.localRNG)
     const angle = Math.atan2(y - this.y, x - this.x) * 180 / Math.PI + angleDelta
     return { angle: angle, failed: [], x, y, tries: 1 }
   }
 
-  wanderInStar() {
-    const previousX = this.x
-    const previousY = this.y
-    const radius2 = this.width / 3
+  wanderInShape(shape = []) {
+    if (shape.length === 0) {
+      throw new Error(`shape array is empty`)
+    }
+    let previousX, previousY
+    try {
+      previousX = this.x
+      previousY = this.y
+    } catch (e) {
+      console.error(`this.x or this.y doesn't exist`)
+      throw new Error(e)
+    }
+    this.lastTargetIndex = this.lastTargetIndex || 0
+    if (this.lastTargetIndex >= shape.length) {
+      this.lastTargetIndex = 0
+    }
 
+    let target = shape[this.lastTargetIndex]
+
+    const previousTarget = shape[(this.lastTargetIndex - 1 + shape.length) % shape.length]
+    const midWay = { x: (previousTarget.x + target.x) / 2, y: (previousTarget.y + target.y) / 2 }
+    const distToMidWay = this.dist(previousX, previousY, midWay.x, midWay.y)
+    if (distToMidWay < this.maxLen / 2 && this.changeOnTarget && !this.hitMid) {
+      this.hitMid = true
+      this.iterateTokenId()
+    }
+
+    const distToTarget = this.dist(previousX, previousY, target.x, target.y)
+    if (distToTarget < this.maxLen / 2) {
+      this.lastTargetIndex = (this.lastTargetIndex + 1) % shape.length
+      if (this.changeOnTarget) {
+        this.iterateTokenId()
+        this.hitMid = false
+      }
+    }
+    target = shape[this.lastTargetIndex]
+    const angle = Math.atan2(target.y - previousY, target.x - previousX) * 180 / Math.PI;
+    return { x: target.x, y: target.y, tries: 0, failed: false, angle }
+  }
+
+  wanderInStar() {
+    const radius2 = this.width / 3
     const origin = this.width / 2
 
     const npoints = 5
-    const fivePoints = []
-    this.angleMode(this.RADIANS);
+    let fivePoints = []
+    const rotateBy = 271
     for (let a = 0; a < this.TWO_PI; a += this.TWO_PI / npoints) {
+      this.angleMode(this.RADIANS);
       let sx = origin + Math.cos(a) * radius2;
       let sy = origin + Math.sin(a) * radius2;
-      fivePoints.push({ x: sx, y: sy })
+      this.angleMode(this.DEGREES);
+      const results = rotateXY(origin, origin, sx, sy, rotateBy)
+      fivePoints.push({ x: results[0], y: results[1] })
     }
-    this.angleMode(this.DEGREES);
-
-    const step = Math.floor(this.totalLength / this.tweens)
-    const chunksPerSide = radius2 * 1.96 / (this.maxLen - this.strokeW)
-    const leg = Math.floor(step / chunksPerSide) % npoints
-    const skip = leg * 2 % npoints
-    const target = fivePoints[skip]
-    const rotateBy = 271
-    this.angleMode(this.DEGREES);
-
-    const results = this.rotateXY(this.width / 2, this.width / 2, target.x, target.y, rotateBy)
-
-    const x = results[0]
-    const y = results[1]
-
-    // const c = [this.random(0, 255), this.random(0, 255), this.random(0, 255)]
-    // this.stroke(c)
-    // this.strokeWeight(10)
-    // this.point(x, y)
-
-    const angle = Math.atan2(y - previousY, x - previousX) * 180 / Math.PI;
-    this.angleMode(this.DEGREES);
-    return { x, y, tries: 0, failed: false, angle }
+    // fivePoints = [a, b, c, d, e]
+    // needsToBe = [a, c, e, b, d]
+    fivePoints = [fivePoints[0], fivePoints[2], fivePoints[4], fivePoints[1], fivePoints[3]]
+    return fivePoints
   }
 
   wanderInHeart() {
@@ -1183,26 +1215,9 @@ export class Viper {
     const coord = this.heartPattern[index]
     const x = coord.x * this.width / 686
     const y = coord.y * this.width / 686
-    // this.strokeWeight(10)
-    // this.point(x, y)
     const previousX = this.x
     const previousY = this.y
-    // const lineLength = this.maxLen
-
-    // this.angleMode(this.RADIANS);
-
-    // const a = (this.totalLength / (this.tweens * 4.25))// % (Math.PI * 2)
-    // const r = height / 40;
-    // const xOffset = this.width / 2
-    // const yOffset = this.width / 2
-    // const x = r * 16 * pow(sin(a), 3) + xOffset
-    // const y = -r * (13 * cos(a) - 5 * cos(2 * a) - 2 * cos(3 * a) - cos(4 * a)) + yOffset
     const angle = Math.atan2(y - previousY, x - previousX) * 180 / Math.PI;
-    // this.strokeWeight(10)
-    // this.fill("black")
-    // this.stroke("black")
-    // this.point(x, y)
-    // this.angleMode(this.DEGREES);
     return { x, y, tries: 0, failed: false, angle }
   }
 
@@ -1211,7 +1226,7 @@ export class Viper {
     const previousY = this.y
     let { x, y, tries, failed, angle } = this.wanderInEight()
     const rotateBy = this.totalLength / 3
-    const results = this.rotateXY(this.width / 2, this.width / 2, x, y, rotateBy)
+    const results = rotateXY(this.width / 2, this.width / 2, x, y, rotateBy)
     x = results[0]
     y = results[1]
     angle = Math.atan2(y - previousY, x - previousX) * 180 / Math.PI;
@@ -1228,41 +1243,22 @@ export class Viper {
     // const si = sin(frameCount / 50) * 80;
     // const co = cos(frameCount / 50);
     const size = this.width / 2.2
-    const step = (this.totalLength + stepOffset) / ((this.maxLen / 19) * this.tweens)
+    const step = (this.totalLength + stepOffset) / (((this.maxLen + this.strokeW / 2) / 35) * this.tweens)
     let x = Math.sin(step) * size
     let y = Math.cos(step) * Math.sin(step) * size
     const rotateBy = 55
     this.angleMode(this.DEGREES);
-    const results = this.rotateXY(0, 0, x, y, rotateBy)
+    const results = rotateXY(0, 0, x, y, rotateBy)
 
-    const xOrigin = this.width / 1.87
+    const xOrigin = this.width / 1.9
     const yOrigin = this.width / 1.7
     x = results[0] + xOrigin
     y = results[1] + yOrigin
 
-    if (!this.XTimer) {
-      this.XTimer = x
-      // console.time("x")
-    } else if (Math.abs(this.XTimer - x) < 3) {
-      // console.timeEnd("x")
-    }
-
     const angle = Math.atan2(y - previousY, x - previousX) * 180 / Math.PI;
-    // this.strokeWeight(10)
-    // this.stroke("black")
-    // this.point(x, y)
     return {
       x, y, tries: 0, failed: false, angle: angle
     }
-  }
-
-  rotateXY(cx, cy, x, y, angle) {
-    var radians = (Math.PI / 180) * angle,
-      cos = Math.cos(radians),
-      sin = Math.sin(radians),
-      nx = (cos * (x - cx)) + (sin * (y - cy)) + cx,
-      ny = (cos * (y - cy)) - (sin * (x - cx)) + cy;
-    return [nx, ny];
   }
 
   wanderInEight() {
@@ -1272,9 +1268,9 @@ export class Viper {
     this.angleMode(this.RADIANS);
     // const si = sin(frameCount / 50) * 80;
     // const co = cos(frameCount / 50);
-    const size = this.width / 3.7
+    const size = this.width / 3.5
     const origin = this.width / 2
-    const step = this.totalLength / ((this.maxLen / 29) * this.tweens)
+    const step = this.totalLength / (((this.maxLen - this.strokeW / 2) / 30) * this.tweens)
     const x = Math.sin(step) * size + origin
     const y = Math.cos(step) * Math.sin(step) * size + origin
     const angle = Math.atan2(y - previousY, x - previousX) * 180 / Math.PI;
@@ -1283,61 +1279,14 @@ export class Viper {
   }
 
   wanderInSquare() {
-    let previousX = this.x
-    let previousY = this.y
-    const lineLength = this.maxLen
-    const width = this.width
-    const margin = this.margin - this.maxLen / 2
-
-    let angle = this.previousAngle
-    switch (angle) {
-      case 0:
-        if (previousX + lineLength > width - margin) {
-          angle = 90
-        }
-        break;
-      case 90:
-        if (previousY + lineLength > width - margin) {
-          angle = 180
-
-        }
-        break;
-      case 180:
-        if (previousX - lineLength < margin) {
-          angle = 270
-        }
-        break;
-      case 270:
-        if (previousY - lineLength < margin) {
-          angle = 0
-        }
-        break;
-      default:
-        angle = 0
-      // throw new Error(`invalid angle ${ angle } `)
-    }
-    let x, y
-    switch (angle) {
-      case 0:
-        x = previousX + lineLength
-        y = margin
-        break;
-      case 90:
-        x = width - margin
-        y = previousY + lineLength
-        break;
-      case 180:
-        x = previousX - lineLength
-        y = width - margin
-        break;
-      case 270:
-        x = margin
-        y = previousY - lineLength
-        break;
-    }
-    // const angle = Math.atan2(y - previousY, x - previousX) * 180 / Math.PI;
-
-    return { x, y, tries: 0, failed: false, angle: angle }
+    const margin = this.headWidth
+    const square = [
+      { x: margin, y: margin },
+      { x: this.width - margin, y: margin },
+      { x: this.width - margin, y: this.width - margin },
+      { x: margin, y: this.width - margin },
+    ]
+    return square
   }
 
   wanderInCircle() {
@@ -1346,20 +1295,10 @@ export class Viper {
 
     this.angleMode(this.RADIANS);
     let chunkDivider
-    // switch (this.style) {
-    //   case "everythingMatches":
-    //   case "everythingMatchesRounded":
-    //   case "randomImage":
-    //   case "randomImageRounded":
-    //   case "skeleton":
-    //     chunkDivider = this.maxLen / 7
-    //     break;
-    //   default:
-    //     chunkDivider = this.maxLen / 3.6
-    // }
-    chunkDivider = this.maxLen / 7
+    chunkDivider = (this.maxLen + this.strokeW / 2) / 6
 
     const chunks = 360 / chunkDivider
+
 
     const angleJump = ((Math.PI * 2) / chunks) * ((this.totalLength / this.tweens) % chunks)
     const r = this.width / 2 - this.margin
@@ -1367,25 +1306,7 @@ export class Viper {
     var y = this.width / 2 + r * Math.sin(angleJump);
     const angle = Math.atan2(y - previousY, x - previousX) * 180 / Math.PI;
     this.angleMode(this.DEGREES);
-    // this.strokeWeight(10)
-    // this.stroke("black")
-    // this.point(x, y)
-    // this.strokeWeight(0)
     return { x, y, tries: 0, failed: false, angle }
-
-
-    // var angleDelta = 15
-
-
-    // // actually applying the change to the angle should also be randomly additional or subtractive
-    // var angle = previousAngle + angleDelta
-    // angle = newAngle < 0 ? 360 + newAngle : (newAngle > 360 ? newAngle % 360 : newAngle)
-
-    // // check if the angle works with that distance
-    // var newX = Math.floor(previousX + Math.cos(newAngle * Math.PI / 180) * (lineLength))
-    // var newY = Math.floor(previousY + Math.sin(newAngle * Math.PI / 180) * (lineLength))
-    // // if it does, return the new point
-    // return { x: newX, y: newY, tries: 1, angle: newAngle, failed: [] }
   }
 
   // wander is the heart of the algorithm
@@ -1398,7 +1319,7 @@ export class Viper {
     const previousX = this.x
     const previousY = this.y
     const previousAngle = this.previousAngle
-    const lineLength = this.maxLen - this.strokeW
+    const lineLength = this.maxLen // - this.strokeW
     const width = this.width
     const margin = this.margin
     const maxDifferenceBetweenAngles = this.angleDistanceMin
@@ -1407,7 +1328,7 @@ export class Viper {
     if (maxDifferenceBetweenAngles > 180) throw new Error('maxDifferenceBetweenAngles cannot be greater than 180')
 
     // get a random amount to change the angle by
-    var angleDelta = this.random(0, maxDifferenceBetweenAngles)
+    var angleDelta = this.random(0, maxDifferenceBetweenAngles, this.localRNG || this.rng)
     // this ensures that the search for a working angle doesn't always start by adding to the angle (turning clockwise)
     if (angleDelta <= (maxDifferenceBetweenAngles / 2)) {
       angleDelta = angleDelta * -1
@@ -1457,6 +1378,7 @@ export class Viper {
       // check if the angle works with that distance
       var newX = Math.floor(previousX + Math.cos(newAngle * Math.PI / 180) * (lineLength))
       var newY = Math.floor(previousY + Math.sin(newAngle * Math.PI / 180) * (lineLength))
+
       // if it does, return the new point
       if (!outSideCanvas(newX, newY, this.width, this.margin, this.strokeW)) {
         return { x: newX, y: newY, tries: i + 1, angle: newAngle, failed }
@@ -1474,9 +1396,9 @@ export class Viper {
     throw new Error(`Unable to find a new point from(${previousX}, ${previousY}, ${previousAngle})`)
   }
 
-  random(min = 0, max = 1) {
+  random(min = 0, max = 1, rng = this.rng) {
     this.timesCalledRandom = typeof this.timesCalledRandom == 'undefined' ? 1 : this.timesCalledRandom + 1
-    var foo = this.rng.nextInt(min, max)
+    var foo = rng.nextInt(min, max)
     return foo
   }
 
@@ -1495,8 +1417,8 @@ export class Viper {
         previousAngle = 0
         break;
       case "square":
-        x = min
-        y = min
+        x = this.headWidth
+        y = x
         previousAngle = 0
         break;
       case "randomLoop":
@@ -1507,8 +1429,8 @@ export class Viper {
         break;
       case "rotatingEight":
       case "bigEight":
-        x = min //+ (this.width / 20)
-        y = min //+ (this.width / 10)
+        x = min
+        y = min
         previousAngle = 180
         break;
       case "eight":
@@ -1541,12 +1463,12 @@ export class Viper {
     const heart = []
     let lastX = null
     let lastY = null
-    for (let a = 0.6; a < 2 * Math.PI; a += 0.01) {
-      const r = this.width / 48;
+    for (let a = 0.5; a < 2 * Math.PI; a += 0.005) {
+      const r = this.width / 46;
       const x = r * 16 * Math.pow(Math.sin(a), 3);
       const y = -r * (13 * Math.cos(a) - 5 * Math.cos(2 * a) - 2 * Math.cos(3 * a) - Math.cos(4 * a));
       const distance = this.distance(lastX, lastY, x, y)
-      const segment = this.maxLen - this.strokeW
+      const segment = this.maxLen - (this.strokeW / 2)
       const marginOfError = 2
       if (lastX == null || Math.abs(distance - (segment)) < (marginOfError)) {
         lastX = x
@@ -1567,14 +1489,14 @@ export class Viper {
     const numBodySegments = numHeads
     const bodySegmentColorVariation = 5
     const numSkeletonSegments = 4
-    const skeletonColorVariations = 0//2
+    const skeletonColorVariations = 1
 
     // const gifPatterns = 7
     const background_options = backgroundsIndex.length
 
     const randomColorFactor = 1 // randomColor segments will always be random, so we can decide how many
     const randomImageFactor = 1
-    const debugFactor = 2 // debug segments will always be random
+    const debugFactor = 1 // debug segments will always be random
 
     const style_everythingMatches = numHeads * headColorVariations * background_options
 
@@ -1601,6 +1523,7 @@ export class Viper {
     //  skeleton
 
     let arrayOfAll = []
+    let half = numHeads / 2
     let style
     for (let head = 0; head < numHeads; head++) {
       for (let headColor = 0; headColor < headColorVariations; headColor++) {
@@ -1613,11 +1536,22 @@ export class Viper {
           // arrayOfAll.push({ style, head, headColor, background })
         }
 
+        style = "mismatched"
+        for (let body = 0; body < numHeads; body++) {
+          for (let backgroundIndex = 0; backgroundIndex < background_options; backgroundIndex++) {
+            if ((head < half && body > half) || head > half && body < half) continue
+            if (head == body) continue
+            const background = backgroundsIndex[backgroundIndex]
+            arrayOfAll.push({ style, head, headColor, background, body })
+          }
+        }
+
         style = "randomColor"
         for (let randomColor = 0; randomColor < randomColorFactor; randomColor++) {
           for (let backgroundIndex = 0; backgroundIndex < background_options; backgroundIndex++) {
             const background = backgroundsIndex[backgroundIndex]
-            arrayOfAll.push({ style, head, headColor, background })
+            const bodyOffset = this.random(0, bodyVariations - 1)
+            arrayOfAll.push({ style, head, headColor, background, bodyOffset })
           }
         }
 
@@ -1630,7 +1564,8 @@ export class Viper {
           for (let backgroundIndex = 0; backgroundIndex < background_options; backgroundIndex++) {
             const background = backgroundsIndex[backgroundIndex]
             style = "randomImage"
-            arrayOfAll.push({ style, head, headColor, background })
+            const bodyOffset = this.random(0, bodyVariations - 1)
+            arrayOfAll.push({ style, head, headColor, background, bodyOffset })
 
             // style = "randomImageRounded"
             // arrayOfAll.push({ style, head, headColor, background })
@@ -1645,6 +1580,7 @@ export class Viper {
         }
       }
     }
+
     arrayOfAll = this.shuffle(arrayOfAll)
     arrayOfAll.map((item, index) => {
       item.tokenId = index + 1
@@ -1654,7 +1590,7 @@ export class Viper {
       if (item.background.indexOf('gradient') > -1) {
         item.bgColors = this.setupBgColors(item.background)
       } else {
-        item.bgImage = this.random(0, this.totalBgs)
+        // item.bgImage = this.random(1, this.totalBgs + 1)
       }
     })
 
@@ -1679,6 +1615,15 @@ export class Viper {
     return array;
   }
 
+}
+
+function rotateXY(cx, cy, x, y, angle) {
+  var radians = (Math.PI / 180) * angle,
+    cos = Math.cos(radians),
+    sin = Math.sin(radians),
+    nx = (cos * (x - cx)) + (sin * (y - cy)) + cx,
+    ny = (cos * (y - cy)) - (sin * (x - cx)) + cy;
+  return [nx, ny];
 }
 
 
@@ -1719,116 +1664,164 @@ function weightedAvgColor(a, b, w) {
   return [x, y, z]
 }
 
-async function loadFn(fn, content) {
-  return Promise.resolve(fn(content))
-}
-
 const defaultHeadOffsets = {
-  xFactor: 2,
-  yFactor: 2.5
+  xFactor: 3.5,
+  yFactor: 2.2
 }
 
 const headOffsets = {
   _1: {
-    xFactor: 2.7,
-    yFactor: 2.3
+    xFactor: 3.5,
+    yFactor: 2.3,
+    jellyX: 3
   },
   _2: {
-    xFactor: 2.2,
-    yFactor: 3
+    xFactor: 2.5,
+    yFactor: 3.2,
+    jellyX: 2.5,
+    jellyY: 3.6
   },
   _3: {
-    xFactor: 2.9,
-    yFactor: 2.6
+    xFactor: 3.5,
+    yFactor: 2.5,
+    jellyX: 2.8,
+    jellyY: 2.3
   },
-  _4: { // maybe need to make neck wider
-    xFactor: 1.9,
-    yFactor: 4
+  _4: {
+    xFactor: 2.2,
+    jellyX: 1.9,
+    yFactor: 3
   },
   _5: {
-    xFactor: 2,
-    yFactor: 2.2
+    xFactor: 3,
+    jellyX: 2,
+    yFactor: 2.3
   },
   _6: {
-    xFactor: 2.3,
-    yFactor: 2.5
+    xFactor: 2.8,
+    yFactor: 2.5,
+    jellyX: 2.3
   },
   _7: {
-    xFactor: 2.4,
+    xFactor: 2.8,
     yFactor: 3
   },
   _8: {
-    xFactor: 1.9,
-    yFactor: 3.1
+    xFactor: 2.3,
+    yFactor: 3.1,
+    jellyX: 2
   },
   _9: {
-    xFactor: 2.5,
-    yFactor: 2.5
+    xFactor: 3,
+    yFactor: 2.5,
+    jellyX: 2.5
   },
   _10: {
-    xFactor: 1.8,
-    yFactor: 2.5
+    xFactor: 2.5,
+    yFactor: 3,
+    jellyX: 2.1,
+    jellyY: 3.1
+  },
+  _11: {
+    xFactor: 3,
+    yFactor: 3.1,
+    jellyX: 2.5,
+    jellyY: 2.8
+  },
+  _12: {
+    xFactor: 2.6,
+    yFactor: 2.6,
+    jellyX: 2.2,
+  },
+  _13: {
+    xFactor: 3.5,
+    yFactor: 3.5,
+    jellyY: 4
   }
 }
 
 const defaultTailOffsets = {
-  xFactor: 2,
-  yFactor: -0.2
+  xFactor: 0.1,
+  yFactor: 0.1
 }
 // larger x factor means closer into the body
 const tailOffsets = {
   _1: {
-    xFactor: 2,
-    yFactor: -0.2
+    xFactor: 0.1,
+    yFactor: 0.1,
+    jellyX: 0.2,
   },
   _2: {
-    xFactor: 2,
-    yFactor: 0.2
+    xFactor: 0.05,
+    yFactor: 0.25,
+    jellyX: 0.1,
+    jellyY: 0.1
   },
   _3: {
-    xFactor: 2.2,
-    yFactor: 0
+    xFactor: 0.1,
+    yFactor: 0.1,
+    jellyX: 0,
+    jellyY: -0.01
   },
   _4: {
-    xFactor: 2,
-    yFactor: -0.2
-  },
-  _5: {
-    xFactor: 2,
-    yFactor: -0.2
-  },
-  _6: {
-    xFactor: 3,
+    xFactor: 0.1,
     yFactor: 0
   },
+  _5: {
+    xFactor: 0.1,
+    yFactor: -0.1
+  },
+  _6: {
+    xFactor: 0,
+    yFactor: 0.1,
+    jellyX: 0.1
+  },
   _7: {
-    xFactor: 2.6,
-    yFactor: -0.2
+    xFactor: 0.1,
+    yFactor: 0
   },
   _8: {
-    xFactor: 2,
-    yFactor: -0.2
+    xFactor: 0.1,
+    yFactor: 0
   },
   _9: {
-    xFactor: 2.5,
-    yFactor: 0.1
+    xFactor: 0.1,
+    yFactor: 0.13
   },
   _10: {
-    xFactor: 2.5,
-    yFactor: -0.2
+    xFactor: 0.1,
+    yFactor: 0
+  },
+  _11: {
+    xFactor: 0.1,
+    yFactor: -0.1
+  },
+  _12: {
+    xFactor: 0.1,
+    yFactor: 0.1,
+    jellyX: 0.15
+  },
+  _13: {
+    xFactor: 0.1,
+    yFactor: 0.1,
+    jellyX: 0.15
   }
 }
 
-function typeOf(val) {
-  return Object.prototype.toString.call(val).slice(8, -1);
-}
-
-const gifPatterns = ['bigEight', 'eight', 'circle', 'square', 'heart', 'randomLoop', 'star']
+const gifPatterns = [
+  'bigEight',
+  'eight',
+  'circle',
+  'square',
+  'heart',
+  'randomLoop',
+  'star'
+]
 
 const backgroundsIndex = [
   // "gradient-high",
   "gradient-low",
   // "bw-gradient-high",
-  "bw-gradient-low",
-  "image"
+  // "bw-gradient-low",
+  // "image"
 ]

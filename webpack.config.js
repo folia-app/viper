@@ -30,15 +30,40 @@ module.exports = {
       hash: true,
       title: 'Viper',
       metaDesc: 'Viper',
-      // template: path.resolve(__dirname, "src/index.html"),
+      template: path.resolve(__dirname, "src/index.ejs"),
       filename: 'index.html',
-      inject: 'head',
+      inject: false,
       minify: false,
     }),
+    new HtmlWebpackPlugin({
+      hash: true,
+      title: 'Viper',
+      metaDesc: 'Viper',
+      template: path.resolve(__dirname, "src/grid.ejs"),
+      filename: 'grid.html',
+      inject: false,
+      minify: false,
+    }),
+
     new CopyWebpackPlugin({
       patterns: [
         { from: 'public' }
       ]
     })
-  ]
+  ],
+  module: {
+    rules: [
+      {
+        test: /\.(png|jpg|jpeg|gif|svg)$/i,
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              limit: true,
+            },
+          },
+        ],
+      },
+    ]
+  }
 }
