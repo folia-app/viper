@@ -251,7 +251,7 @@ commander
           viper.setup(p)
           await viper.preload()
           if (viper.pattern !== "randomLoop") {
-            viper.addAllLines(50)
+            viper.addAllLines(viper.maxNumberOfLines)
           }
           readyToDraw = true
           await p.saveFrames(viper.canvas.drawingContext, filename, {}, seconds, fps)

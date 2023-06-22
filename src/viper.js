@@ -184,10 +184,12 @@ export class Viper {
       hideSnake: false,
       redrawBackground: true,
       wanderLoopDuration: 20,
+      segmentsBeforeGifRevertsToLoop: 25,
       dither: false,
       ...overwriteOptions
     }
     let {
+      segmentsBeforeGifRevertsToLoop,
       changeOnTarget, div, tokenId, bittenBy, setting, logs, style, backgroundStyle, pattern, wanderLoopDuration,
       width, maxNumberOfLines, maxLen, strokeW, headWidth, tailLength, holeWidth, margin, angleDistanceMin,
       fps, tweens, bgColor, hideHole, hideHead, hideTail, redrawBackground, hideSnake, dither
@@ -201,6 +203,7 @@ export class Viper {
     this.totalBgs = 8
     this.changeOnTarget = changeOnTarget
     this.div = div || 'sketch-holder'
+    this.segmentsBeforeGifRevertsToLoop = segmentsBeforeGifRevertsToLoop
 
     this.rng = new Prando("viper bite invites embrace")
     this.allVipers = this.populate()
@@ -233,8 +236,8 @@ export class Viper {
     this.maxNumberOfLines = maxNumberOfLines == null ? (this.tokenId % 100) + 2 : (maxNumberOfLines > 100 ? 100 : maxNumberOfLines) + 1
     this.wanderLoopDuration = wanderLoopDuration
 
-    if (this.maxNumberOfLines > this.wanderLoopDuration && this.pattern == 'randomLoop' && this.setting == "server") {
-      this.pattern = 'star'
+    if (this.maxNumberOfLines > this.segmentsBeforeGifRevertsToLoop && this.setting == "server") {
+      this.pattern = 'random'
     }
     this.maxLen = maxLen || this.width * 0.14577259 // 100
     this.strokeLen =
@@ -1025,6 +1028,9 @@ export class Viper {
         break
       case 'star': // ok
         seconds = 6.85714285
+        break
+      case 'random':
+        seconds = 6
         break
       default:
         throw new Error(
