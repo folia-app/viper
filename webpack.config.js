@@ -1,9 +1,11 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const fs = require('fs');
 
 const path = require("path");
 
 module.exports = {
+  mode: "production",
   entry: {
     viper: [path.resolve(__dirname, "src", "viper.js")],
   },
@@ -12,6 +14,7 @@ module.exports = {
     'window': 'window'
   },
   output: {
+    publicPath: '',
     clean: true,
     libraryTarget: 'umd',
     globalObject: 'this',
@@ -33,7 +36,19 @@ module.exports = {
       template: path.resolve(__dirname, "src/index.ejs"),
       filename: 'index.html',
       inject: false,
-      minify: false,
+      minify: true,
+      templateParameters: (compilation, assets, options) => {
+        const fs = require('fs');
+        const p5Content = fs.readFileSync('./public/p5.min.js', 'utf-8');
+        return {
+          compilation,
+          webpackConfig: options.webpackConfig,
+          assets,
+          options,
+          fs,
+          p5Content,
+        };
+      },
     }),
     new HtmlWebpackPlugin({
       hash: true,
