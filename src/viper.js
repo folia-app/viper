@@ -140,7 +140,7 @@ import skeletonbodyGlow from '../public/skeleton-body/2.png'
 import skeletontail from '../public/skeleton-tail/1.png'
 import skeletontailGlow from '../public/skeleton-tail/2.png'
 
-import comicSans from '../public/ComicSansMSBold.ttf'
+// import comicSans from '../public/ComicSansMSBold.ttf'
 
 // import bgImg1 from '../public/bg/1.jpeg'
 // import bgImg2 from '../public/bg/2.jpeg'
@@ -454,7 +454,7 @@ export class Viper {
       this.preloaded.skeleton.bodies.push(await this.loadImage(skeletonbody))
       this.preloaded.skeleton.bodies.push(await this.loadImage(skeletonbodyGlow))
 
-      this.preloaded.font = await this.loadFont(comicSans)
+      // this.preloaded.font = await this.loadFont(comicSans)
 
     } catch (preloadError) {
       console.error({ preloadError })
@@ -652,7 +652,7 @@ export class Viper {
     }
 
     this.fill("white")
-    this.textFont(this.preloaded.font)
+    this.textFont(this.preloaded.font || "Comic Sans MS")
     this.stroke("black")
     this.strokeWeight(32)
     this.textSize(64)

@@ -265,6 +265,7 @@ commander
     })
 
     console.log(filename, `>> Generating ${parseInt(filename.split("-")[1])}-segment Viper #${(bitten ? 'b' : '') + parseInt(filename.split("-")[0].replace("b", ""))}, ${viper.seconds()} seconds, ${viper.seconds() * viper.fps} frames`)
+    const comicSans = await p5.loadFont({ path: './public/ComicSansMSBold.ttf', family: 'Comic Sans MS' });
 
     function sketch(p) {
       let seconds = viper.seconds()
@@ -277,6 +278,7 @@ commander
         try {
           viper.setup(p)
           await viper.preload()
+          viper.preloaded.font = comicSans
           if (viper.pattern !== "randomLoop") {
             viper.addAllLines(viper.maxNumberOfLines)
           }
