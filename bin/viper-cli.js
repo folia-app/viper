@@ -105,6 +105,13 @@ commander
   })
 
 commander
+  .command('big-heads <width>')
+  .description('Generate viper big heads from svg images')
+  .action(async (width) => {
+    await convertSVG('big-head', width)
+  })
+
+commander
   .command('skeleton-bodies')
   .action(async () => {
     await convertSVG('skeleton-body', 100)

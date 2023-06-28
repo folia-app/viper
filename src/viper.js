@@ -32,7 +32,15 @@ import head23 from '../public/head/23.png'
 import head24 from '../public/head/24.png'
 import head25 from '../public/head/25.png'
 import head26 from '../public/head/26.png'
-const heads = [head1, head2, head3, head4, head5, head6, head7, head8, head9, head10, head11, head12, head13, head14, head15, head16, head17, head18, head19, head20, head21, head22, head23, head24, head25, head26]
+// big heads
+import head27 from '../public/big-head/1.png'
+import head28 from '../public/big-head/2.png'
+import head29 from '../public/big-head/3.png'
+import head30 from '../public/big-head/4.png'
+import head31 from '../public/big-head/5.png'
+
+const heads = [head1, head2, head3, head4, head5, head6, head7, head8, head9, head10, head11, head12, head13, head14, head15, head16, head17, head18, head19, head20, head21, head22, head23, head24, head25, head26,
+  head27, head28, head29, head30, head31]
 
 import tail1 from '../public/tail/1.png'
 import tail2 from '../public/tail/2.png'
@@ -60,7 +68,15 @@ import tail23 from '../public/tail/23.png'
 import tail24 from '../public/tail/24.png'
 import tail25 from '../public/tail/25.png'
 import tail26 from '../public/tail/26.png'
-const tails = [tail1, tail2, tail3, tail4, tail5, tail6, tail7, tail8, tail9, tail10, tail11, tail12, tail13, tail14, tail15, tail16, tail17, tail18, tail19, tail20, tail21, tail22, tail23, tail24, tail25, tail26]
+// for big heads
+import tail27 from '../public/tail/27.png'
+import tail28 from '../public/tail/28.png'
+import tail29 from '../public/tail/29.png'
+import tail30 from '../public/tail/30.png'
+import tail31 from '../public/tail/31.png'
+
+const tails = [tail1, tail2, tail3, tail4, tail5, tail6, tail7, tail8, tail9, tail10, tail11, tail12, tail13, tail14, tail15, tail16, tail17, tail18, tail19, tail20, tail21, tail22, tail23, tail24, tail25, tail26,
+  tail27, tail28, tail29, tail30, tail31]
 
 import body1 from '../public/body/resized/1.png'
 import body2 from '../public/body/resized/2.png'
@@ -272,13 +288,25 @@ export class Viper {
 
   tailOffset() {
     const totalUniqueBodies = 13
-    const tailIndex = (this.me.head % totalUniqueBodies) + 1
+    const tailIndex = this.me.style !== "skeleton" ? (this.me.head % totalUniqueBodies) + 1 : 14
+
     return tailOffsets.hasOwnProperty("_" + tailIndex) ? tailOffsets["_" + tailIndex] : defaultTailOffsets
   }
 
   headOffset() {
     const totalUniqueBodies = 13
-    const headIndex = (this.me.head % totalUniqueBodies) + 1
+    let headIndex
+    if (this.me.head >= this.totalBodies) {
+      // big head
+      headIndex = this.me.head + 1
+    } else if (this.me.style !== "skeleton") {
+      headIndex = (this.me.head % totalUniqueBodies) + 1
+    } else {
+      headIndex = (this.me.head % totalUniqueBodies) + 14
+    }
+
+    // const headIndex = this.me.style !== "skeleton" ? (this.me.head % totalUniqueBodies) + 1 : (this.me.head % totalUniqueBodies) + 14
+
     return headOffsets.hasOwnProperty("_" + headIndex) ? headOffsets["_" + headIndex] : defaultHeadOffsets
   }
 
@@ -286,6 +314,7 @@ export class Viper {
     this.tokenId = parseInt(tokenId)
     const tokenIdIndex = this.tokenId - 1
     this.me = this.allVipers[tokenIdIndex]
+
     this.setColors()
 
     this.style = this.me.style
@@ -351,10 +380,10 @@ export class Viper {
   }
 
   head() {
-    let headIndex = this.headRandom - 1
+    let headIndex = this.me.head
     let heads
     if (this.me.style == "skeleton") {
-      const total = this.preloaded.heads.length / 2
+      const total = this.totalBodies / 2
       const mod = headIndex % total
       headIndex = this.me.skeletonColor == 0 ? mod : mod + total
       heads = this.preloaded.skeleton.heads
@@ -810,9 +839,14 @@ export class Viper {
       const xFactor = this.me.style == "randomColor" && headOffset.jellyX || headOffset.xFactor
       const yFactor = this.me.style == "randomColor" && headOffset.jellyY || headOffset.yFactor
 
+      let headWidth = this.headWidth
+      if (this.me.head > (this.totalBodies - 1)) {
+        headWidth = this.headWidth * 2
+      }
+
       var calcHeadOffset = {
-        x: this.headWidth / xFactor,
-        y: this.headWidth / yFactor
+        x: headWidth / xFactor,
+        y: headWidth / yFactor
       }
 
       const head = this.head()
@@ -820,10 +854,10 @@ export class Viper {
       if ((l.x1 - l.x2) > (this.width / 80)) {
         this.push()
         this.scale(-1, 1)
-        this.image(head, (-x2) + calcHeadOffset.x, y2 - calcHeadOffset.y, this.headWidth, this.headWidth);
+        this.image(head, (-x2) + calcHeadOffset.x, y2 - calcHeadOffset.y, headWidth, headWidth);
         this.pop()
       } else {
-        this.image(head, x2 + calcHeadOffset.x, y2 - calcHeadOffset.y, this.headWidth, this.headWidth);
+        this.image(head, x2 + calcHeadOffset.x, y2 - calcHeadOffset.y, headWidth, headWidth);
       }
     }
   }
@@ -1579,24 +1613,61 @@ export class Viper {
         }
       }
       style = "skeleton"
-      for (let skeletonColor = 0; skeletonColor < skeletonColorVariations; skeletonColor++) {
-        for (let backgroundIndex = 0; backgroundIndex < background_options; backgroundIndex++) {
-          const background = backgroundsIndex[backgroundIndex]
-          arrayOfAll.push({ style, head, skeletonColor, background })
+      let skeletonColor = 0
+      // for (let skeletonColor = 0; skeletonColor < skeletonColorVariations; skeletonColor++) {
+      for (let backgroundIndex = 0; backgroundIndex < background_options; backgroundIndex++) {
+        const background = backgroundsIndex[backgroundIndex]
+        if (head >= half) {
+          skeletonColor = 1
+        } else {
+          skeletonColor = 0
         }
+        arrayOfAll.push({ style, head, skeletonColor, background })
       }
+      // }
     }
 
     arrayOfAll = this.shuffle(arrayOfAll)
+
+    // // add second color of skeletons afterwards to preserve shuffle
+    // for (let head = 0; head < half; head++) {
+    //   arrayOfAll.push({
+    //     style: "skeleton",
+    //     skeletonColor: 1,
+    //     background: backgroundsIndex[0],
+    //     head
+    //   })
+    // }
+
+    const styles = [
+      // "everythingMatches",
+      // "mismatched",
+      "randomColor",
+      "debug",
+      // "randomImage",
+    ]
+
+    for (let i = 0; i < 5; i++) {
+      arrayOfAll.push({
+        style: 'randomColor',
+        head: 26 + i,
+        background: backgroundsIndex[0],
+      })
+    }
+
     arrayOfAll.map((item, index) => {
       item.tokenId = index + 1
-      item.pattern = item.style == "debug" ? "randomLoop" : gifPatterns[this.random(0, gifPatterns.length - 1)]
+      if (item.style == "debug") {
+        item.pattern = "randomLoop"
+      } else if (item.head > numHeads) {
+        item.pattern = "heart"
+      } else {
+        item.pattern = gifPatterns[this.random(0, gifPatterns.length - 1)]
+      }
 
       if (item.style == "debug") return
       if (item.background.indexOf('gradient') > -1) {
         item.bgColors = this.setupBgColors(item.background)
-      } else {
-        // item.bgImage = this.random(1, this.totalBgs + 1)
       }
     })
 
@@ -1743,7 +1814,81 @@ const headOffsets = {
     xFactor: 3.5,
     yFactor: 3.5,
     jellyY: 4
-  }
+  },
+  // skeletons come after this
+  _14: { // head 0
+    xFactor: 3.5,
+    yFactor: 2.3,
+  },
+  _15: { // head 1
+    xFactor: 2.5,
+    yFactor: 3.2,
+  },
+  _16: { // head 2
+    xFactor: 3.5,
+    yFactor: 2.5,
+  },
+  _17: { // head 3
+    xFactor: 2.5,
+    yFactor: 3
+  },
+  _18: { // head 4
+    xFactor: 3,
+    yFactor: 2.6
+  },
+  _19: { // head 5
+    xFactor: 2.8,
+    yFactor: 2.5,
+  },
+  _20: { // head 6
+    xFactor: 2.8,
+    yFactor: 3
+  },
+  _21: { // head 7
+    xFactor: 2.5,
+    yFactor: 3.5,
+  },
+  _22: { // head 8
+    xFactor: 3,
+    yFactor: 2.8,
+  },
+  _23: { // head 9
+    xFactor: 2.5,
+    yFactor: 3,
+  },
+  _24: { // head 10
+    xFactor: 3,
+    yFactor: 3,
+  },
+  _25: { // head 11
+    xFactor: 2.9,
+    yFactor: 2.9,
+  },
+  _26: { // head 12
+    xFactor: 3.2,
+    yFactor: 3.3,
+  },
+  // big heads
+  _27: {
+    xFactor: 2.5,
+    yFactor: 2.8,
+  },
+  _28: {
+    xFactor: 3.5,
+    yFactor: 2.4,
+  },
+  _29: {
+    xFactor: 2.6,
+    yFactor: 3,
+  },
+  _30: {
+    xFactor: 2.6,
+    yFactor: 2.5,
+  },
+  _31: {
+    xFactor: 2.6,
+    yFactor: 3,
+  },
 }
 
 const defaultTailOffsets = {
@@ -1811,6 +1956,11 @@ const tailOffsets = {
     xFactor: 0.1,
     yFactor: 0.1,
     jellyX: 0.15
+  },
+  // skeleton tail
+  _14: {
+    xFactor: 0.1,
+    yFactor: 0,
   }
 }
 
