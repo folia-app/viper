@@ -3,8 +3,9 @@ var commander = require('commander')
 const fs = require('fs')
 const p5 = require('node-p5')
 const { Viper } = require('../dist/viper.js')
-// const { convert } = require('convert-svg-to-png');
+const { extractBiteId } = require('./utils')
 const sharp = require('sharp');
+const { ethers } = require("ethers")
 const dotenv = require('dotenv')
 dotenv.config()
 dotenv.config({ path: `.env.local`, override: true });
@@ -14,6 +15,16 @@ const formatName = function (tokenId, length) {
   const paddedLength = String(length).padStart(3, '0')
   return `${paddedTokenId}-${paddedLength}`
 }
+
+async function reverseLookup(address) {
+  const provider = new ethers.providers.InfuraProvider(
+    "homestead",
+    process.env.INFURA_API_KEY,
+  );
+  const name = await provider.lookupAddress(address)
+  return name || address
+}
+
 
 commander
   .version('0.0.1')
@@ -228,23 +239,32 @@ commander
 commander
   .command('generate-gif <tokenId> <viperLength>')
   .description('Generate viper gif')
-  .action(async (tokenId, viperLength) => {
+  .action(async (tokenIdParam, viperLength) => {
     const printLogs = process.env.NODE_ENV === 'development'
-    tokenId = parseInt(tokenId)
+    let tokenId = parseInt(tokenIdParam)
+    let bittenBy = null, bitten = false
     viperLength = parseInt(viperLength)
-    const filename = formatName(tokenId, viperLength)
+    let originalTokenId, length, senderAddress
+    if (tokenId > 512) {
+      bitten = true;
+      ({ length, originalTokenId, senderAddress } = extractBiteId(tokenIdParam));
+      tokenId = originalTokenId.toNumber()
+      bittenBy = senderAddress.toHexString()
+
+      // get ens name of address bittenBy
+      bittenBy = await reverseLookup(bittenBy)
+      viperLength = length.toNumber()
+    }
+    const filename = bitten ? "b" + formatName(originalTokenId, viperLength) : formatName(tokenId, viperLength)
     console.time(filename)
     const viper = new Viper({
       logs: printLogs,
       tokenId,
-      setting: "server",
-      // pattern: 'rotatingEight',
-      // backgroundStyle: 'text',
+      bittenBy,
       maxNumberOfLines: viperLength
     })
 
-    console.log(filename, `>> Generating ${parseInt(filename.split("-")[1])}-segment Viper #${parseInt(filename.split("-")[0])}, ${viper.seconds()} seconds, ${viper.seconds() * viper.fps} frames`)
-
+    console.log(filename, `>> Generating ${parseInt(filename.split("-")[1])}-segment Viper #${(bitten ? 'b' : '') + parseInt(filename.split("-")[0].replace("b", ""))}, ${viper.seconds()} seconds, ${viper.seconds() * viper.fps} frames`)
 
     function sketch(p) {
       let seconds = viper.seconds()

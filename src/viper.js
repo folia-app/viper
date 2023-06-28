@@ -140,6 +140,8 @@ import skeletonbodyGlow from '../public/skeleton-body/2.png'
 import skeletontail from '../public/skeleton-tail/1.png'
 import skeletontailGlow from '../public/skeleton-tail/2.png'
 
+import comicSans from '../public/ComicSansMSBold.ttf'
+
 // import bgImg1 from '../public/bg/1.jpeg'
 // import bgImg2 from '../public/bg/2.jpeg'
 // import bgImg3 from '../public/bg/3.jpeg'
@@ -226,10 +228,8 @@ export class Viper {
     this.bittenBy = bittenBy
 
     if (this.bittenBy !== null) {
-      tokenId = this.bittenBy
       backgroundStyle = "text"
       tweens = 2
-      fps = 10
     }
 
     this.setting = setting
@@ -454,6 +454,8 @@ export class Viper {
       this.preloaded.skeleton.bodies.push(await this.loadImage(skeletonbody))
       this.preloaded.skeleton.bodies.push(await this.loadImage(skeletonbodyGlow))
 
+      this.preloaded.font = await this.loadFont(comicSans)
+
     } catch (preloadError) {
       console.error({ preloadError })
     }
@@ -468,6 +470,7 @@ export class Viper {
     this.point = p ? p.point.bind(p) : window.point
     this.line = p ? p.line.bind(p) : window.line
     this.fill = p ? p.fill.bind(p) : window.fill
+    this.loadFont = p ? p.loadFont.bind(p) : window.loadFont
     this.textFont = p ? p.textFont.bind(p) : window.textFont
     this.textSize = p ? p.textSize.bind(p) : window.textSize
     this.text = p ? p.text.bind(p) : window.text
@@ -649,15 +652,15 @@ export class Viper {
     }
 
     this.fill("white")
-    this.textFont("Arial Black")
+    this.textFont(this.preloaded.font)
     this.stroke("black")
     this.strokeWeight(32)
-    this.textSize(32)
+    this.textSize(64)
     // const ctx = this.canvas.drawingContext;
     // this.canvas.elt.style.letterSpacing = "9px";
     // ctx.font = `${textHeight}px Courier`;
-    const address = "0xFa398d672936Dcf428116F687244034961545D91"
-    const text = ("You    have   been   bitten by     ").toUpperCase() + address
+    const address = this.bittenBy || "VIPER"
+    const text = ("Viper  Bite   by            ").toUpperCase() + address
     const textArray = text.split("")
 
     const rows = 7
@@ -667,7 +670,8 @@ export class Viper {
     const offset = this.style == "debug" ? chunk / 2 : 0
     for (let i = 0; i < rows; i++) {
       for (let j = 0; j < cols; j++) {
-        this.text(textArray[i * rows + j], (j + 1) * chunk - (chunk / 2) + offset, (i + 1) * chunk - (chunk / 3) + offset)
+        if (!textArray[i * rows + j]) continue
+        this.text(textArray[i * rows + j], (j + 1) * chunk - (chunk / 2) + offset, (i + 1) * chunk - (chunk / 3) + offset + 5)
       }
     }
   }
