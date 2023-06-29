@@ -1,6 +1,6 @@
 
 import Prando from 'prando'
-// const RgbQuant = require('rgbquant');
+const { extractBiteId, reverseLookup } = require('../bin/utils')
 
 // import them so webpack bundles them as base64 
 // in the file and no external loads are necessary
@@ -225,12 +225,7 @@ export class Viper {
 
     this.rng = new Prando("viper bite invites embrace")
     this.allVipers = this.populate()
-    this.bittenBy = bittenBy
 
-    if (this.bittenBy !== null) {
-      backgroundStyle = "text"
-      tweens = 2
-    }
 
     this.setting = setting
     if (this.setting == "server") {
@@ -241,6 +236,27 @@ export class Viper {
 
     // tokenId is 1-indexed
     this.tokenId = tokenId || Math.ceil(Math.random() * this.allVipers.length)
+    if (this.tokenId > this.allVipers.length) {
+      let { length, originalTokenId, senderAddress } = extractBiteId(this.tokenId);
+      this.tokenId = originalTokenId.toNumber()
+      bittenBy = ""
+      this.bittenByAddress = senderAddress.toHexString()
+      // get ens name of address bittenBy
+      reverseLookup(this.bittenByAddress).then((bittenBy) => {
+        if (bittenBy) {
+          this.bittenBy = bittenBy
+        } else {
+          this.bittenBy = this.bittenByAddress
+        }
+      })
+      maxNumberOfLines = length.toNumber()
+    }
+    this.bittenBy = bittenBy
+    if (this.bittenBy !== null) {
+      backgroundStyle = "text"
+      tweens = 2
+    }
+
     this.setTokenId(this.tokenId)
 
     this.style = style || this.me.style
@@ -656,10 +672,7 @@ export class Viper {
     this.stroke("black")
     this.strokeWeight(32)
     this.textSize(64)
-    // const ctx = this.canvas.drawingContext;
-    // this.canvas.elt.style.letterSpacing = "9px";
-    // ctx.font = `${textHeight}px Courier`;
-    const address = this.bittenBy || "VIPER"
+    const address = this.bittenBy || ""
     const text = ("Viper  Bite   by            ").toUpperCase() + address
     const textArray = text.split("")
 

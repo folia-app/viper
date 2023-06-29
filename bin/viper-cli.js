@@ -3,9 +3,8 @@ var commander = require('commander')
 const fs = require('fs')
 const p5 = require('node-p5')
 const { Viper } = require('../dist/viper.js')
-const { extractBiteId } = require('./utils')
+const { extractBiteId, reverseLookup } = require('./utils')
 const sharp = require('sharp');
-const { ethers } = require("ethers")
 const dotenv = require('dotenv')
 dotenv.config()
 dotenv.config({ path: `.env.local`, override: true });
@@ -15,16 +14,6 @@ const formatName = function (tokenId, length) {
   const paddedLength = String(length).padStart(3, '0')
   return `${paddedTokenId}-${paddedLength}`
 }
-
-async function reverseLookup(address) {
-  const provider = new ethers.providers.InfuraProvider(
-    "homestead",
-    process.env.INFURA_API_KEY,
-  );
-  const name = await provider.lookupAddress(address)
-  return name || address
-}
-
 
 commander
   .version('0.0.1')
