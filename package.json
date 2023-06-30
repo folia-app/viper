@@ -21,7 +21,7 @@
     "dotenv": "^16.0.3",
     "ethers": "^5.2.0",
     "html-webpack-plugin": "^5.5.0",
-    "node-p5": "https://github.com/okwme/p5-node#0b8372f29e9b075d0d8152d2ba521aeddf09b964",
+    "node-p5": "https://github.com/okwme/p5-node#a16edf72b8f2ef31bd29bd896968b84014f86476",
     "prando": "^6.0.1",
     "rgbquant": "^1.1.2",
     "sharp": "^0.32.1",

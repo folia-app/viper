@@ -12,7 +12,8 @@ dotenv.config({ path: `.env.local`, override: true });
 const formatName = function (tokenId, length) {
   const paddedTokenId = String(tokenId).padStart(4, '0')
   const paddedLength = String(length).padStart(3, '0')
-  return `${paddedTokenId}-${paddedLength}`
+
+  return `${paddedTokenId}/${paddedLength}`
 }
 
 commander
