@@ -226,10 +226,16 @@ commander
   })
 
 commander
-  .command('generate-gif <tokenId> <viperLength>')
+  .command('generate-gif <tokenId> <viperLength> [output]')
   .description('Generate viper gif')
-  .action(async (tokenIdParam, viperLength) => {
+  .action(async (tokenIdParam, viperLength, output = "public/gifs/") => {
     const printLogs = process.env.NODE_ENV === 'development'
+
+    // check if output folder exists and create it if not
+    if (!fs.existsSync(output)) {
+      fs.mkdirSync(output)
+    }
+
     let tokenId = parseInt(tokenIdParam)
     let bittenBy = null, bitten = false
     viperLength = parseInt(viperLength)
@@ -272,7 +278,7 @@ commander
             viper.addAllLines(viper.maxNumberOfLines)
           }
           readyToDraw = true
-          await p.saveFrames(viper.canvas.drawingContext, filename, {}, seconds, fps)
+          await p.saveFrames(viper.canvas.drawingContext, filename, {}, seconds, fps, output)
           console.timeEnd(filename, "gif is done")
           viper.endLog()
         } catch (setupError) {

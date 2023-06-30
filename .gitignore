@@ -8,6 +8,7 @@
 
 /animated-*
 /public/gifs/*
+/public/*-gifs/*
 
 # production
 /dist/*
