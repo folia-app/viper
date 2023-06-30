@@ -285,7 +285,7 @@ commander
           await viper.preload()
           viper.preloaded.font = comicSans
           if (viper.pattern !== "randomLoop") {
-            viper.addAllLines(viper.maxNumberOfLines)
+            viper.addAllLines(50)
           }
           readyToDraw = true
           await p.saveFrames(viper.canvas.drawingContext, filename, {}, seconds, fps, output)
