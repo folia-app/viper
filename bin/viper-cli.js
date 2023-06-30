@@ -231,6 +231,14 @@ commander
   .action(async (tokenIdParam, viperLength, output = "public/gifs/") => {
     const printLogs = process.env.NODE_ENV === 'development'
 
+    // the output directory should be named like public/${network}-gifs/
+    // the network should be used as the seed if not mainnet
+    let seed = output.split("/")[1].split("-")[0]
+    if (seed == "gifs") {
+      seed = null // mainnet should be null so that default seed is used
+    }
+
+
     // check if output folder exists and create it if not
     if (!fs.existsSync(output)) {
       fs.mkdirSync(output)
@@ -253,6 +261,7 @@ commander
     const filename = bitten ? "b" + formatName(originalTokenId, viperLength) : formatName(tokenId, viperLength)
     console.time(filename)
     const viper = new Viper({
+      seed,
       logs: printLogs,
       tokenId,
       bittenBy,

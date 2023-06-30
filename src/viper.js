@@ -158,6 +158,7 @@ let fs, path
 export class Viper {
   constructor(overwriteOptions = {}) {
     const options = {
+      seed: null,
       tokenId: null,
       setting: "server",
       logs: false, // false, true, "verbose"
@@ -207,11 +208,12 @@ export class Viper {
       ...overwriteOptions
     }
     let {
-      segmentsBeforeGifRevertsToLoop,
+      segmentsBeforeGifRevertsToLoop, seed,
       changeOnTarget, div, tokenId, bittenBy, setting, logs, style, backgroundStyle, pattern, wanderLoopDuration,
       width, maxNumberOfLines, maxLen, strokeW, headWidth, tailLength, holeWidth, margin, angleDistanceMin,
       fps, tweens, bgColor, hideHole, hideHead, hideTail, redrawBackground, hideSnake, dither
     } = options
+
     this.logs = logs
     this.log('constructor')
     this.logs && console.time("viper")
@@ -223,7 +225,8 @@ export class Viper {
     this.div = div || 'sketch-holder'
     this.segmentsBeforeGifRevertsToLoop = segmentsBeforeGifRevertsToLoop
 
-    this.rng = new Prando("viper bite invites embrace")
+    seed = seed || "viper bite invites embrace"
+    this.rng = new Prando(seed)
     this.allVipers = this.populate()
 
 
