@@ -14,6 +14,38 @@
       <style>
       .pointer{cursor: pointer;margin: 10px;}
        html, body, * {margin: 0px;padding: 0px;}
+       * {
+        font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+        font-size: 24pt;
+       }
+       div {
+        margin:10px;
+        padding:10px;
+       }
+       button {
+        padding:5px 15px;
+        border-radius: 25px;
+       }
+       /* #sketch-holder {
+        position: absolute;
+        left:0px;
+        top:0px;
+        width:100vw;
+        height:100vh;
+       }
+       #sketch-holder canvas {
+          pointer-events: none;
+
+       }
+       #control {
+        position:absolute;
+        left:0px;
+        top:0px;
+        z-index:100;
+       } */
+       /* body {
+        background-color: red;
+       } */
       </style>
 
       <script  src="./p5.js"></script>
@@ -23,17 +55,20 @@
 
 <body>
   <div id="sketch-holder"></div>
-  <button class="pointer" id="prev">prev snek</button>
-  <button class="pointer" id="next">next snek</button>
-  <br>
-  <button class="pointer" id="prev-pattern">prev pattern</button>
-  <button class="pointer" id="next-pattern">next pattern</button>
-  <br>
-  <button class="pointer" id="minus-length">length--</button>
-  <button class="pointer" id="plus-length">length++</button>
-  <br>
-  <button class="pointer" id="bite">bite</button>
-  <div id="pattern-name"></div>
+  <div id="control">
+    <button class="pointer" id="prev">prev snek</button>
+    <button class="pointer" id="next">next snek</button>
+    <br>
+    <button class="pointer" id="prev-pattern">prev pattern</button>
+    <button class="pointer" id="next-pattern">next pattern</button>
+    <br>
+    <button class="pointer" id="minus-length">length--</button>
+    <button class="pointer" id="plus-length">length++</button>
+    <br>
+    <button class="pointer" id="bite">bite</button>
+    <div id="pattern-name"></div>
+    <div id="viper-name"></div>
+  </div>
   <script>
     var viper, length = 3
     var bite = false
@@ -53,8 +88,8 @@
     let patternIndex = 0//Math.floor(Math.random() * (patterns.length))
     function writePatternName() {
       const pattern = viper.pattern
-      console.log(`write patterh ${viper.pattern}`)
       document.getElementById('pattern-name').innerHTML = pattern
+      document.getElementById('viper-name').innerHTML = viper.me.name
     }
     function unbite() {
       bite = false
@@ -95,6 +130,7 @@
     })
     document.getElementById('next').addEventListener('click', (e) => {
       e.preventDefault()
+      console.log(viper.me.tokenId.toString())
       nextViper()
     })
     document.getElementById('plus-length').addEventListener('click', (e) => {
@@ -117,16 +153,20 @@
     })
     function prevViper() {
       let tokenId = viper.me.tokenId - 1
+      console.log({tokenId: tokenId.toString()})
       if (tokenId < 1) {
         tokenId = viper.allVipers.length
       }
+      console.log({tokenId: tokenId.toString()})
       startViper(tokenId)
     }
     function nextViper() {
       let tokenId = viper.me.tokenId + 1
+      console.log({tokenId: tokenId.toString()})
       if (tokenId > viper.allVipers.length) {
         tokenId = 1
       }
+      console.log({tokenId: tokenId.toString()})
       startViper(tokenId)
     }
     function change(head, style = 0) {
@@ -151,9 +191,12 @@
       }
     }
     function startViper(tokenId) {
+      console.log("startViper", tokenId)
       if (bite) {
+        console.log('currently bitten')
         unbite()
       } else {
+        console.log('set token', tokenId)
         viper.setTokenId(tokenId, true)
       }
       setLength()

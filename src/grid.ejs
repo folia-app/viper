@@ -19,6 +19,8 @@
         body {
           margin: 0;
           padding: 0;
+          font-family: "Comic Sans MS", "Comic Sans", cursive;
+          font-size: 48px;
         }
         .pointer{
           cursor: pointer;
@@ -30,15 +32,24 @@
           padding: 0;
           /* text-align: center; */
         }
+        div.name {
+          display: inline-block;
+          /* margin: 0 50px; */
+          width: 25vw;
+          text-align: left;
+        }
       </style>
 
 </head>
 
 <body>
-  <% for (var i = 0; i < 100; i++) { %><div id="sketch-holder-<%= i %>"></div><% } %>
+  <% for (var i = 0; i < 100; i++) { %><div class="sketch-holder" id="sketch-holder-<%= i %>"></div><% } %>
   <br>
+  <% for (var i = 0; i < 100; i++) { %><div class="name" id="name-<%= i %>"></div><% } %>
+
   <button class="pointer" id="prev">prev</button>
   <button class="pointer" id="next">next</button>
+  <div id="page"></div>
   <script>
     let page = 1
     let perPage = 4
@@ -49,17 +60,26 @@
     document.getElementById("next").addEventListener("click", (e) => {
       e.preventDefault()
       page += 1
+      if (page > Math.ceil(486 / 4)) page = 1
+      startPage()
+    })    
+    document.getElementById("prev").addEventListener("click", (e) => {
+      e.preventDefault()
+      page -= 1
+      if (page < 1) page = Math.ceil(486 / 4)
       startPage()
     })
     
     const arrayOfVipers = []
     var s = function(p) {
       const container = totalVipers % perPage
+      const tokenId = (perPage * (page-1)) + totalVipers + 1
+      if (tokenId > 486) return
       var viper = new Viper({
-        tokenId: totalVipers + 1,
+        tokenId,
         setting: "browser",
         // pattern: "random",
-        maxNumberOfLines: Math.ceil(100 * (totalVipers / 806)),
+        maxNumberOfLines: Math.ceil(100 * (totalVipers / 806)) + 1,
         div: `sketch-holder-${container}`,
       })
       if (container == 0) {
@@ -74,6 +94,7 @@
       p.setup = async () => {
         await viper.setup(p)
         await viper.preload()
+
         draw = true
       }
       p.draw = async () => {
@@ -82,16 +103,24 @@
       }
       const prevViper = arrayOfVipers[container]
       if (prevViper) {
-        console.log('kill viper')
         prevViper.die()
       }
       arrayOfVipers[container] = viper
+      document.getElementById(`name-${container}`).innerHTML = `${viper.me.name}`
       totalVipers += 1
     }
     function startPage() {
-      for (var i = 0; i < perPage; i++) {
-        document.getElementById(`sketch-holder-${i}`).innerHTML = ""
+      // get all elements with class sketch-holder
+      document.getElementsByClassName("sketch-holder").forEach(element => {
+        element.innerHTML = ""
+      });
+      totalVipers = 0
+      for (var i = ((page-1) * perPage); i < (((page-1) * perPage) + perPage); i++) {
+        if (i > 486) return
+        // document.getElementById(`sketch-holder-${i}`).innerHTML = ""
+        // document.getElementById(`name-${i}`).innerHTML = ""
         new p5(s, `sketch-holder-${i}`)
+        document.getElementById('page').innerHTML = page
       }
     }
 

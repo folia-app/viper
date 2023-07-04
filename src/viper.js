@@ -140,6 +140,24 @@ import skeletonbodyGlow from '../public/skeleton-body/2.png'
 import skeletontail from '../public/skeleton-tail/1.png'
 import skeletontailGlow from '../public/skeleton-tail/2.png'
 
+import lovehead1 from '../public/love-head/1.png'
+import lovehead2 from '../public/love-head/2.png'
+import lovehead3 from '../public/love-head/3.png'
+import lovehead4 from '../public/love-head/4.png'
+import lovehead5 from '../public/love-head/5.png'
+import lovehead6 from '../public/love-head/6.png'
+import lovehead7 from '../public/love-head/7.png'
+import lovehead8 from '../public/love-head/8.png'
+import lovehead9 from '../public/love-head/9.png'
+import lovehead10 from '../public/love-head/10.png'
+import lovehead11 from '../public/love-head/11.png'
+import lovehead12 from '../public/love-head/12.png'
+import lovehead13 from '../public/love-head/13.png'
+const loveheads = [lovehead1, lovehead2, lovehead3, lovehead4, lovehead5, lovehead6, lovehead7, lovehead8, lovehead9, lovehead10, lovehead11, lovehead12, lovehead13]
+
+import lovebody from '../public/love-body/1.png'
+import lovetail from '../public/love-tail/1.png'
+
 // import comicSans from '../public/ComicSansMSBold.ttf'
 
 // import bgImg1 from '../public/bg/1.jpeg'
@@ -307,8 +325,10 @@ export class Viper {
 
   tailOffset() {
     const totalUniqueBodies = 13
-    const tailIndex = this.me.style !== "skeleton" ? (this.me.head % totalUniqueBodies) + 1 : 14
-
+    let tailIndex = this.me.style !== "skeleton" ? (this.me.head % totalUniqueBodies) + 1 : 14
+    if (this.me.style == "love") {
+      tailIndex = 12
+    }
     return tailOffsets.hasOwnProperty("_" + tailIndex) ? tailOffsets["_" + tailIndex] : defaultTailOffsets
   }
 
@@ -391,6 +411,9 @@ export class Viper {
     if (this.me.style == "skeleton") {
       tailIndex = this.me.skeletonColor
       tails = this.preloaded.skeleton.tails
+    } else if (this.me.style == "love") {
+      tailIndex = 0
+      tails = [this.preloaded.love.tail]
     } else {
       tails = this.preloaded.tails
     }
@@ -406,6 +429,8 @@ export class Viper {
       const mod = headIndex % total
       headIndex = this.me.skeletonColor == 0 ? mod : mod + total
       heads = this.preloaded.skeleton.heads
+    } else if (this.me.style == "love") {
+      heads = this.preloaded.love.heads
     } else {
       heads = this.preloaded.heads
     }
@@ -431,6 +456,9 @@ export class Viper {
 
       this.preloaded = {
         hole, //bgImgs: [],
+        love: {
+          body: null, heads: [], tail: null
+        },
         bodies: [], heads: [], tails: [], skeleton: {
           bodies: [], heads: [], tails: []
         }
@@ -472,6 +500,14 @@ export class Viper {
 
       this.preloaded.skeleton.bodies.push(await this.loadImage(skeletonbody))
       this.preloaded.skeleton.bodies.push(await this.loadImage(skeletonbodyGlow))
+
+      this.preloaded.love.body = await this.loadImage(lovebody)
+      this.preloaded.love.tail = await this.loadImage(lovetail)
+      for (let i = 0; i < loveheads.length; i++) {
+        const head = loveheads[i]
+        const loadedImage = await this.loadImage(head)
+        this.preloaded.love.heads.push(loadedImage)
+      }
 
       // this.preloaded.font = await this.loadFont(comicSans)
 
@@ -692,20 +728,53 @@ export class Viper {
     }
   }
 
-  setupBgColors(style) {
+  setupBgColors(item) {
+    const style = item.background
     let bgColors
     const a = this.random(0, 255)
     const b = this.random(0, 255)
     const c = this.random(0, 255)
     const d = this.random(0, 255)
-    if (style.indexOf("bw") > -1) {
-      bgColors = [[a, a, a], [b, b, b], [c, c, c], [d, d, d]]
-    } else {
+    if (item.style == "love") {
+      const a = this.random(200, 255)
+      const b = this.random(200, 255)
+      const c = this.random(200, 255)
+      const d = this.random(200, 255)
+      const whiteCorner = this.random(0, 3)
+      const whiteCornerB = this.random(0, 3)
+      const white = [255, 150, 150]
       bgColors = [
-        [a, this.random(0, 255), this.random(0, 255)],
-        [b, this.random(0, 255), this.random(0, 255)],
-        [c, this.random(0, 255), this.random(0, 255)],
-        [d, this.random(0, 255), this.random(0, 255)]
+        whiteCorner == 0 ? white : whiteCornerB == 0 ? white : [a, 0, 0],
+        whiteCorner == 1 ? white : whiteCornerB == 1 ? white : [b, 0, 0],
+        whiteCorner == 2 ? white : whiteCornerB == 2 ? white : [c, 0, 0],
+        whiteCorner == 3 ? white : whiteCornerB == 3 ? white : [d, 0, 0],
+      ]
+    } else {
+      if (style.indexOf("bw") > -1) {
+        bgColors = [[a, a, a], [b, b, b], [c, c, c], [d, d, d]]
+      } else {
+        bgColors = [
+          [a, this.random(0, 255), this.random(0, 255)],
+          [b, this.random(0, 255), this.random(0, 255)],
+          [c, this.random(0, 255), this.random(0, 255)],
+          [d, this.random(0, 255), this.random(0, 255)]
+        ]
+      }
+    }
+
+    if (item.style == "skeleton") {
+      // bgColors = [[a, a, a], [b, b, b], [c, c, c], [d, d, d]]
+      const getSkeletonColor = () => {
+        const a = this.random(0, 100)
+        const b = this.random(0, 100)
+        const c = this.random(0, 100)
+        return [a, b, c]
+      }
+      bgColors = [
+        getSkeletonColor(),
+        getSkeletonColor(),
+        getSkeletonColor(),
+        getSkeletonColor(),
       ]
     }
     return bgColors
@@ -824,6 +893,7 @@ export class Viper {
               this.whichSegment = this.me.body
               this.drawImageSegment(x1, y1, x2, y2, len, ang, c, i)
               break;
+            case ("love"):
             case ("everythingMatches"):
             case ("skeleton"):
               this.drawImageSegment(x1, y1, x2, y2, len, ang, c, i)
@@ -887,6 +957,8 @@ export class Viper {
     let pic
     if (this.me.style == "skeleton") {
       pic = this.preloaded.skeleton.bodies[this.me.skeletonColor]
+    } else if (this.me.style == "love") {
+      pic = this.preloaded.love.body
     } else {
       pic = this.preloaded.bodies[this.whichSegment]
     }
@@ -1649,23 +1721,7 @@ export class Viper {
 
     arrayOfAll = this.shuffle(arrayOfAll)
 
-    // // add second color of skeletons afterwards to preserve shuffle
-    // for (let head = 0; head < half; head++) {
-    //   arrayOfAll.push({
-    //     style: "skeleton",
-    //     skeletonColor: 1,
-    //     background: backgroundsIndex[0],
-    //     head
-    //   })
-    // }
 
-    const styles = [
-      // "everythingMatches",
-      // "mismatched",
-      "randomColor",
-      "debug",
-      // "randomImage",
-    ]
 
     for (let i = 0; i < 5; i++) {
       arrayOfAll.push({
@@ -1675,11 +1731,21 @@ export class Viper {
       })
     }
 
+    for (let i = 0; i < 13; i++) {
+      arrayOfAll.push({
+        style: 'love',
+        head: i,
+        background: backgroundsIndex[0],
+      })
+    }
+
     arrayOfAll.map((item, index) => {
       item.tokenId = index + 1
       if (item.style == "debug") {
         item.pattern = "randomLoop"
-      } else if (item.head > numHeads) {
+      } else if (item.head >= numHeads) {
+        item.pattern = "heart" // big heads have heart pattern
+      } else if (item.style == "love") {
         item.pattern = "heart"
       } else {
         item.pattern = gifPatterns[this.random(0, gifPatterns.length - 1)]
@@ -1687,8 +1753,47 @@ export class Viper {
 
       if (item.style == "debug") return
       if (item.background.indexOf('gradient') > -1) {
-        item.bgColors = this.setupBgColors(item.background)
+        item.bgColors = this.setupBgColors(item)
       }
+    })
+
+    // need to mix in the last 18 to the rest of the group but keep track so the pre-generated gifs can be rearranged correctly
+    for (let i = 18; i > 0; i--) {
+      const pos = 486 - i
+      const item = arrayOfAll[pos]
+      const newPos = this.random(0, 485)
+      const removed = arrayOfAll.splice(newPos, 1, item)
+      arrayOfAll.splice(pos, 1, removed[0])
+
+      const oldID = arrayOfAll[pos].tokenId
+      const newId = arrayOfAll[newPos].tokenId
+      arrayOfAll[pos].tokenId = newId
+      arrayOfAll[newPos].tokenId = oldID
+      // const newPosName = (newPos + 1).toString().padStart(4, '0')
+      // const posName = (pos + 1).toString().padStart(4, '0')
+      // console.log(`mv ${posName} ${newPosName}`)
+      // console.log(`mv ${newPosName} ${posName}`)
+    }
+
+    // make a copy of names
+    const namesCopy = [...names]
+    const shuffledNames = this.shuffle(namesCopy)
+    arrayOfAll.map((item, index) => {
+      let prefix = ""
+      switch (item.style) {
+        case "skeleton":
+          prefix = "Dead "
+          break
+        case "love":
+          prefix = "Pretty "
+          break
+      }
+      if (item.head >= numHeads) {
+        prefix = "Big "
+      }
+      // capitalize first letter of name
+      const name = prefix + shuffledNames[index].charAt(0).toUpperCase() + shuffledNames[index].slice(1)
+      item.name = name
     })
 
     return arrayOfAll
@@ -1985,14 +2090,31 @@ const tailOffsets = {
 }
 
 const gifPatterns = [
-  'bigEight',
+  'bigEight', // Big Eight
   'eight',
   'circle',
   'square',
   'heart',
-  'randomLoop',
+  'randomLoop', // Random Loop
   'star'
 ]
+
+const styles = [
+  "everythingMatches", // Matching
+  "mismatched", // Mismatched
+  "randomColor", // Jelly Bean
+  "debug", // Debug
+  "randomImage", // Mixed Mismatched
+  "lover-486", // Lover
+  "skeleton", // Skeleton
+  "big-head" // Big Head
+]
+
+// special attributes
+// 486 (in korean characters) / /or lover-mode
+// big-head-mode
+// skeleton-mode
+
 
 const backgroundsIndex = [
   // "gradient-high",
@@ -2001,3 +2123,38 @@ const backgroundsIndex = [
   // "bw-gradient-low",
   // "image"
 ]
+
+const mood = [
+
+]
+
+const headBase = [
+  'Eel',
+  'Ee',
+  'Sahm',
+  'Sah',
+  'Oh',
+  'Yook',
+  'Chil',
+  'Pahl',
+  'Goo',
+  'Sib',
+  'Sib-Eel',
+  'Sib-Ee',
+  'Sib-Sahm',
+  'Sib-Sah',
+  'Sib-Oh',
+  'Sib-Yook',
+  'Sib-Chil',
+  'Sib-Pahl',
+  'Sib-Goo',
+  'Ee-Sib',
+  'Ee-Sib-Eel',
+  'Ee-Sib-Ee',
+  'Ee-Sib-Sahm',
+  'Ee-Sib-Sah',
+  'Ee-Sib-Oh',
+  'Ee-Sib-Yook',
+]
+
+const names = ['balter', 'babber', 'badder', 'baffer', 'backer', 'barmer', 'barner', 'banner', 'bammer', 'bapper', 'batter', 'belter', 'bebber', 'beffer', 'becker', 'bermer', 'berner', 'bemmer', 'bepper', 'better', 'bilter', 'bibber', 'bidder', 'biffer', 'bicker', 'biller', 'birmer', 'birner', 'binner', 'bimmer', 'bipper', 'bolter', 'bobber', 'bodder', 'boffer', 'bocker', 'bormer', 'borner', 'bommer', 'bopper', 'botter', 'bulter', 'bubber', 'budder', 'buffer', 'buller', 'burmer', 'burner', 'bunner', 'bupper', 'butter', 'chalter', 'chabber', 'chadder', 'chacker', 'challer', 'charmer', 'charner', 'channer', 'chammer', 'chapper', 'chatter', 'chelter', 'chebber', 'chedder', 'cheffer', 'checker', 'cheller', 'chermer', 'cherner', 'chenner', 'chemmer', 'chepper', 'chetter', 'chibber', 'chidder', 'chiffer', 'chicker', 'chiller', 'chirmer', 'chirner', 'chinner', 'chimmer', 'chipper', 'chitter', 'cholter', 'chobber', 'chodder', 'choffer', 'choller', 'chormer', 'chorner', 'chonner', 'chommer', 'chopper', 'chulter', 'chudder', 'chuller', 'churmer', 'churner', 'chunner', 'chummer', 'chupper', 'dalter', 'dadder', 'daffer', 'darner', 'danner', 'dammer', 'datter', 'delter', 'debber', 'dedder', 'deffer', 'deller', 'dermer', 'derner', 'denner', 'demmer', 'depper', 'detter', 'dilter', 'dibber', 'differ', 'diller', 'dirmer', 'dirner', 'dinner', 'dimmer', 'dipper', 'ditter', 'dolter', 'dobber', 'dodder', 'doffer', 'docker', 'doller', 'dormer', 'dorner', 'donner', 'dopper', 'dotter', 'dulter', 'dubber', 'dudder', 'duffer', 'ducker', 'duller', 'durmer', 'durner', 'dummer', 'dupper', 'dutter', 'falter', 'fadder', 'faffer', 'faller', 'farmer', 'farner', 'fanner', 'fammer', 'felter', 'febber', 'fedder', 'feffer', 'feller', 'fermer', 'ferner', 'fenner', 'femmer', 'fepper', 'fetter', 'filter', 'fidder', 'fiffer', 'firner', 'finner', 'fimmer', 'fipper', 'folter', 'fobber', 'foffer', 'foller', 'former', 'forner', 'fonner', 'fommer', 'fopper', 'fulter', 'fubber', 'fudder', 'fuller', 'furmer', 'furner', 'funner', 'fummer', 'futter', 'galter', 'gabber', 'gadder', 'gaffer', 'galler', 'garmer', 'garner', 'ganner', 'gammer', 'gatter', 'gelter', 'gebber', 'gedder', 'geffer', 'gecker', 'geller', 'germer', 'gerner', 'genner', 'gemmer', 'gepper', 'gilter', 'gibber', 'giffer', 'giller', 'girmer', 'girner', 'ginner', 'gimmer', 'gipper', 'golter', 'gobber', 'goffer', 'gocker', 'goller', 'gormer', 'gorner', 'gommer', 'gopper', 'gulter', 'gubber', 'gudder', 'guffer', 'gucker', 'guller', 'gurmer', 'gurner', 'gummer', 'gupper', 'halter', 'habber', 'hadder', 'haffer', 'hacker', 'haller', 'harner', 'hanner', 'hammer', 'happer', 'hatter', 'helter', 'hebber', 'hedder', 'heffer', 'hecker', 'heller', 'hermer', 'herner', 'henner', 'hemmer', 'hepper', 'hetter', 'hilter', 'hibber', 'hiffer', 'hicker', 'hiller', 'hirmer', 'hirner', 'hinner', 'himmer', 'hipper', 'holter', 'hobber', 'hodder', 'hoffer', 'hocker', 'holler', 'hormer', 'honner', 'hopper', 'hulter', 'hubber', 'hudder', 'huffer', 'huller', 'hurmer', 'hurner', 'hunner', 'hupper', 'hutter', 'jalter', 'jabber', 'jadder', 'jaffer', 'jaller', 'jarmer', 'jarner', 'janner', 'jammer', 'jatter', 'jelter', 'jebber', 'jedder', 'jeffer', 'jecker', 'jeller', 'jermer', 'jerner', 'jenner', 'jemmer', 'jepper', 'jetter', 'jibber', 'jidder', 'jiffer', 'jiller', 'jirmer', 'jirner', 'jinner', 'jimmer', 'jitter', 'jolter', 'jobber', 'jodder', 'joffer', 'joller', 'jormer', 'jorner', 'jonner', 'jommer', 'jopper', 'jotter', 'julter', 'jubber', 'judder', 'juffer', 'jucker', 'juller', 'jurmer', 'jurner', 'junner', 'jummer', 'jupper', 'jutter', 'kalter', 'kabber', 'kadder', 'kaffer', 'kaller', 'karmer', 'karner', 'kanner', 'kammer', 'kapper', 'katter', 'kelter', 'kebber', 'kedder', 'keffer', 'keller', 'kermer', 'kerner', 'kenner', 'kemmer', 'kepper', 'ketter', 'kibber', 'kiffer', 'kirmer', 'kirner', 'kinner', 'kimmer', 'kipper', 'kolter', 'kobber', 'kodder', 'koffer', 'koller', 'kormer', 'korner', 'konner', 'kommer', 'kopper', 'kotter', 'kulter', 'kubber', 'kudder', 'kuffer', 'kuller', 'kurmer', 'kurner', 'kunner', 'kupper', 'kutter', 'lalter', 'labber', 'ladder', 'laffer', 'lacker', 'laller', 'larmer', 'larner', 'lanner', 'lammer', 'lapper', 'latter', 'lebber', 'ledder', 'leffer', 'leller', 'lermer', 'lerner', 'lenner', 'lemmer', 'lepper', 'letter', 'lilter', 'libber', 'lidder', 'liffer', 'liller', 'lirmer', 'lirner', 'linner', 'limmer', 'lipper', 'lolter', 'lobber', 'lodder', 'loffer', 'loller', 'lormer', 'lorner', 'lonner', 'lommer', 'lopper', 'lotter', 'lulter', 'ludder', 'luffer', 'lucker', 'luller', 'lurmer', 'lurner', 'lunner', 'lummer', 'lupper', 'lutter', 'malter', 'madder', 'maffer', 'macker', 'maller', 'marmer', 'marner', 'manner', 'mammer', 'mapper', 'matter', 'melter', 'mebber', 'medder', 'meffer', 'mecker', 'meller', 'mermer', 'merner', 'memmer', 'mepper', 'metter', 'milter', 'mibber', 'midder', 'miller', 'mirmer', 'mirner', 'minner', 'mimmer', 'mipper', 'mitter', 'molter', 'modder', 'moffer', 'mocker', 'moller', 'mormer', 'morner', 'monner', 'mopper', 'motter', 'multer', 'mubber', 'mudder', 'muller', 'murmer', 'murner', 'munner', 'mupper', 'mutter', 'nalter', 'nabber', 'naffer', 'naller', 'narmer', 'narner', 'nanner', 'nammer', 'napper', 'nelter', 'neller', 'nermer', 'nerner', 'nemmer', 'nepper', 'netter', 'nilter', 'niller', 'nirmer', 'nirner', 'nolter', 'noller', 'normer', 'norner', 'nommer', 'nopper', 'nulter', 'nuffer', 'nuller', 'nurmer', 'nurner', 'nummer', 'nupper', 'palter', 'pabber', 'padder', 'paffer', 'paller', 'parmer', 'parner', 'panner', 'pammer', 'papper', 'patter', 'pebber', 'pedder', 'peffer', 'peller', 'permer', 'perner', 'penner', 'pemmer', 'pepper', 'pidder', 'piffer', 'piller', 'pirmer', 'pirner', 'pinner', 'pimmer', 'pipper', 'pitter', 'polter', 'pobber', 'podder', 'poller', 'pormer', 'ponner', 'pommer', 'popper', 'potter', 'pulter', 'pubber', 'puffer', 'purmer', 'purner', 'punner', 'pummer', 'pupper', 'putter', 'ralter', 'rabber', 'radder', 'raffer', 'racker', 'raller', 'rarmer', 'rarner', 'ranner', 'relter', 'rebber', 'redder', 'reffer', 'recker', 'reller', 'rermer', 'rerner', 'renner', 'remmer', 'repper', 'retter', 'rilter', 'riffer', 'ricker', 'riller', 'rinner', 'ritter', 'rolter', 'roffer', 'roller', 'rormer', 'rorner', 'ronner', 'rommer', 'ropper', 'rotter', 'rulter', 'rudder', 'ruller', 'rurmer', 'rurner', 'runner', 'rummer', 'rutter', 'salter', 'sabber', 'sadder', 'saffer', 'saller', 'sarmer', 'sarner', 'sanner', 'sammer', 'sapper', 'satter', 'selter', 'sebber', 'sedder', 'seffer', 'seller', 'sermer', 'serner', 'senner', 'semmer', 'sepper', 'setter', 'silter', 'sibber', 'sidder', 'siffer', 'siller', 'sirmer', 'sirner', 'simmer', 'sipper', 'sitter', 'solter', 'sobber', 'socker', 'soller', 'sormer', 'sorner', 'sonner', 'sommer', 'sotter', 'sulter', 'subber', 'sudder', 'suller', 'surmer', 'surner', 'sunner', 'summer', 'supper', 'sutter', 'shalter', 'shabber', 'shadder', 'shaffer', 'shacker', 'shaller', 'sharmer', 'sharner', 'shanner', 'shammer', 'shapper', 'shatter', 'shelter', 'shebber', 'shedder', 'sheffer', 'shecker', 'sheller', 'shermer', 'sherner', 'shenner', 'shemmer', 'shepper', 'shilter', 'shibber', 'shiffer', 'shicker', 'shiller', 'shirmer', 'shirner', 'shinner', 'shimmer', 'shipper', 'sholter', 'shobber', 'shodder', 'shoffer', 'sholler', 'shormer', 'shorner', 'shonner', 'shommer', 'shopper', 'shulter', 'shubber', 'shuller', 'shurmer', 'shurner', 'shunner', 'shummer', 'shupper', 'shutter', 'talter', 'tabber', 'tadder', 'taffer', 'tacker', 'taller', 'tarmer', 'tarner', 'tanner', 'tammer', 'tapper', 'tatter', 'telter', 'tebber', 'tedder', 'teffer', 'tecker', 'teller', 'termer', 'terner', 'tenner', 'temmer', 'tepper', 'tetter', 'tilter', 'tibber', 'tidder', 'tiffer', 'ticker', 'tiller', 'tirmer', 'tirner', 'tinner', 'timmer', 'tolter', 'tobber', 'todder', 'toffer', 'tocker', 'toller', 'tormer', 'torner', 'tonner', 'tommer', 'topper', 'totter', 'tulter', 'tubber', 'tudder', 'tuffer', 'tuller', 'turmer', 'turner', 'tunner', 'tummer', 'tupper', 'tutter', 'valter', 'vabber', 'vadder', 'vaffer', 'vacker', 'valler', 'varmer', 'varner', 'vanner', 'vammer', 'vapper', 'velter', 'vebber', 'vedder', 'veffer', 'vecker', 'veller', 'vermer', 'verner', 'venner', 'vemmer', 'vepper', 'vetter', 'vilter', 'vibber', 'vidder', 'viffer', 'vicker', 'viller', 'virmer', 'virner', 'vinner', 'vimmer', 'vipper', 'vitter', 'volter', 'vobber', 'vodder', 'voffer', 'voller', 'vormer', 'vorner', 'vonner', 'vommer', 'vopper', 'votter', 'vulter', 'vubber', 'vudder', 'vuffer', 'vuller', 'vurmer', 'vurner', 'vunner', 'vummer', 'vupper', 'vutter', 'walter', 'wabber', 'wadder', 'waffer', 'waller', 'warner', 'wanner', 'wammer', 'wapper', 'webber', 'wedder', 'weffer', 'wecker', 'weller', 'wermer', 'werner', 'wenner', 'wemmer', 'wepper', 'wilter', 'wibber', 'wiffer', 'wicker', 'willer', 'wirmer', 'wirner', 'winner', 'wimmer', 'wipper', 'witter', 'wolter', 'wobber', 'wodder', 'woffer', 'wocker', 'woller', 'wormer', 'worner', 'wonner', 'wommer', 'wopper', 'wotter', 'wulter', 'wubber', 'wudder', 'wuffer', 'wucker', 'wuller', 'wurmer', 'wurner', 'wunner', 'wummer', 'wupper', 'wutter', 'yalter', 'yabber', 'yadder', 'yaffer', 'yacker', 'yaller', 'yarmer', 'yarner', 'yanner', 'yammer', 'yapper', 'yatter', 'yelter', 'yebber', 'yedder', 'yeffer', 'yecker', 'yeller', 'yermer', 'yerner', 'yenner', 'yemmer', 'yepper', 'yetter', 'yilter', 'yibber', 'yidder', 'yicker', 'yiller', 'yirmer', 'yirner', 'yinner', 'yimmer', 'yipper', 'yitter', 'yolter', 'yobber', 'yodder', 'yoffer', 'yocker', 'yoller', 'yormer', 'yorner', 'yonner', 'yommer', 'yopper', 'yotter', 'yulter', 'yubber', 'yudder', 'yuffer', 'yucker', 'yuller', 'yurmer', 'yurner', 'yunner', 'yummer', 'yupper', 'yutter'];

@@ -113,6 +113,15 @@ commander
   })
 
 commander
+  .command("love")
+  .description("Generate love elements")
+  .action(async () => {
+    await convertSVG('love-head', 120)
+    await convertSVG('love-body', 100)
+    await convertSVG('love-tail', 120)
+  })
+
+commander
   .command('skeleton-bodies')
   .action(async () => {
     await convertSVG('skeleton-body', 100)
