@@ -1854,6 +1854,10 @@ export class Viper {
     return patterns
   }
 
+  mood() {
+    return mood
+  }
+
 }
 
 function rotateXY(cx, cy, x, y, angle) {
@@ -2172,7 +2176,19 @@ const backgroundsIndex = [
 ]
 
 const mood = [
-
+  'Ambitious',
+  'Derpy',
+  'Skeptical',
+  'Empty',
+  'Oblivious',
+  'Blissful',
+  'Revolutionary',
+  'Confrontational',
+  'Assured',
+  'Cracked',
+  'Precocious',
+  'Sleazy',
+  'Sassy'
 ]
 
 const headBase = [
