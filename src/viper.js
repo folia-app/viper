@@ -372,18 +372,43 @@ export class Viper {
 
   iterateTokenId() {
     const tokenId = this.tokenId + 1
-    if (this.maxNumberOfLines >= 50) {
+    if (this.maxNumberOfLines === 16) {
+      this.tweens = 3
+    } else if (this.maxNumberOfLines === 56) {
       this.pattern = 'circle'
       if (!this.iterateInterval) {
         this.iterateInterval = setInterval(() => {
           this.iterateTokenId()
-        }, 666)
+        }, 200)
+      } else {
+        this.circleChanges = this.circleChanges || 0
+        this.circleChanges++
+      }
+      if (this.circleChanges > 19) {
+        this.maxNumberOfLines++
+        this.wanderLoopDuration = 160
+        this.pattern = 'randomLoop'
+        this.tweens = 5
+        setTimeout(() => {
+          clearInterval(this.iterateInterval)
+          this.iterateInterval = setInterval(() => {
+            this.iterateTokenId()
+          }, 1000)
+        }, 1000)
       }
     }
+
+    if (this.justReset) {
+      this.setTokenId(1)
+      this.tweens = 99
+      return
+    }
+
+
     let length = this.maxNumberOfLines - 1
     this.setTokenId(tokenId, true)
     if (this.pattern == "star") {
-      length = this.maxNumberOfLines + 1
+      length = this.maxNumberOfLines + 2
       this.maxNumberOfLines = length
       this.allLines = this.allLines.slice(0, length + 1)
       this.addLine()
@@ -1136,7 +1161,7 @@ export class Viper {
         seconds = 3.52857143 // ok
         break
       case 'circle':
-        seconds = 3.9 // ok
+        seconds = 0.4875 * this.tweens // = 3.9 @ 8 tweens // ok
         break
       case 'square':
         seconds = 5.48571428 // ok
@@ -1244,6 +1269,7 @@ export class Viper {
 
   reset() {
     this.allLines = []
+    this.totalLength = 0
     this.wanderHome = undefined
     this.reachedHome = undefined
     this.totalLength = 0
@@ -1302,7 +1328,8 @@ export class Viper {
     const previousTarget = shape[(this.lastTargetIndex - 1 + shape.length) % shape.length]
     const midWay = { x: (previousTarget.x + target.x) / 2, y: (previousTarget.y + target.y) / 2 }
     const distToMidWay = this.dist(previousX, previousY, midWay.x, midWay.y)
-    if (distToMidWay < this.maxLen / 2 && this.changeOnTarget && !this.hitMid) {
+    const untilChangeFast = 30
+    if (this.allLines.length > untilChangeFast && distToMidWay < this.maxLen / 2 && this.changeOnTarget && !this.hitMid) {
       this.hitMid = true
       this.iterateTokenId()
     }
@@ -1771,8 +1798,6 @@ export class Viper {
       arrayOfAll[newPos].tokenId = oldID
       // const newPosName = (newPos + 1).toString().padStart(4, '0')
       // const posName = (pos + 1).toString().padStart(4, '0')
-      // console.log(`mv ${posName} ${newPosName}`)
-      // console.log(`mv ${newPosName} ${posName}`)
     }
 
     // make a copy of names

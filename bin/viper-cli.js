@@ -320,6 +320,7 @@ commander
           console.error('framesSoFar === totalFrames, but this shouldnt happen')
           return
         }
+        // framesSoFar % viper.tweens == 0 && viper.iterateTokenId()
         printLogs && console.time(filename + "-draw-" + framesSoFar)
         viper.draw()
         printLogs && console.timeEnd(filename + "-draw-" + framesSoFar)
