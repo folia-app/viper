@@ -744,7 +744,7 @@ export class Viper {
     const cols = 7
     const chunk = this.width / rows
     this.textAlign(this.CENTER)
-    const offset = this.style == "debug" ? chunk / 2 : 0
+    const offset = 0
     for (let i = 0; i < rows; i++) {
       for (let j = 0; j < cols; j++) {
         if (!textArray[i * rows + j]) continue
@@ -1842,6 +1842,18 @@ export class Viper {
     return array;
   }
 
+  headBase() {
+    return headBase
+  }
+
+  styles() {
+    return styles
+  }
+
+  patterns() {
+    return patterns
+  }
+
 }
 
 function rotateXY(cx, cy, x, y, angle) {
@@ -2124,16 +2136,26 @@ const gifPatterns = [
   'star'
 ]
 
-const styles = [
-  "everythingMatches", // Matching
-  "mismatched", // Mismatched
-  "randomColor", // Jelly Bean
-  "debug", // Debug
-  "randomImage", // Mixed Mismatched
-  "lover-486", // Lover
-  "skeleton", // Skeleton
-  "big-head" // Big Head
-]
+const patterns = {}
+patterns[gifPatterns[0]] = "Big Eight"
+patterns[gifPatterns[1]] = "Eight"
+patterns[gifPatterns[2]] = "Circle"
+patterns[gifPatterns[3]] = "Square"
+patterns[gifPatterns[4]] = "Heart"
+patterns[gifPatterns[5]] = "Random Loop"
+patterns[gifPatterns[6]] = "Star"
+
+const styles = {
+  "everythingMatches": 'Matching',
+  "mismatched": 'Mismatched',
+  "randomColor": 'Jelly Bean',
+  "debug": 'Debug',
+  "randomImage": 'Mixed Mismatched',
+  "lover-486": 'Lover',
+  "skeleton": 'Skeleton',
+  "big-head": 'Big Head'
+}
+
 
 // special attributes
 // 486 (in korean characters) / /or lover-mode
