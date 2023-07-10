@@ -2155,7 +2155,7 @@ const styles = {
   "randomColor": 'Jelly Bean',
   "debug": 'Debug',
   "randomImage": 'Mixed Mismatched',
-  "lover-486": 'Lover',
+  "love": '사랑해',
   "skeleton": 'Skeleton',
   "big-head": 'Big Head'
 }
