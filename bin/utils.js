@@ -18,11 +18,16 @@ function extractBiteId(tokenId) {
 }
 
 async function reverseLookup(address) {
-  const provider = new ethers.providers.InfuraProvider(
-    "homestead",
-    '671d0acca9914d5b88ef05224f007fa2',
-  );
-  const name = await provider.lookupAddress(address)
+  let name
+  try {
+    const provider = new ethers.providers.InfuraProvider(
+      "homestead",
+      process.env.INFURA_API_KEY,
+    );
+    name = await provider.lookupAddress(address)
+  } catch (e) {
+    return address
+  }
   return name || address
 }
 
