@@ -158,7 +158,7 @@ const loveheads = [lovehead1, lovehead2, lovehead3, lovehead4, lovehead5, lovehe
 import lovebody from '../public/love-body/1.png'
 import lovetail from '../public/love-tail/1.png'
 
-// import comicSans from '../public/ComicSansMSBold.ttf'
+import comicSans from '../public/ComicSansMSBold.ttf'
 
 // import bgImg1 from '../public/bg/1.jpeg'
 // import bgImg2 from '../public/bg/2.jpeg'
@@ -534,7 +534,7 @@ export class Viper {
         this.preloaded.love.heads.push(loadedImage)
       }
 
-      // this.preloaded.font = await this.loadFont(comicSans)
+      this.preloaded.font = await this.loadFont(comicSans)
 
     } catch (preloadError) {
       console.error({ preloadError })
