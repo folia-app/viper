@@ -1,5 +1,6 @@
 const { ethers } = require("ethers");
 
+
 function extractBiteId(tokenId) {
   tokenId = ethers.BigNumber.from(tokenId.toString())
   // length is tokenId bit shifted right 169 bits
@@ -22,7 +23,7 @@ async function reverseLookup(address) {
   try {
     const provider = new ethers.providers.InfuraProvider(
       "homestead",
-      process.env.INFURA_API_KEY,
+      "671d0acca9914d5b88ef05224f007fa2",
     );
     name = await provider.lookupAddress(address)
   } catch (e) {

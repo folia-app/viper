@@ -263,7 +263,9 @@ export class Viper {
       bittenBy = ""
       this.bittenByAddress = senderAddress.toHexString()
       // get ens name of address bittenBy
+      console.log(this.bittenByAddress)
       reverseLookup(this.bittenByAddress).then((bittenBy) => {
+        console.log({ bittenBy })
         if (bittenBy) {
           this.bittenBy = bittenBy
         } else {
@@ -272,7 +274,7 @@ export class Viper {
       })
       maxNumberOfLines = length.toNumber()
     }
-    this.bittenBy = bittenBy
+    this.bittenBy = this.bittenBy
     if (this.bittenBy !== null) {
       backgroundStyle = "text"
       tweens = 2
