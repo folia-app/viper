@@ -274,7 +274,7 @@ export class Viper {
       })
       maxNumberOfLines = length.toNumber()
     }
-    this.bittenBy = this.bittenBy
+    this.bittenBy = this.bittenBy ? this.bittenBy : bittenBy
     if (this.bittenBy !== null) {
       backgroundStyle = "text"
       tweens = 2
