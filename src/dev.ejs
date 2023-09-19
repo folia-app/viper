@@ -13,6 +13,10 @@
     </title>
       <style>
       .pointer{cursor: pointer;margin: 10px;}
+      html {
+        scroll-behavior: smooth;
+
+      }
        html, body, * {margin: 0px;padding: 0px;}
        * {
         font-family: 'Comic Sans MS', 'Comic Sans', cursive;
@@ -25,6 +29,11 @@
        button {
         padding:5px 15px;
         border-radius: 25px;
+       }
+       #sketch-holder {
+        /* position: absolute;
+        margin-left:0;
+        margin-top:0; */
        }
        /* #sketch-holder {
         position: absolute;
@@ -143,14 +152,14 @@
       length = length ? length - 1 : viper.maxNumberOfLines - 1
       setLength()
     })
-    document.getElementById('sketch-holder').addEventListener('click', () => {
-      // if (viper.hideHead) return
-      stop = !stop
-      if (stop) {
-        patternIndex++
-        viper.pattern = patterns[patternIndex % patterns.length]
-      }
-    })
+    // document.getElementById('sketch-holder').addEventListener('click', () => {
+    //   // if (viper.hideHead) return
+    //   stop = !stop
+    //   if (stop) {
+    //     patternIndex++
+    //     viper.pattern = patterns[patternIndex % patterns.length]
+    //   }
+    // })
     function prevViper() {
       let tokenId = viper.me.tokenId - 1
       console.log({tokenId: tokenId.toString()})
@@ -205,26 +214,136 @@
       writePatternName()
     }
     let tokenId = (window.location.hash && window.location.hash.replace("#", "")) || null
+
+    let totalVipers = 486
+    let vipers = []
+
+    let utilViper = new Viper({
+      setting: "browser"
+    })
+    console.log(utilViper.me.tokenId)
+    // const newRNG = new Prando()
+    // utilViper.setColors()
+    utilViper.allVipers = utilViper.shuffle(utilViper.allVipers, utilViper.localRNG)
+    const makeLong = []
     var s = function(p) {
       p.preload = async () => {
-        viper = new Viper({
-          tokenId,
-          setting: "browser",
-          pattern: "random",
-          maxNumberOfLines: length,
-        })
-        writePatternName()
+        for (let i = 0; i < 486;i++){//utilViper.allVipers.length; i++) {
+          let test = utilViper.allVipers[i]
+          // if (test.style == "mismatched") continue
+          // if (test.style == "debug") continue
+          // if (vipers.length > 2) continue
+          // if (test.style !== "debug") continue
+          // if (vipers.length > 0) continue
+          let viper = new Viper({
+            tokenId: test.tokenId,
+            setting: "browser",
+            pattern: "random",
+            backgroundStyle: "solid",
+            bgColor: "white",
+            mode: "foo",
+            height: 3543.3,
+            width:16384,
+            redrawBackground: false,
+            maxNumberOfLines:  Math.ceil(Math.random() * 3),
+          })
+          if (makeLong.indexOf(viper.style) == -1 && i > 200) {
+            makeLong.push(viper.style)
+            viper.maxNumberOfLines = 100
+          }
+          // if (viper.pattern !== "circle" && viper.pattern !== "star") continue
+          
+          if (viper.pattern == "randomLoop") {
+            viper.pattern = "random"
+          }
+          // if (viper.pattern == 'random') continue
+          // if (vipers.filter(v => v.pattern == viper.pattern).length > 0) continue
+          vipers.push(viper)
+        }
+        // viper = new Viper({
+        //   tokenId,
+        //   setting: "browser",
+        //   pattern: "random",
+        //   maxNumberOfLines: length,
+        // })
+        // writePatternName()
       }
+      let preloaded = false
       p.setup = async () => {
-        viper.setup(p)
-        await viper.preload()
+        for (let i= 0; i < vipers.length; i++) {
+          let viper = vipers[i]
+          let canvas
+          if (i !== 0) {
+            canvas = vipers[i].canvas
+          }
+          viper.setup(p, canvas)
+          if (i == 0) {
+            await viper.preload()
+          } else {
+            viper.preloaded = vipers[0].preloaded
+          }
+          viper.addAllLines(viper.maxNumberOfLines)
+        }
+        preloaded = true
       }
+      let drawn = false
       p.draw = async () => {
+        if (drawn) return
         if (stop) return
-        viper.draw()
+        for (let i = 0; i < vipers.length; i++) {
+          let viper = vipers[i]
+          if (i == 0) {
+            viper.drawBackground()
+          }
+          viper.draw()
+          // drawn = true
+        }
+        
+        // p.noLoop()
+        // window.scrollTo({left, top, behaviour: 'smooth'})
+        // window.scrollTo(chosenViper.x , chosenViper.y )
       }
     }
     new p5(s)
+    // requestAnimationFrame(callback)
+    // function callback() {
+
+    //   console.log('calling callback')
+    //   chosenViper = vipers[0]
+    //   if (!chosenViper) {
+    //     setTimeout( () => requestAnimationFrame(callback), 500)
+    //   }
+    //   let screenWidth = window.innerWidth
+    //   let screenHeight = window.innerHeight
+    //   const left = chosenViper.x //- (screenWidth / 2)
+    //   const top = chosenViper.y// - (screenHeight / 2)
+    //   // apply css offset to canvas
+    //   // css canvas absolute
+    //   // css body overflow hidden
+    //   // css canvas margin to left or top
+    //   // document.getElementById('sketch-holder').style['margin-left'] = `-${left}px`
+    //   // document.getElementById('sketch-holder').style['margin-top'] = `-${top}px`
+    //   window.scrollTo({left, top, behaviour: 'smooth'})
+    //   requestAnimationFrame(callback)
+    // }
+
+    // move window scroll position to 100, 100
+    // window.scrollTo(100, 100)
+    // let chosenViper
+    // setInterval(() => {
+    //   try {
+    //     chosenViper = vipers[0]
+    //     let screenWidth = window.innerWidth
+    //     let screenHeight = window.innerHeight
+    //     // window.scrollTo(chosenViper.x + (screenWidth / 2), chosenViper.y + (screenHeight / 2))
+    //     window.scrollTo(chosenViper.x , chosenViper.y )
+    //   } catch (e) {
+    //     console.log(e)
+    //   }
+    // }, 10)
+    // setTimeout(() => {
+    //   console.log({chosenViper})
+    // }, 3000)
   </script>
 </body>
 

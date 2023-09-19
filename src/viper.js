@@ -181,6 +181,7 @@ export class Viper {
       setting: "server",
       logs: false, // false, true, "verbose"
       style: null,
+      mode: "stretch",
       backgroundStyle: null/*
       // backgroundStyle options
       // 1. solid
@@ -204,6 +205,7 @@ export class Viper {
       div: null,
       bittenBy: null,
       width: 686,
+      height: null,
       maxNumberOfLines: null,
       maxLen: null,
       strokeW: null,
@@ -226,12 +228,14 @@ export class Viper {
       ...overwriteOptions
     }
     let {
-      segmentsBeforeGifRevertsToLoop, seed,
+      segmentsBeforeGifRevertsToLoop, seed, mode, height,
       changeOnTarget, div, tokenId, bittenBy, setting, logs, style, backgroundStyle, pattern, wanderLoopDuration,
       width, maxNumberOfLines, maxLen, strokeW, headWidth, tailLength, holeWidth, margin, angleDistanceMin,
       fps, tweens, bgColor, hideHole, hideHead, hideTail, redrawBackground, hideSnake, dither
     } = options
 
+    this.height = height || width
+    this.mode = mode
     this.logs = logs
     this.log('constructor')
     this.logs && console.time("viper")
@@ -294,13 +298,13 @@ export class Viper {
     if (this.maxNumberOfLines > this.segmentsBeforeGifRevertsToLoop && this.setting == "server") {
       this.pattern = 'random'
     }
-    this.maxLen = maxLen || this.width * 0.14577259 // 100
+    this.maxLen = maxLen || (this.mode == "stretch" ? this.width * 0.14577259 : 100) // 100
     this.strokeLen =
-      this.strokeW = strokeW || this.width * 0.0728863 // 50
-    this.holeWidth = holeWidth || this.width * 0.20116618 // 138
-    this.headWidth = headWidth || this.width * 0.17492711 // 120
-    this.tailLength = tailLength || this.width * 0.17492711 // 100
-    this.margin = margin || this.width * 0.1//20116618 // 138
+      this.strokeW = strokeW || (this.mode == "stretch" ? this.width * 0.0728863 : 50) // 50
+    this.holeWidth = holeWidth || (this.mode == "stretch" ? this.width * 0.20116618 : 138) // 138
+    this.headWidth = headWidth || (this.mode == "stretch" ? this.width * 0.17492711 : 120) // 120
+    this.tailLength = tailLength || (this.mode == "stretch" ? this.width * 0.17492711 : 100) // 100
+    this.margin = margin || (this.mode == "stretch" ? this.width * 0.1 : 138)//20116618 // 138
     this.angleDistanceMin = angleDistanceMin
     this.fps = fps
     this.tweens = tweens
@@ -544,7 +548,7 @@ export class Viper {
     this.drawBackground()
   }
 
-  async setup(p) {
+  async setup(p, canvas) {
     this.logs == "verbose" && console.timeLog("viper", "setup")
     this.textAlign = p ? p.textAlign.bind(p) : window.textAlign
     this.loadImage = p ? p.loadImage.bind(p) : window.loadImage
@@ -584,12 +588,15 @@ export class Viper {
     this.scale = p ? p.scale.bind(p) : window.scale
     this.noStroke = p ? p.noStroke.bind(p) : window.noStroke
     this.clear = p ? p.clear.bind(p) : window.clear
-
-    this.canvas = this.createCanvas(this.width, this.width)
-
-    if (typeof document !== "undefined") {
-      this.canvas.parent(this.div)
+    if (canvas) {
+      this.canvas = canvas
+    } else {
+      this.canvas = this.createCanvas(this.width, this.height)
+      if (typeof document !== "undefined") {
+        this.canvas.parent(this.div)
+      }
     }
+
 
     const { x, y, previousAngle } = this.getStart()
     this.x = x
@@ -620,9 +627,9 @@ export class Viper {
     // out of bounds top
     this.rect(0, 0, this.width, this.margin)
     // out of bounds left
-    this.rect(0, this.margin, this.margin, this.width)
+    this.rect(0, this.margin, this.margin, this.height)
     // out of bounds right
-    this.rect(this.width - this.margin, this.margin, this.margin, this.width)
+    this.rect(this.width - this.margin, this.margin, this.margin, this.height)
     // out of bounds bottom
     this.rect(this.margin, this.width - this.strokeW, this.width - this.margin - this.margin, this.strokeW)
 
@@ -812,13 +819,13 @@ export class Viper {
       if (!this.savedBG) {
         let colors
         colors = this.me.bgColors
-        const bgCanvas = this.createGraphics(this.width, this.width)
+        const bgCanvas = this.createGraphics(this.width, this.height)
         bgCanvas.noStroke()
         for (let i = 0; i < resolution; i++) {
           for (let j = 0; j < resolution; j++) {
             let s = this.width / resolution;
             let wx = i * s / this.width
-            let wy = j * s / this.width
+            let wy = j * s / this.height
             let c = weightedAvgColor(weightedAvgColor(colors[0], colors[1], wx), weightedAvgColor(colors[3], colors[2], wx), wy)
             bgCanvas.fill(c)
             bgCanvas.rect(i * s, j * s, s, s)
@@ -858,12 +865,13 @@ export class Viper {
         this.savedBG = bgCanvas
       }
 
-      this.image(this.savedBG, this.width / 2, this.width / 2, this.width, this.width)
+      this.image(this.savedBG, this.width / 2, this.height / 2, this.width, this.height)
     } catch (e) {
       console.error(e)
-      this.savedBG = this.createGraphics(this.width, this.width)
+      this.savedBG = this.createGraphics(this.width, this.height)
     }
   }
+
 
   draw() {
     this.logs == "verbose" && console.timeLog("viper", "draw")
@@ -968,7 +976,7 @@ export class Viper {
 
       const head = this.head()
 
-      if ((l.x1 - l.x2) > (this.width / 80)) {
+      if ((l.x1 - l.x2) > (this.mode == "stretch" ? this.width / 80 : 8)) {
         this.push()
         this.scale(-1, 1)
         this.image(head, (-x2) + calcHeadOffset.x, y2 - calcHeadOffset.y, headWidth, headWidth);
@@ -1061,7 +1069,7 @@ export class Viper {
 
     const angle = Math.atan2(y2 - y1, x2 - x1)
     const offsetAngle = angle + 90
-    const flip = (x1 - x2) > (this.width / 80)
+    const flip = (x1 - x2) > (this.mode == "stretch" ? this.width / 80 : 8)
 
     const xOffsetByAngle = Math.cos(offsetAngle) * segmentOffset * (flip ? 1 : -1)
     const yOffsetByAngle = Math.sin(offsetAngle) * segmentOffset * (flip ? 1 : -1)
@@ -1074,7 +1082,7 @@ export class Viper {
   drawDebug(x1, y1, x2, y2, len, ang, i, c, originalLine) {
     const l = this.allLines[i]
     this.stroke("blue")
-    var debugLineWeight = this.width / 100
+    var debugLineWeight = this.mode == "stretch" ? this.width / 100 : 6.86
     this.strokeWeight(debugLineWeight)
     this.line(x1, y1, x2, y2)
     this.stroke('rgb(0,255,0)')
@@ -1351,17 +1359,18 @@ export class Viper {
 
   wanderInStar() {
     const radius2 = this.width / 3
-    const origin = this.width / 2
+    const originX = this.width / 2
+    const originY = this.height / 2
 
     const npoints = 5
     let fivePoints = []
     const rotateBy = 271
     for (let a = 0; a < this.TWO_PI; a += this.TWO_PI / npoints) {
       this.angleMode(this.RADIANS);
-      let sx = origin + Math.cos(a) * radius2;
-      let sy = origin + Math.sin(a) * radius2;
+      let sx = originX + Math.cos(a) * radius2;
+      let sy = originY + Math.sin(a) * radius2;
       this.angleMode(this.DEGREES);
-      const results = rotateXY(origin, origin, sx, sy, rotateBy)
+      const results = rotateXY(originX, originY, sx, sy, rotateBy)
       fivePoints.push({ x: results[0], y: results[1] })
     }
     // fivePoints = [a, b, c, d, e]
@@ -1375,7 +1384,7 @@ export class Viper {
     const index = Math.floor(this.totalLength / this.tweens) % this.heartPattern.length
     const coord = this.heartPattern[index]
     const x = coord.x * this.width / 686
-    const y = coord.y * this.width / 686
+    const y = coord.y * this.height / 686
     const previousX = this.x
     const previousY = this.y
     const angle = Math.atan2(y - previousY, x - previousX) * 180 / Math.PI;
@@ -1387,7 +1396,7 @@ export class Viper {
     const previousY = this.y
     let { x, y, tries, failed, angle } = this.wanderInEight()
     const rotateBy = this.totalLength / 3
-    const results = rotateXY(this.width / 2, this.width / 2, x, y, rotateBy)
+    const results = rotateXY(this.width / 2, this.height / 2, x, y, rotateBy)
     x = results[0]
     y = results[1]
     angle = Math.atan2(y - previousY, x - previousX) * 180 / Math.PI;
@@ -1412,7 +1421,7 @@ export class Viper {
     const results = rotateXY(0, 0, x, y, rotateBy)
 
     const xOrigin = this.width / 1.9
-    const yOrigin = this.width / 1.7
+    const yOrigin = this.height / 1.7
     x = results[0] + xOrigin
     y = results[1] + yOrigin
 
@@ -1430,10 +1439,11 @@ export class Viper {
     // const si = sin(frameCount / 50) * 80;
     // const co = cos(frameCount / 50);
     const size = this.width / 3.5
-    const origin = this.width / 2
+    const originX = this.width / 2
+    const originY = this.height / 2
     const step = this.totalLength / (((this.maxLen - this.strokeW / 2) / 30) * this.tweens)
-    const x = Math.sin(step) * size + origin
-    const y = Math.cos(step) * Math.sin(step) * size + origin
+    const x = Math.sin(step) * size + originX
+    const y = Math.cos(step) * Math.sin(step) * size + originY
     const angle = Math.atan2(y - previousY, x - previousX) * 180 / Math.PI;
     this.angleMode(this.DEGREES);
     return { x, y, tries: 0, failed: false, angle }
@@ -1444,8 +1454,8 @@ export class Viper {
     const square = [
       { x: margin, y: margin },
       { x: this.width - margin, y: margin },
-      { x: this.width - margin, y: this.width - margin },
-      { x: margin, y: this.width - margin },
+      { x: this.width - margin, y: this.height - margin },
+      { x: margin, y: this.height - margin },
     ]
     return square
   }
@@ -1464,7 +1474,7 @@ export class Viper {
     const angleJump = ((Math.PI * 2) / chunks) * ((this.totalLength / this.tweens) % chunks)
     const r = this.width / 2 - this.margin
     var x = this.width / 2 + r * Math.cos(angleJump);
-    var y = this.width / 2 + r * Math.sin(angleJump);
+    var y = this.height / 2 + r * Math.sin(angleJump);
     const angle = Math.atan2(y - previousY, x - previousX) * 180 / Math.PI;
     this.angleMode(this.DEGREES);
     return { x, y, tries: 0, failed: false, angle }
@@ -1541,7 +1551,7 @@ export class Viper {
       var newY = Math.floor(previousY + Math.sin(newAngle * Math.PI / 180) * (lineLength))
 
       // if it does, return the new point
-      if (!outSideCanvas(newX, newY, this.width, this.margin, this.strokeW)) {
+      if (!outSideCanvas(newX, newY, this.width, this.height, this.margin, this.strokeW)) {
         return { x: newX, y: newY, tries: i + 1, angle: newAngle, failed }
       }
 
@@ -1566,10 +1576,11 @@ export class Viper {
   getStart() {
     let x, y, previousAngle
     const min = this.margin
-    const max = this.width - (this.margin * 2)
+    const maxX = this.width - (this.margin * 2)
+    const maxY = this.height - (this.margin * 2)
     const center = this.width / 2
-    const firstRandom = this.random(min, max)
-    const secondRandom = this.random(min, max)
+    const firstRandom = this.random(min, maxX, this.localRNG)
+    const secondRandom = this.random(min, maxY, this.localRNG)
     const randomAngle = this.random(0, 360)
     switch (this.pattern) {
       case "circle":
@@ -1826,14 +1837,14 @@ export class Viper {
     return arrayOfAll
   }
 
-  shuffle(array) {
+  shuffle(array, rng) {
     let currentIndex = array.length, randomIndex;
 
     // While there remain elements to shuffle.
     while (currentIndex != 0) {
 
       // Pick a remaining element.
-      randomIndex = this.random(0, currentIndex - 1)
+      randomIndex = this.random(0, currentIndex - 1, rng)
       currentIndex--;
 
       // And swap it with the current element.
@@ -1873,9 +1884,9 @@ function rotateXY(cx, cy, x, y, angle) {
 
 
 
-function outSideCanvas(x, y, width, margin, bottomMargin) {
+function outSideCanvas(x, y, width, height, margin, bottomMargin) {
   // note, this doesn't account for the margin of the bottom
-  if (x < margin || x > width - margin || y < margin || y > width - bottomMargin) {
+  if (x < margin || x > width - margin || y < margin || y > height - bottomMargin) {
     return true
   }
   return false
