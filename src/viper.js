@@ -203,7 +203,8 @@ export class Viper {
       changeOnTarget: false,
       div: null,
       bittenBy: null,
-      width: 686,
+      width: 1200,
+      height: 686,
       maxNumberOfLines: null,
       maxLen: null,
       strokeW: null,
@@ -223,15 +224,17 @@ export class Viper {
       wanderLoopDuration: 20,
       segmentsBeforeGifRevertsToLoop: 25,
       dither: false,
+      wanderRNG: null,
       ...overwriteOptions
     }
     let {
-      segmentsBeforeGifRevertsToLoop, seed,
+      segmentsBeforeGifRevertsToLoop, seed, wanderRNG,
       changeOnTarget, div, tokenId, bittenBy, setting, logs, style, backgroundStyle, pattern, wanderLoopDuration,
-      width, maxNumberOfLines, maxLen, strokeW, headWidth, tailLength, holeWidth, margin, angleDistanceMin,
+      width, height, maxNumberOfLines, maxLen, strokeW, headWidth, tailLength, holeWidth, margin, angleDistanceMin,
       fps, tweens, bgColor, hideHole, hideHead, hideTail, redrawBackground, hideSnake, dither
     } = options
 
+    this.wanderRNG = wanderRNG
     this.logs = logs
     this.log('constructor')
     this.logs && console.time("viper")
@@ -288,19 +291,20 @@ export class Viper {
 
 
     this.width = width
+    this.height = height
     this.maxNumberOfLines = maxNumberOfLines == null ? (this.tokenId % 100) + 2 : (maxNumberOfLines > 100 ? 100 : maxNumberOfLines) + 1
     this.wanderLoopDuration = wanderLoopDuration
 
     if (this.maxNumberOfLines > this.segmentsBeforeGifRevertsToLoop && this.setting == "server") {
       this.pattern = 'random'
     }
-    this.maxLen = maxLen || this.width * 0.14577259 // 100
+    this.maxLen = maxLen || 100//this.height * 0.14577259 // 100
     this.strokeLen =
-      this.strokeW = strokeW || this.width * 0.0728863 // 50
-    this.holeWidth = holeWidth || this.width * 0.20116618 // 138
-    this.headWidth = headWidth || this.width * 0.17492711 // 120
-    this.tailLength = tailLength || this.width * 0.17492711 // 100
-    this.margin = margin || this.width * 0.1//20116618 // 138
+      this.strokeW = strokeW || this.height * 0.0728863 // 50
+    this.holeWidth = holeWidth || this.height * 0.20116618 // 138
+    this.headWidth = headWidth || this.height * 0.17492711 // 120
+    this.tailLength = tailLength || this.height * 0.17492711 // 100
+    this.margin = margin || this.height * 0.1//20116618 // 138
     this.angleDistanceMin = angleDistanceMin
     this.fps = fps
     this.tweens = tweens
@@ -585,7 +589,7 @@ export class Viper {
     this.noStroke = p ? p.noStroke.bind(p) : window.noStroke
     this.clear = p ? p.clear.bind(p) : window.clear
 
-    this.canvas = this.createCanvas(this.width, this.width)
+    this.canvas = this.createCanvas(this.width, this.height)
 
     if (typeof document !== "undefined") {
       this.canvas.parent(this.div)
@@ -816,12 +820,13 @@ export class Viper {
         bgCanvas.noStroke()
         for (let i = 0; i < resolution; i++) {
           for (let j = 0; j < resolution; j++) {
-            let s = this.width / resolution;
-            let wx = i * s / this.width
-            let wy = j * s / this.width
+            let sx = this.width / resolution;
+            let sy = this.height / resolution;
+            let wx = i * sx / this.width
+            let wy = j * sy / this.height
             let c = weightedAvgColor(weightedAvgColor(colors[0], colors[1], wx), weightedAvgColor(colors[3], colors[2], wx), wy)
             bgCanvas.fill(c)
-            bgCanvas.rect(i * s, j * s, s, s)
+            bgCanvas.rect(i * sx, j * sy, sx, sy)
           }
         }
 
@@ -1480,6 +1485,7 @@ export class Viper {
     const previousX = this.x
     const previousY = this.y
     const previousAngle = this.previousAngle
+    // console.log({ previousX, previousY, previousAngle })
     const lineLength = this.maxLen // - this.strokeW
     const width = this.width
     const margin = this.margin
@@ -1489,11 +1495,15 @@ export class Viper {
     if (maxDifferenceBetweenAngles > 180) throw new Error('maxDifferenceBetweenAngles cannot be greater than 180')
 
     // get a random amount to change the angle by
-    var angleDelta = this.random(0, maxDifferenceBetweenAngles, this.localRNG || this.rng)
+    console.log(`this.wanderRNG`, this.wanderRNG)
+    var angleDelta = this.random(0, maxDifferenceBetweenAngles, this.wanderRNG || this.localRNG || this.rng)
+    console.log({ angleDelta })
     // this ensures that the search for a working angle doesn't always start by adding to the angle (turning clockwise)
-    if (angleDelta <= (maxDifferenceBetweenAngles / 2)) {
-      angleDelta = angleDelta * -1
-    }
+    // TODO: add back for zk viper race when it's fixed
+    // if (angleDelta <= (maxDifferenceBetweenAngles / 2)) {
+    //   angleDelta = angleDelta * -1
+    // }
+    // console.log({ angleDelta })
 
     // this ensures that if the first solution doesn't work, the next one isn't always the first solution through addition (turn clockwise)
     var isOddAdditionalRandom = 1
@@ -1501,6 +1511,7 @@ export class Viper {
     if (angleDelta % 2 == 0) {
       isOddAdditionalRandom = -1
     }
+    // console.log({ isOddAdditionalRandom })
 
     // keeping track of the failed attempts allows you to debug
     var failed = []
@@ -1531,17 +1542,31 @@ export class Viper {
       // third try should be the angleDelta - changeByAmount
       // fourth try should be the angleDelta + (2 * changeByAmount)
       var changeBy = angleDelta + (timesTried * changeByAmount) * -1 * addOrRemove
-
+      // console.log({ changeBy })
       // actually applying the change to the angle should also be randomly additional or subtractive
       var newAngle = previousAngle + (changeBy * isOddAdditionalRandom)
       newAngle = newAngle < 0 ? 360 + newAngle : (newAngle > 360 ? newAngle % 360 : newAngle)
-
+      // console.log({ newAngle })
       // check if the angle works with that distance
-      var newX = Math.floor(previousX + Math.cos(newAngle * Math.PI / 180) * (lineLength))
-      var newY = Math.floor(previousY + Math.sin(newAngle * Math.PI / 180) * (lineLength))
+      // console.log(`radian value is ${newAngle * Math.PI / 180}`)
+      // console.log(`Math.PI = ${Math.PI}`)
+      // console.log(`cos result of Math.cos(${newAngle})`, Math.cos(newAngle))
+      // console.log(`cos result of Math.cos(${newAngle} * Math.PI / 180)`, Math.cos(newAngle * Math.PI / 180))
 
+      // console.log(`sin result of Math.sin(${newAngle})`, Math.sin(newAngle))
+      // console.log(`sin result of Math.sin(${newAngle} * Math.PI / 180)`, Math.sin(newAngle * Math.PI / 180))
+      let cos = Math.cos(newAngle * Math.PI / 180)
+      // round cos to 2 decimals
+      cos = Math.round(cos * 100) / 100
+      let sin = Math.sin(newAngle * Math.PI / 180)
+      // round sin to 2 decimals
+      sin = Math.round(sin * 100) / 100
+      // console.log({ previousY, sin, lineLength })
+      var newX = Math.floor(previousX + cos * lineLength)
+      var newY = Math.floor(previousY + sin * lineLength)
+      console.log({ newX, newY })
       // if it does, return the new point
-      if (!outSideCanvas(newX, newY, this.width, this.margin, this.strokeW)) {
+      if (!outSideCanvas(newX, newY, this.width, this.height, this.margin, this.strokeW)) {
         return { x: newX, y: newY, tries: i + 1, angle: newAngle, failed }
       }
 
@@ -1873,9 +1898,9 @@ function rotateXY(cx, cy, x, y, angle) {
 
 
 
-function outSideCanvas(x, y, width, margin, bottomMargin) {
+function outSideCanvas(x, y, width, height, margin, bottomMargin) {
   // note, this doesn't account for the margin of the bottom
-  if (x < margin || x > width - margin || y < margin || y > width - bottomMargin) {
+  if (x < margin || x > width - margin || y < margin || y > height - bottomMargin) {
     return true
   }
   return false
