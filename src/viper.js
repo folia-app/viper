@@ -1495,7 +1495,7 @@ export class Viper {
     if (maxDifferenceBetweenAngles > 180) throw new Error('maxDifferenceBetweenAngles cannot be greater than 180')
 
     // get a random amount to change the angle by
-    console.log(`this.wanderRNG`, this.wanderRNG)
+    // console.log(`this.wanderRNG`, this.wanderRNG)
     var angleDelta = this.random(0, maxDifferenceBetweenAngles, this.wanderRNG || this.localRNG || this.rng)
     console.log({ angleDelta })
     // this ensures that the search for a working angle doesn't always start by adding to the angle (turning clockwise)
@@ -1542,26 +1542,40 @@ export class Viper {
       // third try should be the angleDelta - changeByAmount
       // fourth try should be the angleDelta + (2 * changeByAmount)
       var changeBy = angleDelta + (timesTried * changeByAmount) * -1 * addOrRemove
-      // console.log({ changeBy })
+      console.log({ changeBy })
       // actually applying the change to the angle should also be randomly additional or subtractive
       var newAngle = previousAngle + (changeBy * isOddAdditionalRandom)
+      console.log({ newAngleBefore: newAngle, isOddAdditionalRandom })
       newAngle = newAngle < 0 ? 360 + newAngle : (newAngle > 360 ? newAngle % 360 : newAngle)
-      // console.log({ newAngle })
+      console.log({ newAngle, previousAngle })
       // check if the angle works with that distance
       // console.log(`radian value is ${newAngle * Math.PI / 180}`)
       // console.log(`Math.PI = ${Math.PI}`)
-      // console.log(`cos result of Math.cos(${newAngle})`, Math.cos(newAngle))
-      // console.log(`cos result of Math.cos(${newAngle} * Math.PI / 180)`, Math.cos(newAngle * Math.PI / 180))
+      console.log(`cos result of Math.cos(${newAngle})`, Math.cos(newAngle))
+      console.log(`cos result of Math.cos(${newAngle} * Math.PI / 180)`, Math.cos(newAngle * Math.PI / 180))
 
-      // console.log(`sin result of Math.sin(${newAngle})`, Math.sin(newAngle))
-      // console.log(`sin result of Math.sin(${newAngle} * Math.PI / 180)`, Math.sin(newAngle * Math.PI / 180))
+      console.log(`sin result of Math.sin(${newAngle})`, Math.sin(newAngle))
+      console.log(`sin result of Math.sin(${newAngle} * Math.PI / 180)`, Math.sin(newAngle * Math.PI / 180))
       let cos = Math.cos(newAngle * Math.PI / 180)
+      console.log({ cos })
       // round cos to 2 decimals
-      cos = Math.round(cos * 100) / 100
+      // ensure rounding occurs same as circom
+      if (cos < 0) {
+        cos = Math.ceil(cos * 100) / 100
+      } else {
+        cos = Math.floor(cos * 100) / 100
+      }
       let sin = Math.sin(newAngle * Math.PI / 180)
       // round sin to 2 decimals
-      sin = Math.round(sin * 100) / 100
-      // console.log({ previousY, sin, lineLength })
+      // ensure rounding occurs same as circom
+      console.log({ sin })
+      if (sin < 0) {
+        sin = Math.ceil(sin * 100) / 100
+      } else {
+        sin = Math.floor(sin * 100) / 100
+      }
+      console.log({ previousX, cos, lineLength })
+      console.log({ previousY, sin, lineLength })
       var newX = Math.floor(previousX + cos * lineLength)
       var newY = Math.floor(previousY + sin * lineLength)
       console.log({ newX, newY })
