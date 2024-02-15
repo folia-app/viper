@@ -262,7 +262,7 @@ commander
       bitten = true;
       ({ length, originalTokenId, senderAddress } = extractBiteId(tokenIdParam));
       tokenId = originalTokenId.toNumber()
-      bittenBy = senderAddress.toHexString()
+      bittenBy = senderAddress
 
       // get ens name of address bittenBy
       bittenBy = await reverseLookup(bittenBy)

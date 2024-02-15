@@ -261,7 +261,7 @@ export class Viper {
       let { length, originalTokenId, senderAddress } = extractBiteId(this.tokenId);
       this.tokenId = originalTokenId.toNumber()
       bittenBy = ""
-      this.bittenByAddress = senderAddress.toHexString()
+      this.bittenByAddress = senderAddress
       // get ens name of address bittenBy
       console.log(this.bittenByAddress)
       reverseLookup(this.bittenByAddress).then((bittenBy) => {
