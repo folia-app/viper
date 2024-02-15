@@ -4,7 +4,7 @@
   "main": "dist/viper.js",
   "repository": "https://github.com/folia-app/viper",
   "author": "okwme",
-  "license": "MIT",
+  "license": "CC-NC-4.0",
   "bin": {
     "viper": "bin/viper-cli.js"
   },
