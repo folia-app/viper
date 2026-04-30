@@ -19,17 +19,14 @@ function extractBiteId(tokenId) {
 }
 
 async function reverseLookup(address) {
-  let name
+  const ensAPI = process.env.BOT_API || 'https://bot.trifle.life'
   try {
-    const provider = new ethers.providers.InfuraProvider(
-      "homestead",
-      "671d0acca9914d5b88ef05224f007fa2",
-    );
-    name = await provider.lookupAddress(address)
+    const response = await fetch(`${ensAPI}/ens/name?address=${address}&exact=true`)
+    const data = await response.json()
+    return data.name || address
   } catch (e) {
     return address
   }
-  return name || address
 }
 
 // export extractBiteId
