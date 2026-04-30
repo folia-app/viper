@@ -19,8 +19,8 @@ function extractBiteId(tokenId) {
 }
 
 async function reverseLookup(address) {
-  const ensAPI = process.env.BOT_API || 'https://bot.trifle.life'
   try {
+    const ensAPI = (typeof process !== 'undefined' && process.env && process.env.BOT_API) || 'https://bot.trifle.life'
     const response = await fetch(`${ensAPI}/ens/name?address=${address}&exact=true`)
     const data = await response.json()
     return data.name || address
